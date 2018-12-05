@@ -15,4 +15,4 @@ cat Big-O_Report.txt
 
 this project is MIT License
 
-ASTGeneration is modified from this [reporsitory](https://github.com/satnam-sandhu/ASTGenerator) by [satnam-sandhu](https://github.com/satnam-sandhu)
+ASTGeneration is modified from this [reporsitory](https://github.com/satnam-sandhu/ASTGenerator) by [dyhe83](https://github.com/dyhe83)
