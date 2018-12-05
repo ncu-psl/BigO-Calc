@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+}
+
+group 'JavaASTDecorator'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.github.javaparser:javaparser-core:3.6.22'
+    compile group: 'com.github.javaparser', name: 'javaparser-core-serialization', version: '3.6.18'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    manifest.attributes("Main-Class": "Main.Main")
+    from configurations.compile.collect { entry -> zipTree entry }
+}
+
+task run(type: Exec, dependsOn: build) {
+    executable 'java'
+    args '-jar', "$jar.archivePath"
+}
