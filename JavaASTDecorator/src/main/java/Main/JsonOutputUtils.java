@@ -31,7 +31,7 @@ public class JsonOutputUtils {
 	}
 
 	public static String toJson(BasicNode node) {
-		String json = new GsonBuilder().setPrettyPrinting().create().toJson(node, node.getClass());
+		String json = new GsonBuilder().setPrettyPrinting().create().toJson(node);
 		return json;
 	}
 
