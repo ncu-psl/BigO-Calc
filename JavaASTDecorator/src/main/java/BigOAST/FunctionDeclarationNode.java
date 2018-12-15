@@ -1,30 +1,21 @@
 package BigOAST;
 
-import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.MethodDeclaration;
 
-public class FunctionDeclarationNode extends BasicNode {
-	private String name;
-	private String parameter;
+public class FunctionDeclarationNode extends FunctionNode {
+	private static final long serialVersionUID = 0L;
+	private String parameters;
 
-	public FunctionDeclarationNode(Node node, String name, String parameter) {
-		super(node);
-		this.name = name;
-		this.parameter = parameter;
+	public FunctionDeclarationNode(MethodDeclaration node, String name, String parameters) {
+		super(FunctionDeclarationNode.class.getSimpleName(), node, name);
+		this.parameters = parameters;
 	}
 
-	public String getName() {
-		return name;
+	public String getParameters() {
+		return parameters;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getParameter() {
-		return parameter;
-	}
-
-	public void setParameter(String parameter) {
-		this.parameter = parameter;
+	public void setParameters(String parameters) {
+		this.parameters = parameters;
 	}
 }

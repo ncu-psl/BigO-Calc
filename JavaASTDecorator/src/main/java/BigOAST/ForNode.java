@@ -3,11 +3,12 @@ package BigOAST;
 import com.github.javaparser.ast.Node;
 
 public class ForNode extends BasicNode {
+	private static final long serialVersionUID = 0L;
 	private String variable;
 	private String init, terminal, update;
 
 	public ForNode(Node node, String variable, String init, String terminal, String update) {
-		super(node);
+		super(ForNode.class.getSimpleName(), node);
 		this.variable = variable;
 		this.init = init;
 		this.terminal = terminal;

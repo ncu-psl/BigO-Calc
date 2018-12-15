@@ -2,7 +2,6 @@ package ASTDecorator;
 
 import BigOAST.*;
 import Main.ForMultipleInitializationException;
-import Main.JsonOutputUtils;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -16,15 +15,15 @@ import java.util.Optional;
 
 public class ASTDecorator {
 
-	public void decorate(CompilationUnit jASTcu) {
-		BasicNode cu = new CompilationUnitNode(jASTcu);
+	public CompilationUnitNode decorate(CompilationUnit jASTcu) {
+		CompilationUnitNode cu = new CompilationUnitNode(jASTcu);
 		cu.setContent(jASTcu.toString());
 		try {
 			decorate(jASTcu, cu);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		JsonOutputUtils.toJson(cu, "./src/main/resources/big-o ast.json");
+		return cu;
 	}
 
 	private void decorate(Node jASTNode, BasicNode parentNode) throws ForMultipleInitializationException {

@@ -1,30 +1,21 @@
 package BigOAST;
 
-import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 
-public class FunctionCallNode extends BasicNode {
-	private String name;
-	private String parameter;
+public class FunctionCallNode extends FunctionNode {
+	private static final long serialVersionUID = 0L;
+	private String arguments;
 
-	public FunctionCallNode(Node node,String name, String parameter) {
-		super(node);
-		this.name = name;
-		this.parameter = parameter;
+	public FunctionCallNode(MethodCallExpr node, String name, String arguments) {
+		super(FunctionCallNode.class.getSimpleName(), node, name);
+		this.arguments = arguments;
 	}
 
-	public String getName() {
-		return name;
+	public String getArguments() {
+		return arguments;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getParameter() {
-		return parameter;
-	}
-
-	public void setParameter(String parameter) {
-		this.parameter = parameter;
+	public void setArguments(String arguments) {
+		this.arguments = arguments;
 	}
 }
