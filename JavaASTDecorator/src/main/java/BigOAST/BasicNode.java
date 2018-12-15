@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+public class BasicNode implements Serializable {
+	private static final long serialVersionUID = 0L;
 	private String _type, TimeComplexity = "";
 	private int lineNumber = 0, col = 0;
 	private String Content = "";

@@ -3,6 +3,7 @@ package BigOAST;
 import com.github.javaparser.ast.Node;
 
 public class FunctionCallNode extends BasicNode {
+	private static final long serialVersionUID = 0L;
 	private String name;
 	private String parameter;
 
