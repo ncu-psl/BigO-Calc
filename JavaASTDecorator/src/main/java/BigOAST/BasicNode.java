@@ -8,14 +8,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class BasicNode {
-	private int lineNumber = 0;
-	private int col = 0;
-	private String type = "";
+	private String _type, TimeComplexity = "";
+	private int lineNumber = 0, col = 0;
 	private String Content = "";
 	private List<BasicNode> children = new LinkedList<>();
 
 	public BasicNode(Node jASTNode) {
+		this._type = BasicNode.class.getSimpleName();
+		this.setContent(jASTNode.toString());
+		Optional<Position> position = jASTNode.getBegin();
+		if (position.isPresent()) {
+			this.setLineNumber(position.get().line);
+			this.setCol(position.get().column);
+		}
+	}
+
+	public BasicNode(String _type, Node jASTNode) {
+		this._type = _type;
 		this.setContent(jASTNode.toString());
 		Optional<Position> position = jASTNode.getBegin();
 		if (position.isPresent()) {
@@ -41,11 +50,11 @@ public class BasicNode {
 	}
 
 	public String getType() {
-		return type;
+		return _type;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setType(String _type) {
+		this._type = _type;
 	}
 
 	public String getContent() {

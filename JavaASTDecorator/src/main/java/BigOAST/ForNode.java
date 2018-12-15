@@ -7,7 +7,7 @@ public class ForNode extends BasicNode {
 	private String init, terminal, update;
 
 	public ForNode(Node node, String variable, String init, String terminal, String update) {
-		super(node);
+		super(ForNode.class.getSimpleName(), node);
 		this.variable = variable;
 		this.init = init;
 		this.terminal = terminal;

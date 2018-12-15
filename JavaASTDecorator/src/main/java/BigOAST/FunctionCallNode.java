@@ -6,8 +6,8 @@ public class FunctionCallNode extends BasicNode {
 	private String name;
 	private String parameter;
 
-	public FunctionCallNode(Node node,String name, String parameter) {
-		super(node);
+	public FunctionCallNode(Node node, String name, String parameter) {
+		super(FunctionCallNode.class.getSimpleName(), node);
 		this.name = name;
 		this.parameter = parameter;
 	}

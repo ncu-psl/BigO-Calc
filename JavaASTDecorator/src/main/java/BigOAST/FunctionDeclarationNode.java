@@ -7,7 +7,7 @@ public class FunctionDeclarationNode extends BasicNode {
 	private String parameter;
 
 	public FunctionDeclarationNode(Node node, String name, String parameter) {
-		super(node);
+		super(FunctionDeclarationNode.class.getSimpleName(), node);
 		this.name = name;
 		this.parameter = parameter;
 	}

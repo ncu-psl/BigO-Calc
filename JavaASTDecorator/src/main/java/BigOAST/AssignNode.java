@@ -7,7 +7,7 @@ public class AssignNode extends BasicNode {
 	private BasicNode rightNode;
 
 	public AssignNode(Node jASTNode, BasicNode leftNode, BasicNode rightNode) {
-		super(jASTNode);
+		super(AssignNode.class.getSimpleName(), jASTNode);
 		this.setLeftNode(leftNode);
 		this.setRightNode(rightNode);
 	}

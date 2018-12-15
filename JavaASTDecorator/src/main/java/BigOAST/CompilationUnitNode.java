@@ -4,6 +4,6 @@ import com.github.javaparser.ast.Node;
 
 public class CompilationUnitNode extends BasicNode {
 	public CompilationUnitNode(Node jASTNode) {
-		super(jASTNode);
+		super(CompilationUnitNode.class.getSimpleName(), jASTNode);
 	}
 }
