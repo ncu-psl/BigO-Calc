@@ -1,6 +1,6 @@
 import json
 
-from pycparser.c_ast import FuncCall
+from pycparser.c_ast import FuncCall, Constant, ID
 
 from BigOAST.basic_node import BasicNode
 
@@ -11,7 +11,13 @@ class FuncCallNode(BasicNode):
 
         self.name = func_call.name.name
 
-        self.parameter = ' '.join(str(x) for x in func_call.args or [])
+        self.parameter = []
+        if func_call.args:
+            for param in func_call.args.exprs:
+                if isinstance(param, Constant):
+                    self.parameter.append(param.value)
+                elif isinstance(param, ID):
+                    self.parameter.append(param.name)
 
         pass
 
