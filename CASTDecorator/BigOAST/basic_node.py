@@ -27,17 +27,3 @@ class BasicNode(object):
     def toJSON(self):
         self.parent = None
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-    def to_json(self):
-        child_json_str = ''
-
-        # for child in self.children: child_json_str = child_json_str + str(child.to_json())
-        d = {
-            'time_complexity': self.time_complexity,
-            'col': self.col,
-            'line_number': self.line_number,
-            'children': child_json_str
-        }
-        d.update(vars(self))
-
-        return d
