@@ -27,29 +27,6 @@ def clean_parent(cu: CompilationUnitNode):
     pass
 
 
-def check_recursion(cu: CompilationUnitNode):
-    set_parent(bigo_ast)
-
-    que = [cu, ]
-
-    while que:
-        node = que.pop(0)
-        if isinstance(node, FuncCallNode):
-            parent = node.parent
-            while parent:
-                if isinstance(parent, FuncDeclNode):
-                    if node.name == parent.name:
-                        parent.recursive = True
-                        break
-                parent = parent.parent
-        for child in node.children:
-            que.append(child)
-
-    clean_parent(bigo_ast)
-
-    pass
-
-
 def main():
     ast = ASTGenerator().generate('test/FullTest.c')
 
