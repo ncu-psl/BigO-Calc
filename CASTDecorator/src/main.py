@@ -50,12 +50,10 @@ def check_recursion(cu: CompilationUnitNode):
     pass
 
 
-if __name__ == "__main__":
+def main():
     ast = ASTGenerator().generate('test/FullTest.c')
 
     bigo_ast = Decorator().decorate(ast)
-
-    check_recursion(bigo_ast)
 
     print(bigo_ast.toJSON())
 
@@ -63,4 +61,7 @@ if __name__ == "__main__":
     f.write(bigo_ast.toJSON())
     f.close()
 
-pass
+    pass
+
+
+main()
