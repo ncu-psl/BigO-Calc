@@ -27,7 +27,7 @@ def clean_parent(cu: CompilationUnitNode):
     pass
 
 
-def check_parent(cu: CompilationUnitNode):
+def check_recursion(cu: CompilationUnitNode):
     set_parent(bigo_ast)
 
     que = [cu, ]
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     bigo_ast = Decorator().decorate(ast)
 
-    check_parent(bigo_ast)
+    check_recursion(bigo_ast)
 
     print(bigo_ast.toJSON())
 
