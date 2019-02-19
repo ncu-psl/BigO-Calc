@@ -39,8 +39,7 @@ def check_recursion(cu: CompilationUnitNode):
             while parent:
                 if isinstance(parent, FuncDeclNode):
                     if node.name == parent.name:
-                        node.is_recursion_call = True
-                        parent.is_recursion_func = True
+                        parent.recursive = True
                         break
                 parent = parent.parent
         for child in node.children:

@@ -12,7 +12,6 @@ class FuncCallNode(BasicNode):
         self.name = func_call.name.name
 
         self.parameter = ' '.join(str(x) for x in func_call.args or [])
-        self.is_recursive_call = False
 
         pass
 

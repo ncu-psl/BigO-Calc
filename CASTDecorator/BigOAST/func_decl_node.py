@@ -10,7 +10,7 @@ class FuncDeclNode(BasicNode):
         super().__init__(func_decl)
 
         self.name = func_decl.decl.name
-        self.is_recursive_func = False
+        self.recursive = False
         self.parameter = []
         if func_decl.decl.type.args:
             param_list = func_decl.decl.type.args.params
