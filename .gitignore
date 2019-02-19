@@ -67,6 +67,7 @@ cmake-build-*/
 
 # IntelliJ
 out/
+*.iml
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -113,4 +114,4 @@ gradle-app.setting
 # ABOAT
 *.dot
 *.json
-
+*.ser
