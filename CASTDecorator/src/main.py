@@ -1,7 +1,7 @@
 from BigOAST.compilation_unit_node import CompilationUnitNode
 from BigOAST.func_call_node import FuncCallNode
 from BigOAST.func_decl_node import FuncDeclNode
-from decorate_visitor import Decorator
+from src.decorate_visitor import Decorator
 from src.ast_generator import ASTGenerator
 
 
