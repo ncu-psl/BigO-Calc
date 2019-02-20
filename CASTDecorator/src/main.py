@@ -7,10 +7,10 @@ def main():
 
     bigo_ast = Decorator().decorate(ast)
 
-    print(bigo_ast.toJSON())
+    print(bigo_ast.to_json())
 
     f = open("test/big-o ast.json", "w")
-    f.write(bigo_ast.toJSON())
+    f.write(bigo_ast.to_json())
     f.close()
 
     pass

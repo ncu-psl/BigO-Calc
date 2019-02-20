@@ -1,5 +1,3 @@
-import json
-
 from pycparser.c_ast import FuncDef
 
 from BigOAST.basic_node import BasicNode
@@ -10,8 +8,9 @@ class FuncDeclNode(BasicNode):
     def __init__(self, func_decl: FuncDef):
         super().__init__(func_decl)
 
-        self.name = func_decl.decl.name
         self.recursive = False
+        self.name = func_decl.decl.name
+
         self.parameter = []
         if func_decl.decl.type.args:
             param_list = func_decl.decl.type.args.params
@@ -33,6 +32,10 @@ class FuncDeclNode(BasicNode):
                 que.append(child)
 
         pass
+    def to_dect(self):
+        d = super().to_dect()
+        d.update({'recursive': self.recursive})
+        d.update({'name': self.name})
+        d.update({'parameter': self.parameter})
 
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        return d

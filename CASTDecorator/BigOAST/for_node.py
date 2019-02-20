@@ -1,5 +1,3 @@
-import json
-
 from pycparser.c_ast import For
 
 from BigOAST.basic_node import BasicNode
@@ -21,5 +19,10 @@ class ForNode(BasicNode):
 
         pass
 
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def to_dect(self):
+        d = super().to_dect()
+        d.update({'init': self.init})
+        d.update({'terminal': self.term})
+        d.update({'update': self.next})
+
+        return d

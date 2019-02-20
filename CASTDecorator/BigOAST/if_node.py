@@ -1,5 +1,3 @@
-import json
-
 from pycparser.c_ast import If
 
 from BigOAST.basic_node import BasicNode
@@ -13,5 +11,8 @@ class IfNode(BasicNode):
 
         pass
 
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def to_dect(self):
+        d = super().to_dect()
+        d.update({'condtion': self.condtion})
+
+        return d

@@ -24,6 +24,19 @@ class BasicNode(object):
 
         pass
 
-    def toJSON(self):
-        self.parent = None
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def to_dect(self):
+        d = {'time_complexity': self.time_complexity,
+             'col': self.col,
+             'line_number': self.line_number,
+             'self.parent': None}
+
+        children_list = []
+        for child in self.children:
+            children_list.append(child.to_dect())
+
+        d.update({'children': children_list})
+
+        return d
+
+    def to_json(self):
+        return json.dumps(self.to_dect(), indent=4, sort_keys=True)
