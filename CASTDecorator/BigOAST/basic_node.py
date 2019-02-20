@@ -15,7 +15,7 @@ class BasicNode(object):
         if node is None:
             return
 
-        if not issubclass(node.__class__, Node) or node is Node:
+        if type(node) == Node or not issubclass(node.__class__, Node):
             raise Exception("Should init with a subclass of pycparser.c_ast.Node")
 
         if node.coord:
