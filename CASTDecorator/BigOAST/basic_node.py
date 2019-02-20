@@ -34,7 +34,7 @@ class BasicNode(object):
         d = {'time_complexity': self.time_complexity,
              'col': self.col,
              'line_number': self.line_number,
-             'self.parent': None}
+             'parent': None}
 
         children_list = []
         for child in self.children:
