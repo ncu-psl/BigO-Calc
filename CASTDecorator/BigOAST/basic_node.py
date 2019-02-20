@@ -24,6 +24,12 @@ class BasicNode(object):
 
         pass
 
+    def add_parent_to_children(self):
+        for child in self.children:
+            child.parent = self
+            child.add_parent_to_children()
+        pass
+
     def to_dect(self):
         d = {'time_complexity': self.time_complexity,
              'col': self.col,
