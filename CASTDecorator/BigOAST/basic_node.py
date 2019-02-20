@@ -31,7 +31,8 @@ class BasicNode(object):
         pass
 
     def to_dect(self):
-        d = {'time_complexity': self.time_complexity,
+        d = {'_type': self._type,
+             'time_complexity': self.time_complexity,
              'col': self.col,
              'line_number': self.line_number,
              'parent': None}
