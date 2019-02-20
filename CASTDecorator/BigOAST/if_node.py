@@ -4,15 +4,20 @@ from BigOAST.basic_node import BasicNode
 
 
 class IfNode(BasicNode):
-    def __init__(self, if_node: If):
+    def __init__(self, if_node: If = None):
         super().__init__(if_node)
 
-        self.condtion = ' '.join(str(x) for x in if_node.cond or [])
+        self.condition = ''
+
+        if if_node is None:
+            return
+
+        self.condition = ' '.join(str(x) for x in if_node.cond or [])
 
         pass
 
     def to_dect(self):
         d = super().to_dect()
-        d.update({'condtion': self.condtion})
+        d.update({'condition': self.condition})
 
         return d

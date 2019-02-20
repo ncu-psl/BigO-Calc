@@ -4,12 +4,16 @@ from BigOAST.basic_node import BasicNode
 
 
 class FuncCallNode(BasicNode):
-    def __init__(self, func_call: FuncCall):
+    def __init__(self, func_call: FuncCall = None):
         super().__init__(func_call)
 
-        self.name = func_call.name.name
-
+        self.name = ''
         self.parameter = []
+
+        if func_call is None:
+            return
+
+        self.name = func_call.name.name
         if func_call.args:
             for param in func_call.args.exprs:
                 if isinstance(param, Constant):

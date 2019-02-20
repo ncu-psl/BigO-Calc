@@ -5,13 +5,17 @@ from BigOAST.func_call_node import FuncCallNode
 
 
 class FuncDeclNode(BasicNode):
-    def __init__(self, func_decl: FuncDef):
+    def __init__(self, func_decl: FuncDef = None):
         super().__init__(func_decl)
 
         self.recursive = False
-        self.name = func_decl.decl.name
-
+        self.name = ''
         self.parameter = []
+
+        if func_decl is None:
+            return
+
+        self.name = func_decl.decl.name
         if func_decl.decl.type.args:
             param_list = func_decl.decl.type.args.params
             for param in param_list:
