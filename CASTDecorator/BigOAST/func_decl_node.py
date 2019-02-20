@@ -19,7 +19,7 @@ class FuncDeclNode(BasicNode):
 
         pass
 
-    def check_recursion(self):
+    def determine_recursion(self):
         que = [self]
 
         while que:
@@ -31,7 +31,8 @@ class FuncDeclNode(BasicNode):
             for child in node.children:
                 que.append(child)
 
-        pass
+        return self.recursive
+
     def to_dect(self):
         d = super().to_dect()
         d.update({'recursive': self.recursive})
