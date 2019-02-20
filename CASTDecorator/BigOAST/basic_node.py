@@ -24,6 +24,10 @@ class BasicNode(object):
 
         pass
 
+    def __iter__(self):
+        for child in self.children:
+            yield child
+
     def add_parent_to_children(self):
         for child in self.children:
             child.parent = self
