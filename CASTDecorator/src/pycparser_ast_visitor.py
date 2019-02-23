@@ -7,7 +7,7 @@ from BigOAST.func_call_node import FuncCallNode
 from BigOAST.func_decl_node import FuncDeclNode
 
 
-class Decorator(NodeVisitor):
+class PycparserAstVisitor(NodeVisitor):
     def __init__(self):
         self.parent = BasicNode()
         self.cu = None
@@ -68,7 +68,7 @@ class Decorator(NodeVisitor):
 
         pass
 
-    def decorate(self, ast: FileAST):
-        self.visit(ast)
-
+    def visit(self, node):
+        super().visit(node)
         return self.cu
+        pass
