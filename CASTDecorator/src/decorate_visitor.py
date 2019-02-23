@@ -54,8 +54,16 @@ class Decorator(NodeVisitor):
         for_node = ForNode(node)
         self.parent.children.append(for_node)
 
+        self.parent = for_node
+        if node.init is not None:
+            self.visit(node.init)
+        if node.next is not None:
+            self.visit(node.next)
+        if node.cond is not None:
+            self.visit(node.cond)
+        if node.stmt is not None:
+            self.visit(node.stmt.block_items)
         for child in node.stmt.block_items:
-            self.parent = for_node
             self.visit(child)
 
         pass
