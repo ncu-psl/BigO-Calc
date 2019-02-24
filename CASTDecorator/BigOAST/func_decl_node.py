@@ -1,25 +1,16 @@
-from pycparser.c_ast import FuncDef
-
 from BigOAST.basic_node import BasicNode
 from BigOAST.func_call_node import FuncCallNode
 
 
 class FuncDeclNode(BasicNode):
-    def __init__(self, func_decl: FuncDef = None):
-        super().__init__(func_decl)
+    #__slots__ = ["time_complexity", "children", "col", "line_number", "parent", "_type", "recursive", "name", "parameter"]
+
+    def __init__(self, basic: BasicNode):
+        super().__init__()
 
         self.recursive = False
         self.name = ''
         self.parameter = []
-
-        if func_decl is None:
-            return
-
-        self.name = func_decl.decl.name
-        if func_decl.decl.type.args:
-            param_list = func_decl.decl.type.args.params
-            for param in param_list:
-                self.parameter.append(param.type.type.names[0] + ' ' + param.name)
 
         pass
 

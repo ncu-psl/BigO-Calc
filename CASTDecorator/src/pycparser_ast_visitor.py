@@ -1,10 +1,10 @@
 from pycparser.c_ast import NodeVisitor, FuncCall, FuncDef, For, FileAST
 
 from BigOAST.basic_node import BasicNode
-from BigOAST.compilation_unit_node import CompilationUnitNode
 from BigOAST.for_node import ForNode
 from BigOAST.func_call_node import FuncCallNode
 from BigOAST.func_decl_node import FuncDeclNode
+from Decorator.ast_decoraor import Decorator, FuncDefDecorator
 
 
 class PycparserAstVisitor(NodeVisitor):
@@ -15,7 +15,7 @@ class PycparserAstVisitor(NodeVisitor):
         pass
 
     def visit_FileAST(self, file_ast: FileAST):
-        self.cu = CompilationUnitNode(file_ast)
+        self.cu = Decorator().decorate(file_ast)  # CompilationUnitNode(file_ast)
         self.parent = self.cu
 
         for child in file_ast.ext:
@@ -25,7 +25,7 @@ class PycparserAstVisitor(NodeVisitor):
         pass
 
     def visit_FuncDef(self, func_def: FuncDef):
-        func_decl_node = FuncDeclNode(func_def)
+        func_decl_node = Decorator().decorate_func_def(func_def)
         self.parent.children.append(func_decl_node)
 
         for child in func_def.body.block_items:
@@ -51,7 +51,7 @@ class PycparserAstVisitor(NodeVisitor):
     #     pass
 
     def visit_For(self, node: For):
-        for_node = ForNode(node)
+        for_node = ForNode()
         self.parent.children.append(for_node)
 
         self.parent = for_node

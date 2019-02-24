@@ -5,7 +5,7 @@ from BigOAST.basic_node import BasicNode
 
 class FuncCallNode(BasicNode):
     def __init__(self, func_call: FuncCall = None):
-        super().__init__(func_call)
+        super().__init__()
 
         self.name = ''
         self.parameter = []
