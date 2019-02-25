@@ -1,4 +1,4 @@
-import pycparser as pycparser
+import pycparser
 from pycparser.c_ast import FileAST
 
 

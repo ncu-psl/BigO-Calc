@@ -1,11 +1,11 @@
-from src.ast_generator import ASTGenerator
-from src.pycparser_ast_visitor import PycparserAstVisitor
+from src.ast_generator.ast_generator import ASTGenerator
+from src.ast_decorator.decorate_visitor import DecorateVisitor
 
 
 def main():
     ast = ASTGenerator().generate('examples/FullTest.c')
 
-    bigo_ast = PycparserAstVisitor().visit(ast)
+    bigo_ast = DecorateVisitor().visit(ast)
 
     print(bigo_ast.to_json())
 
