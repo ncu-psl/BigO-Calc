@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public class BasicNode implements Serializable {
 	private static final long serialVersionUID = 0L;
-	private String _type, TimeComplexity = "";
-	private int lineNumber = 0, col = 0;
-	private String Content = "";
+	private String _type, time_complexity = "";
+	private int line_number = 0, col = 0;
+	private String content = "";
 	private List<BasicNode> children = new LinkedList<>();
 
 	public BasicNode(Node jASTNode) {
@@ -20,7 +20,7 @@ public class BasicNode implements Serializable {
 		this.setContent(jASTNode.toString());
 		Optional<Position> position = jASTNode.getBegin();
 		if (position.isPresent()) {
-			this.setLineNumber(position.get().line);
+			this.setLine_number(position.get().line);
 			this.setCol(position.get().column);
 		}
 	}
@@ -30,17 +30,17 @@ public class BasicNode implements Serializable {
 		this.setContent(jASTNode.toString());
 		Optional<Position> position = jASTNode.getBegin();
 		if (position.isPresent()) {
-			this.setLineNumber(position.get().line);
+			this.setLine_number(position.get().line);
 			this.setCol(position.get().column);
 		}
 	}
 
-	public int getLineNumber() {
-		return lineNumber;
+	public int getLine_number() {
+		return line_number;
 	}
 
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
+	public void setLine_number(int line_number) {
+		this.line_number = line_number;
 	}
 
 	public int getCol() {
@@ -60,11 +60,11 @@ public class BasicNode implements Serializable {
 	}
 
 	public String getContent() {
-		return Content;
+		return content;
 	}
 
 	public void setContent(String content) {
-		Content = content;
+		this.content = content;
 	}
 
 	public List<BasicNode> getChildren() {
