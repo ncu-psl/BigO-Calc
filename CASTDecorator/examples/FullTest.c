@@ -34,6 +34,16 @@ int calc_odd_sum(int n) {
 	return sum;
 }
 
+int nested_loop(int n) {
+	int i, j;
+	int a[100][100];
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			a[i][j] = i * j;
+		}
+	}
+}
+
 int factorial(int n) {
 	if (n <= 1)
 		return 1;
@@ -41,7 +51,7 @@ int factorial(int n) {
 }
 
 int main() {
-	int n;
+	int n = 5;
 	hello_world();
 	is_odd(n);
 	calc_sum(n);

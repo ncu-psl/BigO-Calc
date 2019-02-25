@@ -1,63 +1,19 @@
-from BigOAST.compilation_unit_node import CompilationUnitNode
-from BigOAST.func_call_node import FuncCallNode
-from BigOAST.func_decl_node import FuncDeclNode
-from src.decorate_visitor import Decorator
-from src.ast_generator import ASTGenerator
+from src.ast_generator.ast_generator import ASTGenerator
+from src.ast_decorator.decorate_visitor import DecorateVisitor
 
 
-def set_parent(cu: CompilationUnitNode):
-    que = [cu, ]
-    while que:
-        node = que.pop(0)
-        for child in node.children:
-            child.parent = node
-            que.append(child)
+def main():
+    ast = ASTGenerator().generate('examples/FullTest.c')
 
-    pass
+    bigo_ast = DecorateVisitor().visit(ast)
 
+    print(bigo_ast.to_json())
 
-def clean_parent(cu: CompilationUnitNode):
-    que = [cu, ]
-    while que:
-        node = que.pop(0)
-        for child in node.children:
-            child.parent = None
-            que.append(child)
+    f = open("examples/big-o ast.json", "w")
+    f.write(bigo_ast.to_json())
+    f.close()
 
     pass
 
 
-def check_parent(cu: CompilationUnitNode):
-    set_parent(bigo_ast)
-
-    que = [cu, ]
-
-    while que:
-        node = que.pop(0)
-        if isinstance(node, FuncCallNode):
-            parent = node.parent
-            while parent:
-                if isinstance(parent, FuncDeclNode):
-                    if node.name == parent.name:
-                        node.is_recursion_call = True
-                        parent.is_recursion_func = True
-                        break
-                parent = parent.parent
-        for child in node.children:
-            que.append(child)
-
-    clean_parent(bigo_ast)
-
-    pass
-
-
-if __name__ == "__main__":
-    ast = ASTGenerator().generate('test/FullTest.c')
-
-    bigo_ast = Decorator().decorate(ast)
-
-    check_parent(bigo_ast)
-
-    print(bigo_ast.toJSON())
-
-pass
+main()
