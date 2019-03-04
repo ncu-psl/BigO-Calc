@@ -1,4 +1,4 @@
-from BigOAst.BigOAST import BasicNode
+from BigOAST.BigOAST import BasicNode
 
 
 class BigOAstVisitor(object):
