@@ -36,7 +36,7 @@ class FileAstDecorator(Decorator):
         basic_node = super().decorate(file_ast)
 
         cu = CompilationUnitNode()
-        cu.set_info(basic_node)
+        cu.copy_node_info_from(basic_node)
 
         return cu
 
@@ -51,7 +51,7 @@ class FuncDefDecorator(Decorator):
         basic_node = super().decorate(func_def)
 
         func_decl = FuncDeclNode()
-        func_decl.set_info(basic_node)
+        func_decl.copy_node_info_from(basic_node)
         func_decl.name = func_def.decl.name
         if func_def.decl.type.args:
             param_list = func_def.decl.type.args.params
@@ -71,7 +71,7 @@ class FuncCallDecorator(Decorator):
         basic_node = super().decorate(py_func_call)
 
         func_call = FuncCallNode()
-        func_call.set_info(basic_node)
+        func_call.copy_node_info_from(basic_node)
         func_call.name = py_func_call.name.name
         if py_func_call.args:
             for param in py_func_call.args.exprs:
@@ -93,7 +93,7 @@ class ForDecorator(Decorator):
         basic_node = super().decorate(pyc_for)
 
         for_node = ForNode()
-        for_node.set_info(basic_node)
+        for_node.copy_node_info_from(basic_node)
         for_node.init = pyc_for.init.lvalue.name + pyc_for.init.op + pyc_for.init.rvalue.value
         for_node.term = pyc_for.cond.left.name + pyc_for.cond.op + pyc_for.cond.right.name
         for_node.next = pyc_for.next.expr.name + pyc_for.next.op[1:]
