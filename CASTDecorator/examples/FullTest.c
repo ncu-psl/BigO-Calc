@@ -55,5 +55,7 @@ int main() {
 	hello_world();
 	is_odd(n);
 	calc_sum(n);
+	calc_odd_sum(n);
+	nested_loop(n);
 	factorial(n);
 }

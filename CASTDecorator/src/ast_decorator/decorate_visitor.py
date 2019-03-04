@@ -1,6 +1,6 @@
 from pycparser.c_ast import NodeVisitor, FileAST, FuncDef, FuncCall, For
 
-from src.ast_decorator.ast_node_decorator import FuncDefDecorator, ForDecorator, FuncCallDecorator, FileAstDecorator
+from CASTDecorator.src.ast_decorator.ast_node_decorator import FuncDefDecorator, ForDecorator, FuncCallDecorator, FileAstDecorator
 
 
 class DecorateVisitor(NodeVisitor):
@@ -59,8 +59,6 @@ class DecorateVisitor(NodeVisitor):
             self.visit(pyc_for.cond)
         if pyc_for.stmt is not None:
             self.visit(pyc_for.stmt.block_items)
-        for child in pyc_for.stmt.block_items:
-            self.visit(child)
 
         pass
 

@@ -1,7 +1,7 @@
 import json
 from unittest import TestCase
 
-from BigOAst.BigOAST import BasicNode
+from BigOAST.BigOAST import BasicNode
 
 
 class TestBasicNode(TestCase):
