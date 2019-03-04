@@ -1,6 +1,6 @@
 from pycparser.c_ast import NodeVisitor, FileAST, FuncDef, FuncCall, For
 
-from src.ast_decorator.ast_node_decorator import FuncDefDecorator, ForDecorator, FuncCallDecorator, FileAstDecorator
+from CASTDecorator.src.ast_decorator.ast_node_decorator import FuncDefDecorator, ForDecorator, FuncCallDecorator, FileAstDecorator
 
 
 class DecorateVisitor(NodeVisitor):
