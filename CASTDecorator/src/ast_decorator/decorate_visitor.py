@@ -59,8 +59,6 @@ class DecorateVisitor(NodeVisitor):
             self.visit(pyc_for.cond)
         if pyc_for.stmt is not None:
             self.visit(pyc_for.stmt.block_items)
-        for child in pyc_for.stmt.block_items:
-            self.visit(child)
 
         pass
 
