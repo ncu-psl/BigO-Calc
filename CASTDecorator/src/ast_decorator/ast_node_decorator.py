@@ -94,8 +94,10 @@ class ForDecorator(Decorator):
 
         for_node = ForNode()
         for_node.copy_node_info_from(basic_node)
-        for_node.init = pyc_for.init.lvalue.name + pyc_for.init.op + pyc_for.init.rvalue.value
-        for_node.term = pyc_for.cond.left.name + pyc_for.cond.op + pyc_for.cond.right.name
-        for_node.next = pyc_for.next.expr.name + pyc_for.next.op[1:]
+
+        for_node.variable = pyc_for.init.lvalue.name
+        for_node.init = pyc_for.init.rvalue.value
+        for_node.term = pyc_for.cond.right.name
+        for_node.next = pyc_for.next.op[1:]
 
         return for_node

@@ -139,6 +139,7 @@ class ForNode(BasicNode):
         # self.term = ' '.join(str(x) for x in for_node.cond or [])
         # self.next = ' '.join(str(x) for x in for_node.next or [])
 
+        self.variable = None
         self.init = None
         self.term = None
         self.next = None
