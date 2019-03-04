@@ -3,8 +3,11 @@ from BigOAst.BigOAST import BasicNode
 
 class BigOAstVisitor(object):
     _method_cache = None
+    root = BasicNode()
 
-    def visit(self, node: BasicNode):
+    def visit(self, node: BasicNode = None):
+        if node is None:
+            node = self.root
 
         if self._method_cache is None:
             self._method_cache = {}
