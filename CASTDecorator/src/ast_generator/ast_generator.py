@@ -1,3 +1,5 @@
+import os
+
 import pycparser
 from pycparser.c_ast import FileAST
 
@@ -7,6 +9,8 @@ class ASTGenerator(object):
         pass
 
     def generate(self, filename: str) -> FileAST:
+        if not os.path.isfile(filename):
+            raise FileNotFoundError
         ast = pycparser.parse_file(filename,
                                    use_cpp=True,
                                    cpp_path='cpp',
