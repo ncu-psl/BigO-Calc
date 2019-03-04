@@ -17,6 +17,6 @@ class BigOAstVisitor(object):
 
         return visitor(node)
 
-    def generic_visit(self, node):
-        for c in node:
+    def generic_visit(self, node: BasicNode):
+        for c in node.children:
             self.visit(c)
