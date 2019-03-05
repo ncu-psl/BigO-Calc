@@ -1,6 +1,6 @@
 from pycparser.c_ast import Node, For, FileAST, Constant, ID
 
-from BigOAST.BigOAST import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode
+from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode
 
 
 class Decorator(object):

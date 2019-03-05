@@ -1,5 +1,5 @@
-from BigOAST.BigOAST import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode
-from BigOAST.bigo_ast_visitor import BigOAstVisitor
+from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode
+from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
 
 class BigOEvaluator(BigOAstVisitor):
