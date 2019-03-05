@@ -1,7 +1,7 @@
 from javalang.ast import Node
 from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration
 
-from java_ast_decorator.ast_decorator.javalang_decorator import CompilationUnitDecorator, MethodInvokeDecorator, \
+from ast_decorator.java.javalang_decorator import CompilationUnitDecorator, MethodInvokeDecorator, \
     MethodDeclDecorator, ForControlDecorator
 from javalang_node_visitor import NodeVisitor
 

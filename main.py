@@ -1,13 +1,13 @@
 from bigo_calculator.bigo_evaluator import BigOEvaluator
-from java_ast_decorator.ast_decorator.decorate_visitor import DecorateVisitor
-from java_ast_decorator.ast_generator.ast_generator import ASTGenerator
+from ast_decorator.java.ast_generator import ASTGenerator
+from ast_decorator.java.decorate_visitor import DecorateVisitor
 
 
 def main():
-    # source_file_name = 'c_ast_decorator/examples/FullTest.c'
-    # bigo_ast_file_name = 'c_ast_decorator/examples/big-o ast.json'
-    source_file_name = 'java_ast_decorator/examples/FullTest.java'
-    bigo_ast_file_name = 'java_ast_decorator/examples/big-o ast.json'
+    # source_file_name = 'examples/FullTest.c'
+    # bigo_ast_file_name = 'examples/big-o ast.json'
+    source_file_name = 'examples/FullTest.java'
+    bigo_ast_file_name = 'examples/big-o ast.json'
 
     # C frontend
     # ast = ASTGenerator().generate(source_file_name)
