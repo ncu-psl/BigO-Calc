@@ -14,6 +14,6 @@ class ASTGenerator(object):
         ast = pycparser.parse_file(filename,
                                    use_cpp=True,
                                    cpp_path='cpp',
-                                   cpp_args=r'-Ic_ast_decorator/utils/fake_libc_include')
+                                   cpp_args=r'-Ipycparser/utils/fake_libc_include')
 
         return ast
