@@ -9,16 +9,10 @@ class BigOEvaluator(BigOAstVisitor):
         pass
 
     def eval(self):
-        ForEvaluator(self.root).visit()
-        FuncDeclEvaluator(self.root).visit()
-        FuncCallEvaluator(self.root).visit()
-
         super().visit()
+        FuncDeclEvaluator(self.root).visit()
 
         pass
-
-
-class ForEvaluator(BigOEvaluator):
 
     def visit_ForNode(self, for_node: ForNode):
         init_value = for_node.init
@@ -37,10 +31,18 @@ class ForEvaluator(BigOEvaluator):
         elif update == '--':
             for_node.time_complexity = '(' + big + '-' + small + ')' + '/1'
         elif update == '/2':
-            pass
+            raise Exception("can not handle log")
 
         for child in for_node.children:
             super().visit(child)
+
+        pass
+
+    def visit_FuncCallNode(self, func_call: FuncCallNode):
+        for func_decl in self.root.children:
+            if func_call.name == func_decl.name:
+                func_call.time_complexity = func_decl.name
+                break
 
         pass
 
@@ -49,22 +51,10 @@ class FuncDeclEvaluator(BigOEvaluator):
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         for child in func_decl_node.children:
-            func_decl_node.time_complexity += child.time_complexity
+            func_decl_node.time_complexity += child.time_complexity + '+'
+        func_decl_node.time_complexity = func_decl_node.time_complexity[:-1]
 
         for child in func_decl_node.children:
             super().visit(child)
-
-        pass
-
-
-class FuncCallEvaluator(BigOEvaluator):
-
-    def visit_FuncCallNode(self, func_call: FuncCallNode):
-        for func_decl in self.root.children:
-            if func_call.name == func_decl.name:
-                if not func_decl.time_complexity:
-                    FuncDeclEvaluator(self.root).visit(func_decl)
-                func_call.time_complexity = func_decl.time_complexity
-                break
 
         pass
