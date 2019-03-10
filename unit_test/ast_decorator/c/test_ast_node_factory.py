@@ -2,33 +2,33 @@ from unittest import TestCase
 
 from pycparser.c_ast import Node, FileAST, ID
 
-from ast_decorator.c.ast_node_decorator import Decorator, FileAstDecorator
+from ast_decorator.c.bigo_ast_node_factory import CBigOAstNodeFactory, CCompilationUnitNodeFactory
 from bigo_ast.bigo_ast import BasicNode
 
 
-class TestDecorator(TestCase):
-    def test_decorate_pycparser_node(self):
+class TestBigOAstNodeFactory(TestCase):
+    def test_create_with_pycparser_node(self):
         try:
-            Decorator().decorate(Node())
+            CBigOAstNodeFactory().create(Node())
             self.fail()
         except Exception as e:
             if str(e) != 'Should init with a subclass of pycparser.c_ast.Node':
                 self.fail()
 
-    def test_decorate_other_node(self):
+    def test_create_with_other_node(self):
         try:
             a = 0
-            type(Decorator().decorate(a))
+            type(CBigOAstNodeFactory().create(a))
             self.fail()
         except Exception as e:
             if str(e) != 'Should init with a subclass of pycparser.c_ast.Node':
                 self.fail()
 
-    def test_decorate_pycparser_sub_node(self):
+    def test_create_with_pycparser_sub_node(self):
         fake_ext = object
-        self.assertEqual(BasicNode, type(Decorator().decorate(FileAST(ext=fake_ext))))
+        self.assertEqual(BasicNode, type(CBigOAstNodeFactory().create(FileAST(ext=fake_ext))))
 
-    def test_decorate_have_coord(self):
+    def test_create_with_node_have_coord(self):
         class Coord:
             colum = 0
             file = ''
@@ -40,30 +40,30 @@ class TestDecorator(TestCase):
         fake_coord.line = 2
 
         ast = ID(name='', coord=fake_coord)
-        basic_node = Decorator().decorate(ast)
+        basic_node = CBigOAstNodeFactory().create(ast)
         self.assertEqual(1, basic_node.col)
         self.assertEqual(2, basic_node.line_number)
 
     pass
 
 
-class TestFileAstDecorator(TestCase):
-    def test_decorate(self):
+class TestCompilationUnitNodeFactory(TestCase):
+    def test_create(self):
         fake_ext = 0
         file_ast = FileAST(fake_ext)
-        self.assertIsNotNone(FileAstDecorator().decorate(file_ast))
+        self.assertIsNotNone(CCompilationUnitNodeFactory().create(file_ast))
 
 
-class TestFuncDefDecorator(TestCase):
-    def test_decorate(self):
+class TestFuncDeclNodeFactory(TestCase):
+    def test_create(self):
         self.fail()
 
 
-class TestFuncCallDecorator(TestCase):
-    def test_decorate(self):
+class TestFuncCallNodeFactory(TestCase):
+    def test_create(self):
         self.fail()
 
 
-class TestForDecorator(TestCase):
-    def test_decorate(self):
+class ForNodeFactory(TestCase):
+    def test_create(self):
         self.fail()

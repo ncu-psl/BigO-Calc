@@ -1,10 +1,10 @@
 from pycparser.c_ast import NodeVisitor, FileAST, FuncDef, FuncCall, For
 
-from ast_decorator.c.ast_node_decorator import FuncDefDecorator, ForDecorator, FuncCallDecorator, \
-    FileAstDecorator
+from ast_decorator.c.bigo_ast_node_factory import CFuncDeclNodeFactory, CForNodeFactory, CFuncCallNodeFactory, \
+    CCompilationUnitNodeFactory
 
 
-class DecorateVisitor(NodeVisitor):
+class CDecorateVisitor(NodeVisitor):
     def __init__(self):
         self.parent = None
         self.cu = None
@@ -12,7 +12,7 @@ class DecorateVisitor(NodeVisitor):
         pass
 
     def visit_FileAST(self, file_ast: FileAST):
-        self.cu = FileAstDecorator().decorate(file_ast)
+        self.cu = CCompilationUnitNodeFactory().create(file_ast)
         self.parent = self.cu
 
         for child in file_ast.ext:
@@ -22,7 +22,7 @@ class DecorateVisitor(NodeVisitor):
         pass
 
     def visit_FuncDef(self, func_def: FuncDef):
-        func_decl_node = FuncDefDecorator().decorate(func_def)
+        func_decl_node = CFuncDeclNodeFactory().create(func_def)
         self.parent.children.append(func_decl_node)
 
         for child in func_def.body.block_items:
@@ -32,7 +32,7 @@ class DecorateVisitor(NodeVisitor):
         pass
 
     def visit_FuncCall(self, func_call: FuncCall):
-        func_call_node = FuncCallDecorator().decorate(func_call)
+        func_call_node = CFuncCallNodeFactory().create(func_call)
         self.parent.children.append(func_call_node)
 
         pass
@@ -48,7 +48,7 @@ class DecorateVisitor(NodeVisitor):
     #     pass
 
     def visit_For(self, pyc_for: For):
-        for_node = ForDecorator().decorate(pyc_for)
+        for_node = CForNodeFactory().create(pyc_for)
         self.parent.children.append(for_node)
 
         self.parent = for_node
