@@ -3,13 +3,13 @@ from pycparser.c_ast import Node, For, FileAST, Constant, ID
 from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode
 
 
-class Decorator(object):
+class CBigOAstNodeFactory(object):
 
     def __init__(self):
 
         pass
 
-    def decorate(self, node: Node):
+    def create(self, node: Node):
 
         if type(node) == Node or not issubclass(node.__class__, Node):
             raise Exception("Should init with a subclass of pycparser.c_ast.Node")
@@ -23,15 +23,15 @@ class Decorator(object):
         return basic_node
 
 
-class FileAstDecorator(Decorator):
+class CCompilationUnitNodeFactory(CBigOAstNodeFactory):
 
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, file_ast: FileAST):
-        basic_node = super().decorate(file_ast)
+    def create(self, file_ast: FileAST):
+        basic_node = super().create(file_ast)
 
         cu = CompilationUnitNode()
         cu.copy_node_info_from(basic_node)
@@ -39,14 +39,14 @@ class FileAstDecorator(Decorator):
         return cu
 
 
-class FuncDefDecorator(Decorator):
+class CFuncDeclNodeFactory(CBigOAstNodeFactory):
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, func_def: Node):
-        basic_node = super().decorate(func_def)
+    def create(self, func_def: Node):
+        basic_node = super().create(func_def)
 
         func_decl = FuncDeclNode()
         func_decl.copy_node_info_from(basic_node)
@@ -59,14 +59,14 @@ class FuncDefDecorator(Decorator):
         return func_decl
 
 
-class FuncCallDecorator(Decorator):
+class CFuncCallNodeFactory(CBigOAstNodeFactory):
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, py_func_call: Node):
-        basic_node = super().decorate(py_func_call)
+    def create(self, py_func_call: Node):
+        basic_node = super().create(py_func_call)
 
         func_call = FuncCallNode()
         func_call.copy_node_info_from(basic_node)
@@ -81,14 +81,14 @@ class FuncCallDecorator(Decorator):
         return func_call
 
 
-class ForDecorator(Decorator):
+class CForNodeFactory(CBigOAstNodeFactory):
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, pyc_for: For):
-        basic_node = super().decorate(pyc_for)
+    def create(self, pyc_for: For):
+        basic_node = super().create(pyc_for)
 
         for_node = ForNode()
         for_node.copy_node_info_from(basic_node)

@@ -1,26 +1,36 @@
+import os
+
+from ast_decorator.c.ast_generator import CASTGenerator
+from ast_decorator.c.decorate_visitor import CDecorateVisitor
+from ast_decorator.java.ast_generator import JavaASTGenerator
+from ast_decorator.java.decorate_visitor import JavaDecorateVisitor
 from bigo_calculator.bigo_evaluator import BigOEvaluator
-from ast_decorator.java.ast_generator import ASTGenerator
-from ast_decorator.java.decorate_visitor import DecorateVisitor
 
 
 def main():
-    # source_file_name = 'examples/FullTest.c'
-    # bigo_ast_file_name = 'examples/big-o ast.json'
-    source_file_name = 'examples/FullTest.java'
+    source_file_name = 'examples/FullTest.c'
     bigo_ast_file_name = 'examples/big-o ast.json'
 
-    # C frontend
-    # ast = ASTGenerator().generate(source_file_name)
-    # bigo_ast = DecorateVisitor().visit(ast)
+    # get language from extension
+    language = os.path.splitext(source_file_name)[1][1:].lower()
 
-    # Java frontend
-    origin_ast = ASTGenerator().generate(source_file_name)
-    bigo_ast = DecorateVisitor().visit(origin_ast)
+    # decorate ast
+    if language == 'c':
+        origin_ast = CASTGenerator().generate(source_file_name)
+        bigo_ast = CDecorateVisitor().visit(origin_ast)
+    elif language == 'java':
+        origin_ast = JavaASTGenerator().generate(source_file_name)
+        bigo_ast = JavaDecorateVisitor().visit(origin_ast)
+    else:
+        raise Exception("Language does not support : " + language)
 
+    # evaluate big o
     BigOEvaluator(bigo_ast).eval()
 
+    # print ast
     print(bigo_ast.to_json())
 
+    # print ast to json file
     f = open(bigo_ast_file_name, 'w')
     f.write(bigo_ast.to_json())
     f.close()

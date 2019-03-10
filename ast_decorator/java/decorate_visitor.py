@@ -1,12 +1,12 @@
 from javalang.ast import Node
 from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration
 
-from ast_decorator.java.javalang_decorator import CompilationUnitDecorator, MethodInvokeDecorator, \
-    MethodDeclDecorator, ForControlDecorator
+from ast_decorator.java.bigo_ast_node_factory import JavaCompilationUnitNodeFactory, JavaFuncCallNodeFactory, \
+    JavaFuncDeclNodeFactory, JavaForNodeFactory
 from javalang_node_visitor import NodeVisitor
 
 
-class DecorateVisitor(NodeVisitor):
+class JavaDecorateVisitor(NodeVisitor):
     def __init__(self):
         self.parent = None
         self.cu = None
@@ -14,7 +14,7 @@ class DecorateVisitor(NodeVisitor):
         pass
 
     def visit_CompilationUnit(self, java_cu: CompilationUnit):
-        self.cu = CompilationUnitDecorator().decorate(java_cu)
+        self.cu = JavaCompilationUnitNodeFactory().create(java_cu)
         self.parent = self.cu
 
         if java_cu.types:
@@ -32,7 +32,7 @@ class DecorateVisitor(NodeVisitor):
         pass
 
     def visit_MethodDeclaration(self, java_method_decl: MethodDeclaration):
-        func_decl_node = MethodDeclDecorator().decorate(java_method_decl)
+        func_decl_node = JavaFuncDeclNodeFactory().create(java_method_decl)
         self.parent.children.append(func_decl_node)
 
         for child in java_method_decl.body:
@@ -42,7 +42,7 @@ class DecorateVisitor(NodeVisitor):
         pass
 
     def visit_MethodInvocation(self, java_method_invocation: MethodInvocation):
-        func_call_node = MethodInvokeDecorator().decorate(java_method_invocation)
+        func_call_node = JavaFuncCallNodeFactory().create(java_method_invocation)
         self.parent.children.append(func_call_node)
 
         pass
@@ -58,7 +58,7 @@ class DecorateVisitor(NodeVisitor):
     #     pass
 
     def visit_ForControl(self, java_for_control: ForControl):
-        for_node = ForControlDecorator().decorate(java_for_control)
+        for_node = JavaForNodeFactory().create(java_for_control)
         self.parent.children.append(for_node)
 
         self.parent = for_node

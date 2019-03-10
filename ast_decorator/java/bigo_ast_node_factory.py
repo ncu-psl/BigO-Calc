@@ -5,13 +5,13 @@ from javalang.tree import CompilationUnit, ForControl, MethodDeclaration, Method
 from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode
 
 
-class AstNodeDecorator(object):
+class JavaBigOAstNodeFactory(object):
 
     def __init__(self):
 
         pass
 
-    def decorate(self, java_node: Node):
+    def create(self, java_node: Node):
         if java_node is None:
             return
 
@@ -27,15 +27,15 @@ class AstNodeDecorator(object):
         return basic_node
 
 
-class CompilationUnitDecorator(AstNodeDecorator):
+class JavaCompilationUnitNodeFactory(JavaBigOAstNodeFactory):
 
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, java_cu: CompilationUnit):
-        basic_node = super().decorate(java_cu)
+    def create(self, java_cu: CompilationUnit):
+        basic_node = super().create(java_cu)
 
         cu = CompilationUnitNode()
         cu.copy_node_info_from(basic_node)
@@ -43,14 +43,14 @@ class CompilationUnitDecorator(AstNodeDecorator):
         return cu
 
 
-class MethodDeclDecorator(AstNodeDecorator):
+class JavaFuncDeclNodeFactory(JavaBigOAstNodeFactory):
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, java_method_decl: MethodDeclaration):
-        basic_node = super().decorate(java_method_decl)
+    def create(self, java_method_decl: MethodDeclaration):
+        basic_node = super().create(java_method_decl)
 
         func_decl = FuncDeclNode()
         func_decl.copy_node_info_from(basic_node)
@@ -63,14 +63,14 @@ class MethodDeclDecorator(AstNodeDecorator):
         return func_decl
 
 
-class MethodInvokeDecorator(AstNodeDecorator):
+class JavaFuncCallNodeFactory(JavaBigOAstNodeFactory):
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, java_method_invoke: MethodInvocation):
-        basic_node = super().decorate(java_method_invoke)
+    def create(self, java_method_invoke: MethodInvocation):
+        basic_node = super().create(java_method_invoke)
 
         func_call = FuncCallNode()
         func_call.copy_node_info_from(basic_node)
@@ -96,14 +96,14 @@ class MethodInvokeDecorator(AstNodeDecorator):
         return func_call
 
 
-class ForControlDecorator(AstNodeDecorator):
+class JavaForNodeFactory(JavaBigOAstNodeFactory):
     def __init__(self):
         super().__init__()
 
         pass
 
-    def decorate(self, java_for: ForControl):
-        basic_node = super().decorate(java_for)
+    def create(self, java_for: ForControl):
+        basic_node = super().create(java_for)
 
         for_node = ForNode()
         for_node.copy_node_info_from(basic_node)

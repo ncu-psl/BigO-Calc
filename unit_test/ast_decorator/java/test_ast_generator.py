@@ -1,6 +1,6 @@
 from unittest import TestCase
 
 
-class TestASTGenerator(TestCase):
+class TestJavaASTGenerator(TestCase):
     def test_generate(self):
         self.fail()

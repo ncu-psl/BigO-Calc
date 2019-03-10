@@ -4,7 +4,7 @@ import pycparser
 from pycparser.c_ast import FileAST
 
 
-class ASTGenerator(object):
+class CASTGenerator(object):
     def __init__(self):
         pass
 
@@ -14,6 +14,6 @@ class ASTGenerator(object):
         ast = pycparser.parse_file(filename,
                                    use_cpp=True,
                                    cpp_path='cpp',
-                                   cpp_args=r'-Ipycparser/utils/fake_libc_include')
+                                   cpp_args=r'-Iast_decorator/c/pycparser/utils/fake_libc_include')
 
         return ast
