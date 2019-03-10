@@ -3,7 +3,7 @@ import os
 import javalang
 
 
-class ASTGenerator(object):
+class JavaASTGenerator(object):
     def __init__(self):
         pass
 
