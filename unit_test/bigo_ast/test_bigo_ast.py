@@ -84,7 +84,7 @@ class TestBasicNode(TestCase):
 
         pass
 
-    def test_to_dect(self):
+    def test_to_dict(self):
         basic_node = BasicNode()
         dic = {'_type': 'BasicNode',
                'time_complexity': '',
@@ -92,9 +92,9 @@ class TestBasicNode(TestCase):
                'line_number': 0,
                'parent': None,
                'children': []}
-        self.assertDictEqual(dic, basic_node.to_dect())
+        self.assertDictEqual(dic, basic_node.to_dict())
 
-    def test_to_dect_children(self):
+    def test_to_dict_children(self):
         dic = {'_type': 'BasicNode',
                'time_complexity': '',
                'col': 0,
@@ -111,7 +111,7 @@ class TestBasicNode(TestCase):
         child = BasicNode()
         root.children.append(child)
 
-        self.assertDictEqual(dic, root.to_dect())
+        self.assertDictEqual(dic, root.to_dict())
 
     def test_to_json(self):
         root = BasicNode()
@@ -185,7 +185,7 @@ class TestFuncDeclNode(TestCase):
         func1_decl.children.append(call_func2)
         self.assertFalse(func1_decl.determine_recursion())
 
-    def test_to_dect(self):
+    def test_to_dict(self):
         dic = {'_type': 'FuncDeclNode',
                'time_complexity': '',
                'col': 0,
@@ -197,9 +197,9 @@ class TestFuncDeclNode(TestCase):
                'name': '',
                'parameter': []}
 
-        self.assertDictEqual(dic, FuncDeclNode().to_dect())
+        self.assertDictEqual(dic, FuncDeclNode().to_dict())
 
-    def test_to_dect_children(self):
+    def test_to_dict_children(self):
         dic = {'_type': 'FuncDeclNode',
                'time_complexity': '',
                'col': 0,
@@ -220,7 +220,7 @@ class TestFuncDeclNode(TestCase):
         child = BasicNode()
         func_decl.children.append(child)
 
-        self.assertDictEqual(dic, func_decl.to_dect())
+        self.assertDictEqual(dic, func_decl.to_dict())
 
 
 class TestFuncCallNode(TestCase):
@@ -236,7 +236,7 @@ class TestFuncCallNode(TestCase):
         self.assertEqual('', func_call.name)
         self.assertEqual([], func_call.parameter)
 
-    def test_to_dect(self):
+    def test_to_dict(self):
         dic = {'_type': 'FuncCallNode',
                'time_complexity': '',
                'col': 0,
@@ -249,7 +249,7 @@ class TestFuncCallNode(TestCase):
 
         func_call = FuncCallNode()
 
-        self.assertDictEqual(dic, func_call.to_dect())
+        self.assertDictEqual(dic, func_call.to_dict())
 
 
 class TestForNode(TestCase):
@@ -265,9 +265,9 @@ class TestForNode(TestCase):
         self.assertEqual(None, for_node.variable)
         self.assertEqual(None, for_node.init)
         self.assertEqual(None, for_node.term)
-        self.assertEqual(None, for_node.next)
+        self.assertEqual(None, for_node.update)
 
-    def test_to_dect(self):
+    def test_to_dict(self):
         dic = {'_type': 'ForNode',
                'time_complexity': '',
                'col': 0,
@@ -275,13 +275,14 @@ class TestForNode(TestCase):
                'parent': None,
                'children': [],
 
+               'variable': None,
                'init': None,
                'terminal': None,
                'update': None}
 
-        self.assertDictEqual(dic, ForNode().to_dect())
+        self.assertDictEqual(dic, ForNode().to_dict())
 
-    def test_to_dect_children(self):
+    def test_to_dict_children(self):
         dic = {'_type': 'ForNode',
                'time_complexity': '',
                'col': 0,
@@ -294,6 +295,7 @@ class TestForNode(TestCase):
                              'parent': None,
                              'children': []}],
 
+               'variable': None,
                'init': None,
                'terminal': None,
                'update': None}
@@ -302,4 +304,4 @@ class TestForNode(TestCase):
         child = BasicNode()
         for_node.children.append(child)
 
-        self.assertDictEqual(dic, for_node.to_dect())
+        self.assertDictEqual(dic, for_node.to_dict())

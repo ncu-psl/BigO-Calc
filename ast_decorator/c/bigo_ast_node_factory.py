@@ -96,6 +96,6 @@ class CForNodeFactory(CBigOAstNodeFactory):
         for_node.variable = pyc_for.init.lvalue.name
         for_node.init = pyc_for.init.rvalue.value
         for_node.term = pyc_for.cond.right.name
-        for_node.next = pyc_for.next.op[1:]
+        for_node.update = pyc_for.next.op[1:]
 
         return for_node
