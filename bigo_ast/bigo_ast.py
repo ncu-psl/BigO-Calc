@@ -150,6 +150,7 @@ class ForNode(BasicNode):
 
     def to_dict(self):
         d = super().to_dict()
+        d.update({'variable': self.variable})
         d.update({'init': self.init})
         d.update({'terminal': self.term})
         d.update({'update': self.update})

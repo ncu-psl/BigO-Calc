@@ -275,6 +275,7 @@ class TestForNode(TestCase):
                'parent': None,
                'children': [],
 
+               'variable': None,
                'init': None,
                'terminal': None,
                'update': None}
@@ -294,6 +295,7 @@ class TestForNode(TestCase):
                              'parent': None,
                              'children': []}],
 
+               'variable': None,
                'init': None,
                'terminal': None,
                'update': None}
