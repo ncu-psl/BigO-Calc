@@ -34,7 +34,7 @@ class BasicNode(object):
 
         pass
 
-    def to_dect(self):
+    def to_dict(self):
         d = {'_type': self._type,
              'time_complexity': self.time_complexity,
              'col': self.col,
@@ -43,14 +43,14 @@ class BasicNode(object):
 
         children_list = []
         for child in self.children:
-            children_list.append(child.to_dect())
+            children_list.append(child.to_dict())
 
         d.update({'children': children_list})
 
         return d
 
     def to_json(self):
-        return json.dumps(self.to_dect(), indent=4, sort_keys=True)
+        return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
 
 class CompilationUnitNode(BasicNode):
@@ -85,8 +85,8 @@ class FuncDeclNode(BasicNode):
 
         return self.recursive
 
-    def to_dect(self):
-        d = super().to_dect()
+    def to_dict(self):
+        d = super().to_dict()
         d.update({'recursive': self.recursive})
         d.update({'name': self.name})
         d.update({'parameter': self.parameter})
@@ -103,8 +103,8 @@ class FuncCallNode(BasicNode):
 
         pass
 
-    def to_dect(self):
-        d = super().to_dect()
+    def to_dict(self):
+        d = super().to_dict()
         d.update({'name': self.name})
         d.update({'parameter': self.parameter})
 
@@ -124,8 +124,8 @@ class IfNode(BasicNode):
 
         pass
 
-    def to_dect(self):
-        d = super().to_dect()
+    def to_dict(self):
+        d = super().to_dict()
         d.update({'condition': self.condition})
 
         return d
@@ -148,8 +148,8 @@ class ForNode(BasicNode):
 
         pass
 
-    def to_dect(self):
-        d = super().to_dect()
+    def to_dict(self):
+        d = super().to_dict()
         d.update({'init': self.init})
         d.update({'terminal': self.term})
         d.update({'update': self.next})
