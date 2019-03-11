@@ -18,7 +18,7 @@ class BigOEvaluator(BigOAstVisitor):
     def visit_ForNode(self, for_node: ForNode):
         init_value = for_node.init
         term_value = for_node.term
-        update = for_node.next
+        update = for_node.update
 
         if term_value > init_value:
             small = init_value

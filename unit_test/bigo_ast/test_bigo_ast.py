@@ -265,7 +265,7 @@ class TestForNode(TestCase):
         self.assertEqual(None, for_node.variable)
         self.assertEqual(None, for_node.init)
         self.assertEqual(None, for_node.term)
-        self.assertEqual(None, for_node.next)
+        self.assertEqual(None, for_node.update)
 
     def test_to_dict(self):
         dic = {'_type': 'ForNode',

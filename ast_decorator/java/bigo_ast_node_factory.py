@@ -111,6 +111,6 @@ class JavaForNodeFactory(JavaBigOAstNodeFactory):
         for_node.variable = str(java_for.init[0].expressionl.member)
         for_node.init = str(java_for.init[0].value.value)
         for_node.term = str(java_for.condition.operandr.member)
-        for_node.next = str(java_for.update[0].postfix_operators[0])
+        for_node.update = str(java_for.update[0].postfix_operators[0])
 
         return for_node

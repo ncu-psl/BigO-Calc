@@ -142,7 +142,7 @@ class ForNode(BasicNode):
         self.variable = None
         self.init = None
         self.term = None
-        self.next = None
+        self.update = None
 
         # self.children = ' '.join(str(x) for x in for_node.stmt.block_items or [])
 
@@ -152,6 +152,6 @@ class ForNode(BasicNode):
         d = super().to_dict()
         d.update({'init': self.init})
         d.update({'terminal': self.term})
-        d.update({'update': self.next})
+        d.update({'update': self.update})
 
         return d
