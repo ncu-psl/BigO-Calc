@@ -10,7 +10,7 @@ class BigOEvaluator(BigOAstVisitor):
         pass
 
     def eval(self):
-        super().visit()
+        super().visit(self.root)
 
         pass
 

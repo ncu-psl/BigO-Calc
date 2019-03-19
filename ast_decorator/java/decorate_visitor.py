@@ -1,9 +1,10 @@
+from lib.node_visitor import NodeVisitor
+
 from javalang.ast import Node
 from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration
 
 from ast_decorator.java.bigo_ast_node_factory import JavaCompilationUnitNodeFactory, JavaFuncCallNodeFactory, \
     JavaFuncDeclNodeFactory, JavaForNodeFactory
-from javalang_node_visitor import NodeVisitor
 
 
 class JavaDecorateVisitor(NodeVisitor):

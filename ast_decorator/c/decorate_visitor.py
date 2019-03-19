@@ -1,4 +1,4 @@
-from pycparser.c_ast import NodeVisitor, FileAST, FuncDef, FuncCall, For
+from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor
 
 from ast_decorator.c.bigo_ast_node_factory import CFuncDeclNodeFactory, CForNodeFactory, CFuncCallNodeFactory, \
     CCompilationUnitNodeFactory
@@ -65,5 +65,5 @@ class CDecorateVisitor(NodeVisitor):
 
     def visit(self, node):
         super().visit(node)
+
         return self.cu
-        pass
