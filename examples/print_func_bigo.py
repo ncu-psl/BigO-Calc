@@ -8,8 +8,8 @@ from bigo_calculator.bigo_evaluator import BigOEvaluator
 
 
 def main():
-    source_file_name = 'examples/FullTest.c'
-    bigo_ast_file_name = 'examples/big-o ast.json'
+    source_file_name = 'FullTest.c'
+    bigo_ast_file_name = 'big-o ast.json'
 
     # get language from extension
     language = os.path.splitext(source_file_name)[1][1:].lower()
@@ -28,7 +28,11 @@ def main():
     BigOEvaluator(bigo_ast).eval()
 
     # print ast
-    print(bigo_ast.to_json())
+    for func in bigo_ast.children:
+        if func.time_complexity:
+            print(f'[{func.name}] = O(' + func.time_complexity + ')')
+        else:
+            print(f'[{func.name}] = O(1)')
 
     # print ast to json file
     f = open(bigo_ast_file_name, 'w')
