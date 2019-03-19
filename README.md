@@ -6,17 +6,18 @@ An automated Big-O analysis tool base on Big-O AST.
 
 ## How to use
 ```sh
-pip -r requirements.txt
-python3 main.py
+git clone --recurse-submodules -j8 https://github.com/ncu-psl/ABOAT.git
+pip install -r requirements.txt
+cd examples && python3 print_func_bigo.py
 ```
 
 ## Dependency
 
-* C AST is generated from [pycparser](https://github.com/eliben/pycparser)
-
-* Java AST is generated from [javalang](https://github.com/c2nes/javalang), ~~[javaparser](https://github.com/javaparser/javaparser)~~
-
 * See [Dependency graph](https://github.com/ncu-psl/ABOAT/network/dependencies) or [requirements.txt](requirements.txt) in detail.
+
+    * C AST is generated from [pycparser](https://github.com/eliben/pycparser)
+
+    * Java AST is generated from [javalang](https://github.com/c2nes/javalang), ~~[javaparser](https://github.com/javaparser/javaparser)~~
 
 ## Publication
 * 何東穎, 莊永裕, [使用AST進行靜態程式碼分析函式時間複雜度][TANET_2018_ABOAT], [Taiwan Academic Network Conference (TANET 2018)][TANET], Nov. 2018
