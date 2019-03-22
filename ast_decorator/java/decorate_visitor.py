@@ -1,10 +1,9 @@
-from lib.node_visitor import NodeVisitor
-
 from javalang.ast import Node
-from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration
+from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration, IfStatement
 
 from ast_decorator.java.bigo_ast_node_factory import JavaCompilationUnitNodeFactory, JavaFuncCallNodeFactory, \
-    JavaFuncDeclNodeFactory, JavaForNodeFactory
+    JavaFuncDeclNodeFactory, JavaForNodeFactory, JavaIfNodeFactory
+from lib.node_visitor import NodeVisitor
 
 
 class JavaDecorateVisitor(NodeVisitor):
@@ -48,15 +47,25 @@ class JavaDecorateVisitor(NodeVisitor):
 
         pass
 
-    # def visit_If(self, node: If):
-    #     if_node = IfNode(node)
-    #     self.parent.children.append(if_node)
-    #
-    #     if node.cond is not None: self.visit(node.cond)
-    #     if node.iftrue is not None:  self.visit(node.iftrue)
-    #     if node.iffalse is not None: self.visit(node.iffalse)
-    #
-    #     pass
+    def visit_IfStatement(self, java_if_stmt: IfStatement):
+        if_node = JavaIfNodeFactory().create(java_if_stmt)
+        self.parent.children.append(if_node)
+
+        for child in java_if_stmt.condition or []:
+            self.parent = if_node.condition
+            self.visit(child)
+
+        if java_if_stmt.then_statement and hasattr(java_if_stmt.then_statement, 'statements'):
+            for child in java_if_stmt.then_statement.statements or []:
+                self.parent = if_node.true_stmt
+                self.visit(child)
+
+        if java_if_stmt.else_statement and hasattr(java_if_stmt.else_statement, 'statements'):
+            for child in java_if_stmt.else_statement.statements or []:
+                self.parent = if_node.false_stmt
+                self.visit(child)
+
+        pass
 
     def visit_ForControl(self, java_for_control: ForControl):
         for_node = JavaForNodeFactory().create(java_for_control)
