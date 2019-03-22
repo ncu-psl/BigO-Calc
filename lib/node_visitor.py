@@ -3,6 +3,7 @@
     :license: Python License.
     :modified by dongying he
 """
+from collections import Iterable
 
 
 class NodeVisitor(object):
@@ -13,9 +14,10 @@ class NodeVisitor(object):
         return visitor(node)
 
     def generic_visit(self, node):
-        for value in node.children:
-            if isinstance(value, list):
-                for item in value:
-                    self.visit(item)
-            else:
-                self.visit(value)
+        if node and hasattr(node, 'children'):
+            for value in node.children:
+                if isinstance(value, list):
+                    for item in value:
+                        self.visit(item)
+                else:
+                    self.visit(value)
