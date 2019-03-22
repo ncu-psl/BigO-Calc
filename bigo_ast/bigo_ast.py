@@ -1,7 +1,5 @@
 import json
 
-from pycparser.c_ast import If
-
 
 class BasicNode(object):
 
@@ -112,21 +110,20 @@ class FuncCallNode(BasicNode):
 
 
 class IfNode(BasicNode):
-    def __init__(self, if_node: If = None):
-        super().__init__(if_node)
+    def __init__(self):
+        super().__init__()
 
-        self.condition = ''
-
-        if if_node is None:
-            return
-
-        self.condition = ' '.join(str(x) for x in if_node.cond or [])
+        self.condition = BasicNode()
+        self.true_stmt = BasicNode()
+        self.false_stmt = BasicNode()
 
         pass
 
     def to_dict(self):
         d = super().to_dict()
-        d.update({'condition': self.condition})
+        d.update({'condition': self.condition.to_dict()})
+        d.update({'true': self.true_stmt.to_dict()})
+        d.update({'false': self.false_stmt.to_dict()})
 
         return d
 
