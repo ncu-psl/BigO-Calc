@@ -8,7 +8,6 @@ from ast_decorator.java.ast_generator import JavaASTGenerator
 from ast_decorator.java.decorate_visitor import JavaDecorateVisitor
 from bigo_calculator.bigo_evaluator import BigOEvaluator
 
-bigo_ast_file_name = 'function time complexity.json'
 
 def main():
     if len(sys.argv) == 0:
@@ -36,19 +35,18 @@ def main():
     # evaluate big o
     BigOEvaluator(bigo_ast).eval()
 
-    # print ast
+    func_bigo_dict = {}
     for func in bigo_ast.children:
-        if func.time_complexity:
-            print(f'[{func.name}] = O(' + func.time_complexity + ')')
-        else:
-            print(f'[{func.name}] = O(1)')
+        if not func.time_complexity:
+            func.time_complexity = '1'
+        func_bigo_dict.update({func.name: 'O(' + func.time_complexity + ')'})
 
-    # print ast to json file
-    f = open(bigo_ast_file_name, 'w')
-    f.write(bigo_ast.to_json())
-    f.close()
+    json_str = json.dumps(func_bigo_dict, indent=4)
 
-    pass
+    # print function Big-O
+    print(json_str)
+
+    return json_str
 
 
 main()

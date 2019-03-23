@@ -8,7 +8,8 @@ An automated Big-O analysis tool base on Big-O AST.
 ```sh
 git clone --recurse-submodules -j8 https://github.com/ncu-psl/ABOAT.git
 pip install -r requirements.txt
-cd examples && python3 print_func_bigo.py
+cd examples
+python3 print_func_bigo.py FullTest.c C
 ```
 
 ## Dependency
