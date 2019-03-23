@@ -1,8 +1,8 @@
 from javalang.ast import Node
 from javalang.tree import CompilationUnit, ForControl, MethodDeclaration, MethodInvocation, Literal, MemberReference, \
-    BinaryOperation
+    BinaryOperation, IfStatement
 
-from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode
+from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode, IfNode
 
 
 class JavaBigOAstNodeFactory(object):
@@ -94,6 +94,21 @@ class JavaFuncCallNodeFactory(JavaBigOAstNodeFactory):
         #             func_call.parameter.append(param.name)
 
         return func_call
+
+
+class JavaIfNodeFactory(JavaBigOAstNodeFactory):
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+    def create(self, java_if: IfStatement):
+        basic_node = super().create(java_if)
+
+        if_node = IfNode()
+        if_node.copy_node_info_from(basic_node)
+
+        return if_node
 
 
 class JavaForNodeFactory(JavaBigOAstNodeFactory):

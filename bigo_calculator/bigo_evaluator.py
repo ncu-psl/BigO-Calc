@@ -1,4 +1,4 @@
-from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, BasicNode
+from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, BasicNode, IfNode
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
 
@@ -51,6 +51,19 @@ class BigOEvaluator(BigOAstVisitor):
                 func_call.time_complexity = '(' + func_decl.name + ')'
                 break
 
+        pass
+
+    def visit_IfNode(self, if_node: IfNode):
+        self.visit_children(if_node.true_stmt)
+        self.visit_children(if_node.false_stmt)
+
+        if not if_node.true_stmt.time_complexity:
+            if_node.true_stmt.time_complexity = 'O(1)'
+
+        if not if_node.false_stmt.time_complexity:
+            if_node.false_stmt.time_complexity = 'O(1)'
+
+        if_node.time_complexity = 'Max(' + if_node.true_stmt.time_complexity + ', ' + if_node.false_stmt.time_complexity + ')'
         pass
 
     def visit_children(self, node: BasicNode):

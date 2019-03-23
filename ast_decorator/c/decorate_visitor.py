@@ -1,7 +1,7 @@
-from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor
+from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If
 
 from ast_decorator.c.bigo_ast_node_factory import CFuncDeclNodeFactory, CForNodeFactory, CFuncCallNodeFactory, \
-    CCompilationUnitNodeFactory
+    CCompilationUnitNodeFactory, CIfNodeFactory
 
 
 class CDecorateVisitor(NodeVisitor):
@@ -37,15 +37,23 @@ class CDecorateVisitor(NodeVisitor):
 
         pass
 
-    # def visit_If(self, node: If):
-    #     if_node = IfNode(node)
-    #     self.parent.children.append(if_node)
-    #
-    #     if node.cond is not None: self.visit(node.cond)
-    #     if node.iftrue is not None:  self.visit(node.iftrue)
-    #     if node.iffalse is not None: self.visit(node.iffalse)
-    #
-    #     pass
+    def visit_If(self, pyc_if: If):
+        if_node = CIfNodeFactory().create(pyc_if)
+        self.parent.children.append(if_node)
+
+        for child in pyc_if.cond or []:
+            self.parent = if_node.condition
+            self.visit(child)
+
+        for child in pyc_if.iftrue or []:
+            self.parent = if_node.true_stmt
+            self.visit(child)
+
+        for child in pyc_if.iffalse or []:
+            self.parent = if_node.false_stmt
+            self.visit(child)
+
+        pass
 
     def visit_For(self, pyc_for: For):
         for_node = CForNodeFactory().create(pyc_for)

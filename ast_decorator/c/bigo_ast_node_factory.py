@@ -1,6 +1,6 @@
-from pycparser.c_ast import Node, For, FileAST, Constant, ID
+from pycparser.c_ast import Node, For, FileAST, Constant, ID, If
 
-from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode
+from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode, IfNode
 
 
 class CBigOAstNodeFactory(object):
@@ -99,3 +99,18 @@ class CForNodeFactory(CBigOAstNodeFactory):
         for_node.update = pyc_for.next.op[1:]
 
         return for_node
+
+
+class CIfNodeFactory(CBigOAstNodeFactory):
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+    def create(self, pyc_if: If):
+        basic_node = super().create(pyc_if)
+
+        if_node = IfNode()
+        if_node.copy_node_info_from(basic_node)
+
+        return if_node
