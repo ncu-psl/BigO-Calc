@@ -1,4 +1,6 @@
+import json
 import os
+import sys
 
 from ast_decorator.c.ast_generator import CASTGenerator
 from ast_decorator.c.decorate_visitor import CDecorateVisitor
@@ -6,13 +8,20 @@ from ast_decorator.java.ast_generator import JavaASTGenerator
 from ast_decorator.java.decorate_visitor import JavaDecorateVisitor
 from bigo_calculator.bigo_evaluator import BigOEvaluator
 
+bigo_ast_file_name = 'function time complexity.json'
 
 def main():
-    source_file_name = 'FullTest.c'
-    bigo_ast_file_name = 'big-o ast.json'
+    if len(sys.argv) == 0:
+        raise EnvironmentError("not enough argument")
+    elif len(sys.argv) > 3:
+        raise EnvironmentError("too many arguments")
 
-    # get language from extension
+    source_file_name = sys.argv[1]
+
+    # default get programming language by extension
     language = os.path.splitext(source_file_name)[1][1:].lower()
+    if len(sys.argv) == 2:
+        language = sys.argv[2]
 
     # decorate ast
     if language == 'c':
