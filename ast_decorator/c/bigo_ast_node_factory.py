@@ -30,8 +30,8 @@ class CCompilationUnitNodeFactory(CBigOAstNodeFactory):
 
         pass
 
-    def create(self, file_ast: FileAST):
-        basic_node = super().create(file_ast)
+    def create(self, pyc_file_ast: FileAST):
+        basic_node = super().create(pyc_file_ast)
 
         cu = CompilationUnitNode()
         cu.copy_node_info_from(basic_node)
@@ -45,14 +45,14 @@ class CFuncDeclNodeFactory(CBigOAstNodeFactory):
 
         pass
 
-    def create(self, func_def: Node):
-        basic_node = super().create(func_def)
+    def create(self, pyc_func_def: Node):
+        basic_node = super().create(pyc_func_def)
 
         func_decl = FuncDeclNode()
         func_decl.copy_node_info_from(basic_node)
-        func_decl.name = func_def.decl.name
-        if func_def.decl.type.args:
-            param_list = func_def.decl.type.args.params
+        func_decl.name = pyc_func_def.decl.name
+        if pyc_func_def.decl.type.args:
+            param_list = pyc_func_def.decl.type.args.params
             for param in param_list:
                 func_decl.parameter.append(param.type.type.names[0] + ' ' + param.name)
 
@@ -65,14 +65,14 @@ class CFuncCallNodeFactory(CBigOAstNodeFactory):
 
         pass
 
-    def create(self, py_func_call: Node):
-        basic_node = super().create(py_func_call)
+    def create(self, pyc_func_call: Node):
+        basic_node = super().create(pyc_func_call)
 
         func_call = FuncCallNode()
         func_call.copy_node_info_from(basic_node)
-        func_call.name = py_func_call.name.name
-        if py_func_call.args:
-            for param in py_func_call.args.exprs:
+        func_call.name = pyc_func_call.name.name
+        if pyc_func_call.args:
+            for param in pyc_func_call.args.exprs:
                 if isinstance(param, Constant):
                     func_call.parameter.append(param.value)
                 elif isinstance(param, ID):

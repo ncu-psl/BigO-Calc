@@ -24,8 +24,8 @@ class JavaDecorateVisitor(NodeVisitor):
 
         pass
 
-    def visit_ClassDeclaration(self, class_def: Node):
-        for child in class_def.body:
+    def visit_ClassDeclaration(self, java_class_def: Node):
+        for child in java_class_def.body:
             self.parent = self.cu
             self.visit(child)
 

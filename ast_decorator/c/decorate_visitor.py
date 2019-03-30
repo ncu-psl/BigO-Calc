@@ -11,28 +11,28 @@ class CDecorateVisitor(NodeVisitor):
 
         pass
 
-    def visit_FileAST(self, file_ast: FileAST):
-        self.cu = CCompilationUnitNodeFactory().create(file_ast)
+    def visit_FileAST(self, pyc_file_ast: FileAST):
+        self.cu = CCompilationUnitNodeFactory().create(pyc_file_ast)
         self.parent = self.cu
 
-        for child in file_ast.ext:
+        for child in pyc_file_ast.ext:
             self.parent = self.cu
             self.visit(child)
 
         pass
 
-    def visit_FuncDef(self, func_def: FuncDef):
-        func_decl_node = CFuncDeclNodeFactory().create(func_def)
+    def visit_FuncDef(self, pyc_func_def: FuncDef):
+        func_decl_node = CFuncDeclNodeFactory().create(pyc_func_def)
         self.parent.children.append(func_decl_node)
 
-        for child in func_def.body.block_items:
+        for child in pyc_func_def.body.block_items:
             self.parent = func_decl_node
             self.visit(child)
 
         pass
 
-    def visit_FuncCall(self, func_call: FuncCall):
-        func_call_node = CFuncCallNodeFactory().create(func_call)
+    def visit_FuncCall(self, pyc_func_call: FuncCall):
+        func_call_node = CFuncCallNodeFactory().create(pyc_func_call)
         self.parent.children.append(func_call_node)
 
         pass
