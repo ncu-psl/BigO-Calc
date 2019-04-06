@@ -54,8 +54,12 @@ class BigOEvaluator(BigOAstVisitor):
         pass
 
     def visit_IfNode(self, if_node: IfNode):
+        self.visit_children(if_node.condition)
         self.visit_children(if_node.true_stmt)
         self.visit_children(if_node.false_stmt)
+
+        if not if_node.condition.time_complexity:
+            if_node.condition.time_complexity = 'O(1)'
 
         if not if_node.true_stmt.time_complexity:
             if_node.true_stmt.time_complexity = 'O(1)'
@@ -63,7 +67,8 @@ class BigOEvaluator(BigOAstVisitor):
         if not if_node.false_stmt.time_complexity:
             if_node.false_stmt.time_complexity = 'O(1)'
 
-        if_node.time_complexity = 'Max(' + if_node.true_stmt.time_complexity + ', ' + if_node.false_stmt.time_complexity + ')'
+        if_node.time_complexity = if_node.condition.time_complexity + ' + Max(' + if_node.true_stmt.time_complexity + ', ' + if_node.false_stmt.time_complexity + ')'
+
         pass
 
     def visit_children(self, node: BasicNode):
