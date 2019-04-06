@@ -15,7 +15,10 @@ class BigOEvaluator(BigOAstVisitor):
         pass
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
-        func_decl_node.time_complexity = self.visit_children(func_decl_node)
+        if func_decl_node.determine_recursion():
+            func_decl_node.time_complexity = 'is a recursive function'
+        else:
+            func_decl_node.time_complexity = self.visit_children(func_decl_node)
 
         pass
 
