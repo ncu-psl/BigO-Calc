@@ -38,8 +38,13 @@ def main():
     func_bigo_dict = {}
     for func in bigo_ast.children:
         if not func.time_complexity:
-            func.time_complexity = '1'
-        func_bigo_dict.update({func.name: 'O(' + func.time_complexity + ')'})
+            func.time_complexity = 'O(1)'
+            complexity = func.time_complexity
+        elif func.recursive:
+            complexity = func.time_complexity
+        else:
+            complexity = 'O(' + func.time_complexity + ')'
+        func_bigo_dict.update({func.name: complexity})
 
     json_str = json.dumps(func_bigo_dict, indent=4)
 

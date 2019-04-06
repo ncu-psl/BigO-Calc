@@ -15,10 +15,10 @@ class BigOEvaluator(BigOAstVisitor):
         pass
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
-        self.visit_children(func_decl_node)
-
-        # trim redundant '*(' and ')'
-        func_decl_node.time_complexity = func_decl_node.time_complexity[2:-1]
+        if func_decl_node.determine_recursion():
+            func_decl_node.time_complexity = 'is a recursive function'
+        else:
+            func_decl_node.time_complexity = self.visit_children(func_decl_node)
 
         pass
 
@@ -41,21 +41,25 @@ class BigOEvaluator(BigOAstVisitor):
         elif update == '/2':
             raise Exception("can not handle log")
 
-        self.visit_children(for_node)
+        for_node.time_complexity = self.visit_children(for_node)
 
         pass
 
     def visit_FuncCallNode(self, func_call: FuncCallNode):
         for func_decl in self.root.children:
             if func_call.name == func_decl.name:
-                func_call.time_complexity = '(' + func_decl.name + ')'
+                func_call.time_complexity = 'O(' + func_decl.name + ')'
                 break
 
         pass
 
     def visit_IfNode(self, if_node: IfNode):
-        self.visit_children(if_node.true_stmt)
-        self.visit_children(if_node.false_stmt)
+        if_node.condition.time_complexity = self.visit_children(if_node.condition)
+        if_node.true_stmt.time_complexity = self.visit_children(if_node.true_stmt)
+        if_node.false_stmt.time_complexity = self.visit_children(if_node.false_stmt)
+
+        if not if_node.condition.time_complexity:
+            if_node.condition.time_complexity = 'O(1)'
 
         if not if_node.true_stmt.time_complexity:
             if_node.true_stmt.time_complexity = 'O(1)'
@@ -63,7 +67,8 @@ class BigOEvaluator(BigOAstVisitor):
         if not if_node.false_stmt.time_complexity:
             if_node.false_stmt.time_complexity = 'O(1)'
 
-        if_node.time_complexity = 'Max(' + if_node.true_stmt.time_complexity + ', ' + if_node.false_stmt.time_complexity + ')'
+        if_node.time_complexity = if_node.condition.time_complexity + ' + Max(' + if_node.true_stmt.time_complexity + ', ' + if_node.false_stmt.time_complexity + ')'
+
         pass
 
     def visit_children(self, node: BasicNode):
@@ -75,6 +80,6 @@ class BigOEvaluator(BigOAstVisitor):
             children_tc_list.append(child.time_complexity)
 
         if children_tc_list:
-            node.time_complexity += '*(' + '+'.join(str(tc) for tc in children_tc_list) + ')'
+            return '+'.join(str(tc) for tc in children_tc_list)
 
-        pass
+        return ''
