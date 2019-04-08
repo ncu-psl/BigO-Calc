@@ -41,9 +41,8 @@ class CDecorateVisitor(NodeVisitor):
         if_node = CIfNodeFactory().create(pyc_if)
         self.parent.children.append(if_node)
 
-        for child in pyc_if.cond or []:
-            self.parent = if_node.condition
-            self.visit(child)
+        self.parent = if_node.condition
+        self.visit(pyc_if.cond)
 
         for child in pyc_if.iftrue or []:
             self.parent = if_node.true_stmt
