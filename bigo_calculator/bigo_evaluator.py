@@ -41,7 +41,9 @@ class BigOEvaluator(BigOAstVisitor):
         elif update == '/2':
             raise Exception("can not handle log")
 
-        for_node.time_complexity = self.visit_children(for_node)
+        complexity = self.visit_children(for_node)
+        if complexity:
+            for_node.time_complexity += '*(' + complexity + ')'
 
         pass
 
