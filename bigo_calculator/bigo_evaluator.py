@@ -69,7 +69,10 @@ class BigOEvaluator(BigOAstVisitor):
         if not if_node.false_stmt.time_complexity:
             if_node.false_stmt.time_complexity = 'O(1)'
 
-        if_node.time_complexity = if_node.condition.time_complexity + ' + Max(' + if_node.true_stmt.time_complexity + ', ' + if_node.false_stmt.time_complexity + ')'
+        if_node.time_complexity = '%s + Max(%s, %s)' % (
+            if_node.condition.time_complexity,
+            if_node.true_stmt.time_complexity,
+            if_node.false_stmt.time_complexity)
 
         pass
 
