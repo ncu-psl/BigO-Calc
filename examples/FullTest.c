@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-void hello_world() {
+void hello_world() { // library call
 	printf("Hello World!\n");
 }
 
-int is_odd(int n) {
+int is_odd(int n) { // if else
 	int odd = 0;
 	if (n % 2 == 0) {
 		odd = 0;
@@ -14,7 +14,7 @@ int is_odd(int n) {
 	return odd;
 }
 
-int calc_sum(int n) {
+int calc_sum(int n) { // basic for
 	int i=0,sum = 0;
 	for (i = 1; i <= n; i++) {
 		sum += i;
@@ -23,7 +23,7 @@ int calc_sum(int n) {
 	return sum;
 }
 
-int calc_odd_sum(int n) {
+int calc_odd_sum(int n) { // for * if
 	int i=0,sum = 0;
 	for (i = 1; i <= n; i++) {
 	    if(is_odd(i)) {
@@ -34,7 +34,7 @@ int calc_odd_sum(int n) {
 	return sum;
 }
 
-void nested_loop(int n) {
+void nested_loop(int n) { // for * for
 	int i, j;
 	int a[100][100];
 	for (i = 0; i < n; i++) {
@@ -44,13 +44,13 @@ void nested_loop(int n) {
 	}
 }
 
-int factorial(int n) {
+int factorial(int n) { // recursion
 	if (n <= 1)
 		return 1;
 	return n * factorial(n - 1);
 }
 
-int main() {
+int main() { // function call
 	int n = 5;
 	hello_world();
 	is_odd(n);
