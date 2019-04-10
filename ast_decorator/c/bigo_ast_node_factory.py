@@ -1,4 +1,4 @@
-from pycparser.c_ast import Node, For, FileAST, Constant, ID, If, ArrayRef
+from pycparser.c_ast import Node, For, FileAST, Constant, ID, If, ArrayRef, Assignment
 
 from bigo_ast.bigo_ast import BasicNode, CompilationUnitNode, FuncCallNode, FuncDeclNode, ForNode, IfNode
 
@@ -106,14 +106,24 @@ class CForNodeFactory(CBigOAstNodeFactory):
         if hasattr(right, "value"):
             for_node.term = right.value
         elif type(right) == ArrayRef:
-            for_node.term = right.name.name+'['+right.subscript.name+']'
+            for_node.term = right.name.name + '[' + right.subscript.name + ']'
         elif hasattr(right, "name"):
             for_node.term = right.name
 
-        for_node.update = pyc_for.next.op
-        if pyc_for.next.op[0] == 'p':
+        pyc_next = pyc_for.next
+        op = pyc_next.op
+        if type(pyc_next) == Assignment:
+            if pyc_next.lvalue.name == pyc_next.rvalue.left.name:
+                if pyc_next.rvalue.op == '*':
+                    if pyc_next.rvalue.right.value == '2':
+                        for_node.update = '*2'
+                elif pyc_next.rvalue.op == '/':
+                    if pyc_next.rvalue.right.value == '2':
+                        for_node.update = '/2'
+        elif op[0] == 'p':
             for_node.update = pyc_for.next.op[1:]
-
+        else:
+            for_node.update = op
         return for_node
 
 

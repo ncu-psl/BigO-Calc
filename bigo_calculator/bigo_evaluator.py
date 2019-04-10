@@ -38,8 +38,10 @@ class BigOEvaluator(BigOAstVisitor):
             for_node.time_complexity = '(' + big + '-' + small + ')' + '/1'
         elif update == '--':
             for_node.time_complexity = '(' + big + '-' + small + ')' + '/1'
+        elif update == '*2':
+            for_node.time_complexity = 'log(' + big + '-' + small + ')'
         elif update == '/2':
-            raise Exception("can not handle log")
+            for_node.time_complexity = 'log(' + big + '-' + small + ')'
 
         complexity = self.visit_children(for_node)
         if complexity:
