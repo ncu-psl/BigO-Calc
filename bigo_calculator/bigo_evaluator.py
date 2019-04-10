@@ -82,9 +82,7 @@ class BigOEvaluator(BigOAstVisitor):
         children_tc_list = []
         for child in node.children:
             super().visit(child)
-            children_tc_list.append(child.time_complexity)
+            if child.time_complexity:
+                children_tc_list.append(child.time_complexity)
 
-        if children_tc_list:
-            return '+'.join(str(tc) for tc in children_tc_list)
-
-        return ''
+        return '+'.join(str(tc) for tc in children_tc_list)
