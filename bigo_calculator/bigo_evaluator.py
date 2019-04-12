@@ -1,3 +1,5 @@
+from sympy import Symbol, sqrt, Max
+
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, BasicNode, IfNode
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
@@ -34,25 +36,35 @@ class BigOEvaluator(BigOAstVisitor):
             small = term_value
             big = init_value
 
+        if not big.isdigit():
+            big = Symbol(big)
+        else:
+            big = int(big)
+
+        if not small.isdigit():
+            small = Symbol(small)
+        else:
+            small = int(small)
+
         if update == '++':
-            for_node.time_complexity = '(' + big + '-' + small + ')' + '/1'
+            for_node.time_complexity = big - small / 1
         elif update == '--':
-            for_node.time_complexity = '(' + big + '-' + small + ')' + '/1'
+            for_node.time_complexity = big - small / 1
         elif update == '*2':
-            for_node.time_complexity = 'log(' + big + '-' + small + ')'
+            for_node.time_complexity = sqrt(big - small)
         elif update == '/2':
-            for_node.time_complexity = 'log(' + big + '-' + small + ')'
+            for_node.time_complexity = sqrt(big - small)
 
         complexity = self.visit_children(for_node)
         if complexity:
-            for_node.time_complexity += '*(' + complexity + ')'
+            for_node.time_complexity *= complexity
 
         pass
 
     def visit_FuncCallNode(self, func_call: FuncCallNode):
         for func_decl in self.root.children:
             if func_call.name == func_decl.name:
-                func_call.time_complexity = 'O(' + func_decl.name + ')'
+                func_call.time_complexity = Symbol(func_decl.name)
                 break
 
         pass
@@ -63,16 +75,15 @@ class BigOEvaluator(BigOAstVisitor):
         if_node.false_stmt.time_complexity = self.visit_children(if_node.false_stmt)
 
         if not if_node.condition.time_complexity:
-            if_node.condition.time_complexity = 'O(1)'
+            if_node.condition.time_complexity = 1
 
         if not if_node.true_stmt.time_complexity:
-            if_node.true_stmt.time_complexity = 'O(1)'
+            if_node.true_stmt.time_complexity = 1
 
         if not if_node.false_stmt.time_complexity:
-            if_node.false_stmt.time_complexity = 'O(1)'
+            if_node.false_stmt.time_complexity = 1
 
-        if_node.time_complexity = '%s + Max(%s, %s)' % (
-            if_node.condition.time_complexity,
+        if_node.time_complexity = if_node.condition.time_complexity + Max(
             if_node.true_stmt.time_complexity,
             if_node.false_stmt.time_complexity)
 
@@ -87,4 +98,8 @@ class BigOEvaluator(BigOAstVisitor):
             if child.time_complexity:
                 children_tc_list.append(child.time_complexity)
 
-        return '+'.join(str(tc) for tc in children_tc_list)
+        ans = 0
+        for tc in children_tc_list:
+            ans += tc
+
+        return ans # '+'.join(str(tc) for tc in children_tc_list)

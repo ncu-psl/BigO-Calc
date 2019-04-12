@@ -2,6 +2,8 @@ import json
 import os
 import sys
 
+from sympy import O, sympify
+
 from ast_decorator.c.ast_generator import CASTGenerator
 from ast_decorator.c.decorate_visitor import CDecorateVisitor
 from ast_decorator.java.ast_generator import JavaASTGenerator
@@ -43,7 +45,8 @@ def main():
         elif func.recursive:
             complexity = func.time_complexity
         else:
-            complexity = 'O(' + func.time_complexity + ')'
+            # complexity = str(func.time_complexity)
+            complexity = str(func.time_complexity)
         func_bigo_dict.update({func.name: complexity})
 
     json_str = json.dumps(func_bigo_dict, indent=4)
