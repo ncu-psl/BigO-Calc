@@ -51,6 +51,170 @@ class BasicNode(object):
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
 
+class Bool(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class And(Bool):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class Or(Bool):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class Operator(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.op = ''
+        self.left = BasicNode()
+        self.right = BasicNode()
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'left': self.left.to_dict()})
+        d.update({'right': self.right.to_dict()})
+
+        return d
+
+
+class Add(Operator):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class Sub(Operator):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class Mul(Operator):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class Div(Operator):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class CompareOp(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class LT(CompareOp):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class LE(CompareOp):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class GT(CompareOp):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class GE(CompareOp):
+
+    def __init__(self):
+        super().__init__()
+
+        pass
+
+
+class AssignNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+        self.target = BasicNode()
+        self.value = BasicNode()
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'target': self.target.to_dict()})
+        d.update({'value': self.value.to_dict()})
+
+        return d
+
+
+class VariableNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.name = ''
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'value': self.name})
+
+        return d
+
+
+class ConstantNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.value = 0
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'value': self.value})
+
+        return d
+
+
 class CompilationUnitNode(BasicNode):
 
     def __init__(self):
@@ -114,16 +278,16 @@ class IfNode(BasicNode):
         super().__init__()
 
         self.condition = BasicNode()
-        self.true_stmt = BasicNode()
-        self.false_stmt = BasicNode()
+        self.true_stmt = []
+        self.false_stmt = []
 
         pass
 
     def to_dict(self):
         d = super().to_dict()
         d.update({'condition': self.condition.to_dict()})
-        d.update({'true': self.true_stmt.to_dict()})
-        d.update({'false': self.false_stmt.to_dict()})
+        d.update({'true': self.true_stmt})
+        d.update({'false': self.false_stmt})
 
         return d
 
@@ -132,16 +296,10 @@ class ForNode(BasicNode):
     def __init__(self):
         super().__init__()
 
-        # self.init = ' '.join(str(x) for x in for_node.init or [])
-        # self.term = ' '.join(str(x) for x in for_node.cond or [])
-        # self.next = ' '.join(str(x) for x in for_node.next or [])
-
         self.variable = None
         self.init = None
         self.term = None
         self.update = None
-
-        # self.children = ' '.join(str(x) for x in for_node.stmt.block_items or [])
 
         pass
 
@@ -151,5 +309,20 @@ class ForNode(BasicNode):
         d.update({'init': self.init})
         d.update({'terminal': self.term})
         d.update({'update': self.update})
+
+        return d
+
+
+class WhileNode(BasicNode):
+    def __init__(self):
+        super().__init__()
+
+        self.term = None
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'terminal': self.term})
 
         return d
