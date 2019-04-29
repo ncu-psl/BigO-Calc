@@ -21,8 +21,8 @@ def main():
 
     # default get programming language by extension
     language = os.path.splitext(source_file_name)[1][1:].lower()
-    if len(sys.argv) == 2:
-        language = sys.argv[2]
+    if len(sys.argv) == 3:
+        language = sys.argv[2].lower()
 
     # decorate ast
     if language == 'c':
