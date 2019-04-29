@@ -297,18 +297,31 @@ class ForNode(BasicNode):
         super().__init__()
 
         self.variable = None
-        self.init = None
-        self.term = None
-        self.update = None
+        self.init = []
+        self.term = []
+        self.update = []
 
         pass
 
     def to_dict(self):
         d = super().to_dict()
         d.update({'variable': self.variable})
-        d.update({'init': self.init})
-        d.update({'terminal': self.term})
-        d.update({'update': self.update})
+
+        init_list = []
+        for child in self.init:
+            init_list.append(child.to_dict())
+
+        d.update({'init': init_list})
+
+        term_list = []
+        for child in self.init:
+            term_list.append(child.to_dict())
+        d.update({'terminal': term_list})
+
+        update_list = []
+        for child in self.init:
+            update_list.append(child.to_dict())
+        d.update({'update': update_list})
 
         return d
 

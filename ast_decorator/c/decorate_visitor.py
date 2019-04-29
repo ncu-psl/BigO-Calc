@@ -2,7 +2,7 @@ from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID
     UnaryOp, Decl
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
-    FuncCallNode, CompilationUnitNode, IfNode
+    FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
 
 class CDecorateVisitor(NodeVisitor):
@@ -37,6 +37,16 @@ class CDecorateVisitor(NodeVisitor):
         operator_node.left = self.visit(pyc_bin_op.left)
         operator_node.right = self.visit(pyc_bin_op.right)
 
+        if operator_node.left is not list:
+            operator_node.children.append(operator_node.left)
+        else:
+            operator_node.children.extend(operator_node.left)
+
+        if operator_node.right is not list:
+            operator_node.children.append(operator_node.right)
+        else:
+            operator_node.children.extend(operator_node.right)
+
         return operator_node
 
     def visit_UnaryOp(self, pyc_unary_op: UnaryOp):
@@ -46,8 +56,8 @@ class CDecorateVisitor(NodeVisitor):
             op = '+'
         elif op == '--' or op == 'p--':
             op = '-'
-        else:
-            raise NotImplementedError('op=', op)
+        # else:
+        #    raise NotImplementedError('op=', op)
 
         right = BinaryOp(op, pyc_unary_op.expr, Constant('int', 1))
         pyc_assign = Assignment('=', pyc_unary_op.expr, right)
@@ -71,6 +81,9 @@ class CDecorateVisitor(NodeVisitor):
         assign_node.target = self.visit(pyc_assign.lvalue)
         assign_node.value = self.visit(pyc_assign.rvalue)
 
+        assign_node.children.append(assign_node.target)
+        assign_node.children.append(assign_node.value)
+
         return assign_node
 
     def visit_Decl(self, pyc_assign: Decl):
@@ -78,7 +91,9 @@ class CDecorateVisitor(NodeVisitor):
         variable = VariableNode()
         variable.name = pyc_assign.name
         assign_node.target = variable
-        assign_node.value = pyc_assign.init
+        if pyc_assign.init:
+            if hasattr(pyc_assign.init, 'value'):
+                assign_node.value = pyc_assign.init.value
 
         return assign_node
 
@@ -135,31 +150,42 @@ class CDecorateVisitor(NodeVisitor):
 
         self.parent = if_node.true_stmt
         for child in pyc_if.iftrue or []:
-            if_node.true_stmt.extend(self.visit(child))
+            child_node = self.visit(child)
+            if child_node is list:
+                if_node.true_stmt.extend(child_node)
+            else:
+                if_node.true_stmt.append(child_node)
 
         self.parent = if_node.true_stmt
         for child in pyc_if.iffalse or []:
-            if_node.false_stmt.extend(self.visit(child))
+            child_node = self.visit(child)
+            if child_node is list:
+                if_node.false_stmt.extend(child_node)
+            else:
+                if_node.false_stmt.append(child_node)
+
+        if_node.children.extend(if_node.true_stmt)
+        if_node.children.extend(if_node.false_stmt)
 
         return if_node
 
     def visit_For(self, pyc_for: For):
-        # use pyc_for to generate while_node
-        while_node = WhileNode()
+        # convert pyc_for to while
+        # self.while_converter(pyc_for)
 
-        # termination
-        self.parent = while_node
-        while_node.term = self.visit(pyc_for.cond)
+        for_node = ForNode()
+        for_node.init.append(self.visit(pyc_for.init))
+        for_node.term = self.visit(pyc_for.cond)
+        for_node.update.append(self.visit(pyc_for.next))
 
-        # body
-        for child in pyc_for.stmt.block_items:
-            while_node.children.extend(self.visit(child))
+        for child in pyc_for.stmt or []:
+            child_node = self.visit(child)
+            if child_node is list:
+                for_node.children.extend(child_node)
+            else:
+                for_node.children.append(child_node)
 
-        # update
-        while_node.children.extend(self.visit(pyc_for.next))
-
-        # return initialization and while
-        return [self.visit(pyc_for.init), while_node]
+        return for_node
 
     def generic_visit(self, node):
         children = []
@@ -180,3 +206,21 @@ class CDecorateVisitor(NodeVisitor):
         if coord:
             node.col = coord.column
             node.line_number = coord.line
+
+    def while_converter(self, pyc_for: For):
+        # use pyc_for to generate while_node
+        while_node = WhileNode()
+
+        # termination
+        self.parent = while_node
+        while_node.term = self.visit(pyc_for.cond)
+
+        # body
+        for child in pyc_for.stmt.block_items:
+            while_node.children.extend(self.visit(child))
+
+        # update
+        while_node.children.extend(self.visit(pyc_for.next))
+
+        # return initialization and while
+        return [self.visit(pyc_for.init), while_node]

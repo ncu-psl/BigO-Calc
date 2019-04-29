@@ -2,13 +2,14 @@ import json
 import os
 import sys
 
-from sympy import O, sympify
+import sympy
 
 from ast_decorator.c.ast_generator import CASTGenerator
 from ast_decorator.c.decorate_visitor import CDecorateVisitor
 from ast_decorator.java.ast_generator import JavaASTGenerator
 from ast_decorator.java.decorate_visitor import JavaDecorateVisitor
-from bigo_calculator.bigo_evaluator import BigOEvaluator
+from bigo_calculator.bigo_calculator import BigOCalculator
+from bigo_calculator.bigo_simplify import BigOSimplify
 
 
 def main():
@@ -27,7 +28,7 @@ def main():
     # decorate ast
     if language == 'c':
         origin_ast = CASTGenerator().generate(source_file_name)
-        bigo_ast = CDecorateVisitor().visit(origin_ast)
+        bigo_ast = CDecorateVisitor().decorate(origin_ast)
     elif language == 'java':
         origin_ast = JavaASTGenerator().generate(source_file_name)
         bigo_ast = JavaDecorateVisitor().visit(origin_ast)
@@ -35,15 +36,16 @@ def main():
         raise Exception("Language does not support : " + language)
 
     # evaluate big o
-    BigOEvaluator(bigo_ast).eval()
+    BigOCalculator(bigo_ast).calc()
+    BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
     for func in bigo_ast.children:
         if not func.time_complexity:
-            func.time_complexity = 'O(1)'
+            func.time_complexity = sympy.Rational(1)
             complexity = func.time_complexity
         elif func.recursive:
-            complexity = func.time_complexity
+            complexity = 'is a recursive function call'
         else:
             # complexity = str(func.time_complexity)
             complexity = str(func.time_complexity)
