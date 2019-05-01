@@ -30,10 +30,13 @@ class BigOCalculator(BigOAstVisitor):
         return sympy.Rational(const_node.value)
 
     def visit_AssignNode(self, assign_node: AssignNode):
-        variable = assign_node.target
+        target = assign_node.target
         value = assign_node.value
+        self.visit(target)
+        self.visit(value)
+        assign_node.time_complexity = target.time_complexity + value.time_complexity
 
-        return variable, value
+        return target, value
 
     def visit_Operator(self, node: Operator):
         op = node.op

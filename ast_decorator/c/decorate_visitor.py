@@ -178,7 +178,6 @@ class CDecorateVisitor(NodeVisitor):
         # self.while_converter(pyc_for)
 
         for_node = ForNode()
-        for_node.init.append(self.visit(pyc_for.init))
         self.set_coordinate(for_node, pyc_for.coord)
 
         init = self.visit(pyc_for.init)
