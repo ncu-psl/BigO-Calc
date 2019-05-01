@@ -52,8 +52,8 @@ class CTransformVisitor(NodeVisitor):
             op = '+'
         elif op == '--' or op == 'p--':
             op = '-'
-        # else:
-        #    raise NotImplementedError('op=', op)
+        elif op != '+' and op != '-':
+            raise NotImplementedError('op=', op)
 
         right = BinaryOp(op, pyc_unary_op.expr, Constant('int', 1), pyc_unary_op.coord)
         pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
