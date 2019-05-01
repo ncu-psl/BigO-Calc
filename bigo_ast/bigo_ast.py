@@ -4,7 +4,7 @@ import json
 class BasicNode(object):
 
     def __init__(self):
-        self.time_complexity = ''
+        self.time_complexity = 1
         self.children = []
         self.col = 0
         self.line_number = 0

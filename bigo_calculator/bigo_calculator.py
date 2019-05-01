@@ -59,8 +59,6 @@ class BigOCalculator(BigOAstVisitor):
             tc = 0
             for child in func_decl_node.children:
                 self.visit(child)
-                if not child.time_complexity:
-                    child.time_complexity = sympy.Rational(1)
                 tc += child.time_complexity
             func_decl_node.time_complexity = tc
 
@@ -106,8 +104,6 @@ class BigOCalculator(BigOAstVisitor):
         tc = 0
         for child in for_node.children:
             self.visit(child)
-            if not child.time_complexity:
-                child.time_complexity = sympy.Rational(1)
             tc += child.time_complexity
         for_node.time_complexity = step * tc
 
@@ -128,22 +124,16 @@ class BigOCalculator(BigOAstVisitor):
 
     def visit_IfNode(self, if_node: IfNode):
         self.visit(if_node.condition)
-        if not if_node.condition.time_complexity:
-            if_node.condition.time_complexity = sympy.Rational(1)
         cond_tc = if_node.condition.time_complexity
 
         true_tc = 0
         for child in if_node.true_stmt:
             self.visit(child)
-            if not child.time_complexity:
-                child.time_complexity = sympy.Rational(1)
             true_tc += child.time_complexity
 
         false_tc = 0
         for child in if_node.false_stmt:
             self.visit(child)
-            if not child.time_complexity:
-                child.time_complexity = sympy.Rational(1)
             false_tc += child.time_complexity
 
         if_node.time_complexity = cond_tc + sympy.Max(true_tc, false_tc)
