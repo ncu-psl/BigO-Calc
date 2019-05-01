@@ -2,8 +2,8 @@ from javalang.ast import Node
 from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration, IfStatement, Literal, \
     MemberReference, BinaryOperation, VariableDeclarator, Assignment, ForStatement
 
-from bigo_ast.bigo_ast import BasicNode, FuncDeclNode, \
-    FuncCallNode, CompilationUnitNode, IfNode, ForNode, VariableNode, AssignNode, ConstantNode, Operator
+from bigo_ast.bigo_ast import FuncDeclNode, \
+    FuncCallNode, CompilationUnitNode, IfNode, ForNode, VariableNode, AssignNode, ConstantNode, Operator, BasicNode
 from lib.node_visitor import NodeVisitor
 
 
@@ -14,9 +14,8 @@ class JavaTransformVisitor(NodeVisitor):
         pass
 
     def transform(self, cu):
-        # for path, node in cu:
-        #    print(type(node))
         self.cu = self.visit(cu)
+
         return self.cu
 
     def visit_Literal(self, java_literal: Literal):
@@ -47,9 +46,20 @@ class JavaTransformVisitor(NodeVisitor):
         assign_node = AssignNode()
         self.set_coordinate(assign_node, java_assign)
 
-        op = java_assign.type
-        if op != '=':
-            raise NotImplementedError('op=', op)
+        # need to do some trick of +=, -=, *=, /=
+        if len(java_assign.type) > 1:
+            op = java_assign.type[:-1]
+            if op == '+' or op == '-' or op == '*' or op == '/':
+                new_op = BinaryOperation()
+                self.set_coordinate(new_op, java_assign)
+
+                new_op.operator = op
+                new_op.operandl = java_assign.expressionl
+                new_op.operandr = java_assign.value
+            else:
+                raise Exception("does not support operator: ", java_assign.op)
+            java_assign.type = '='
+            java_assign.value = new_op
 
         assign_node.target = self.visit(java_assign.expressionl)
         assign_node.value = self.visit(java_assign.value)
@@ -57,16 +67,69 @@ class JavaTransformVisitor(NodeVisitor):
         return assign_node
 
     def visit_VariableDeclarator(self, java_var: VariableDeclarator):
+        assign_node = AssignNode()
+        self.set_coordinate(assign_node, java_var)
+
         variable_node = VariableNode()
         self.set_coordinate(variable_node, java_var)
-        variable_node.name = java_var.name
 
-        return variable_node
+        # target
+        variable_node.name = java_var.name
+        assign_node.target = variable_node
+
+        # value
+        if java_var.initializer:
+            assign_node.value = self.visit(java_var.initializer)
+
+        return assign_node
 
     def visit_MemberReference(self, java_id: MemberReference):
         variable_node = VariableNode()
         self.set_coordinate(variable_node, java_id)
         variable_node.name = java_id.member
+
+        pre_opr = java_id.prefix_operators
+        pos_opr = java_id.postfix_operators
+
+        # need to do some trick of ++i, i++
+        if pre_opr or pos_opr:
+            if len(pre_opr) > 1 or len(pos_opr) > 1:
+                raise NotImplementedError()
+
+            # create a new id and clean prefix, posfix
+            new_id = java_id
+            new_id.prefix_operators = []
+            new_id.postfix_operators = []
+
+            # create a new binary operator
+            binopr = BinaryOperation()
+            binopr.operandl = new_id
+
+            # create a new Literal
+            binopr.operandr = Literal()
+            binopr.operandr.value = '1'
+            binopr.prefix_operators = []
+            binopr.postfix_operators = []
+
+            # get operator
+            if len(pre_opr) == 1:
+                if pre_opr[0] == '++':
+                    binopr.operator = '+'
+                elif pre_opr[0] == '--':
+                    binopr.operator = '-'
+            elif len(pos_opr) == 1:
+                if pos_opr[0] == '++':
+                    binopr.operator = '+'
+                elif pos_opr[0] == '--':
+                    binopr.operator = '-'
+
+            # convert into Assignment
+            assign = Assignment()
+            assign.type = '='
+            assign.expressionl = new_id
+            assign.value = binopr
+
+            return self.visit(assign)
 
         return variable_node
 
@@ -145,7 +208,11 @@ class JavaTransformVisitor(NodeVisitor):
 
     def visit_ForStatement(self, java_for_stmt: ForStatement):
         for_node = self.visit_ForControl(java_for_stmt.control)
-        for child in java_for_stmt.body.statements:
+
+        if type(java_for_stmt.body) is not list:
+            java_for_stmt.body = [java_for_stmt.body]
+
+        for child in java_for_stmt.body:
             for_node.add_children(self.visit(child))
 
         return for_node
@@ -154,13 +221,24 @@ class JavaTransformVisitor(NodeVisitor):
         for_node = ForNode()
         self.set_coordinate(for_node, java_for_control)
 
+        if type(java_for_control.init) is not list:
+            java_for_control.init = [java_for_control.init]
+
         for child in java_for_control.init:
-            for_node.init.append(self.visit(child))
+            init = self.visit(child)
+            if type(init) is list:
+                for_node.init.extend(init)
+            else:
+                for_node.init.append(init)
 
-        raise NotImplementedError()
-        term = self.visit(java_for_control.condition)
+        for_node.term = self.visit(java_for_control.condition)
 
-        update = self.visit(java_for_control.update)
+        for child in java_for_control.update:
+            update = self.visit(child)
+            if type(update) is list:
+                for_node.update.extend(update)
+            else:
+                for_node.update.append(update)
 
         return for_node
 
@@ -184,10 +262,11 @@ class JavaTransformVisitor(NodeVisitor):
         if children:
             return children
 
-
     @staticmethod
     def set_coordinate(node: BasicNode, java_node: Node):
         position = java_node.position
         if position:
             node.col = position.column
             node.line_number = position.line
+
+        pass
