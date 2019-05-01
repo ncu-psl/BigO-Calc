@@ -91,6 +91,7 @@ class CDecorateVisitor(NodeVisitor):
 
     def visit_Decl(self, pyc_assign: Decl):
         assign_node = AssignNode()
+        self.set_coordinate(assign_node, pyc_decl.coord)
         variable = VariableNode()
         variable.name = pyc_assign.name
         assign_node.target = variable
@@ -178,6 +179,7 @@ class CDecorateVisitor(NodeVisitor):
 
         for_node = ForNode()
         for_node.init.append(self.visit(pyc_for.init))
+        self.set_coordinate(for_node, pyc_for.coord)
 
         init = self.visit(pyc_for.init)
         if type(init) is list:
