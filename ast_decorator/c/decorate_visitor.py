@@ -40,12 +40,12 @@ class CDecorateVisitor(NodeVisitor):
         operator_node.left = self.visit(pyc_bin_op.left)
         operator_node.right = self.visit(pyc_bin_op.right)
 
-        if operator_node.left is not list:
+        if type(operator_node.left) is not list:
             operator_node.children.append(operator_node.left)
         else:
             operator_node.children.extend(operator_node.left)
 
-        if operator_node.right is not list:
+        if type(operator_node.right) is not list:
             operator_node.children.append(operator_node.right)
         else:
             operator_node.children.extend(operator_node.right)
@@ -196,7 +196,7 @@ class CDecorateVisitor(NodeVisitor):
 
         for child in pyc_for.stmt or []:
             child_node = self.visit(child)
-            if child_node is list:
+            if type(child_node) is list:
                 for_node.children.extend(child_node)
             else:
                 for_node.children.append(child_node)
