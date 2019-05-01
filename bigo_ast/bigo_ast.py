@@ -9,7 +9,7 @@ class BasicNode(object):
         self.col = 0
         self.line_number = 0
         self.parent = None
-        self._type = self.__class__.__name__
+        self.__type = self.__class__.__name__
 
         pass
 
@@ -46,7 +46,7 @@ class BasicNode(object):
         pass
 
     def to_dict(self):
-        d = {'_type': self._type,
+        d = {'_type': self.__type,
              'time_complexity': self.time_complexity,
              'col': self.col,
              'line_number': self.line_number,
