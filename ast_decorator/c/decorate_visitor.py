@@ -40,15 +40,8 @@ class CDecorateVisitor(NodeVisitor):
         operator_node.left = self.visit(pyc_bin_op.left)
         operator_node.right = self.visit(pyc_bin_op.right)
 
-        if type(operator_node.left) is not list:
-            operator_node.children.append(operator_node.left)
-        else:
-            operator_node.children.extend(operator_node.left)
-
-        if type(operator_node.right) is not list:
-            operator_node.children.append(operator_node.right)
-        else:
-            operator_node.children.extend(operator_node.right)
+        operator_node.add_children(operator_node.left)
+        operator_node.add_children(operator_node.right)
 
         return operator_node
 
@@ -84,9 +77,6 @@ class CDecorateVisitor(NodeVisitor):
         assign_node.target = self.visit(pyc_assign.lvalue)
         assign_node.value = self.visit(pyc_assign.rvalue)
 
-        assign_node.children.append(assign_node.target)
-        assign_node.children.append(assign_node.value)
-
         return assign_node
 
     def visit_Decl(self, pyc_decl: Decl):
@@ -104,9 +94,6 @@ class CDecorateVisitor(NodeVisitor):
         if pyc_decl.init:
             assign_node.value = self.visit(pyc_decl.init)
 
-        assign_node.children.append(assign_node.target)
-        assign_node.children.append(assign_node.value)
-
         return assign_node
 
     def visit_FileAST(self, pyc_file_ast: FileAST):
@@ -115,9 +102,7 @@ class CDecorateVisitor(NodeVisitor):
 
         for child in pyc_file_ast.ext:
             self.parent = self.cu
-            func = self.visit(child)
-            if func:
-                self.cu.children.append(func)
+            self.cu.add_children(self.visit(child))
 
         pass
 
@@ -132,12 +117,7 @@ class CDecorateVisitor(NodeVisitor):
 
         for child in pyc_func_def.body.block_items:
             self.parent = func_decl_node
-            stmt = self.visit(child)
-            if stmt:
-                if type(stmt) is list:
-                    func_decl_node.children.extend(stmt)
-                else:
-                    func_decl_node.children.append(stmt)
+            func_decl_node.add_children(self.visit(child))
 
         return func_decl_node
 
@@ -184,9 +164,6 @@ class CDecorateVisitor(NodeVisitor):
             else:
                 if_node.false_stmt.append(child_node)
 
-        if_node.children.extend(if_node.true_stmt)
-        if_node.children.extend(if_node.false_stmt)
-
         return if_node
 
     def visit_For(self, pyc_for: For):
@@ -215,10 +192,7 @@ class CDecorateVisitor(NodeVisitor):
 
         for child in pyc_for.stmt:
             child_node = self.visit(child)
-            if type(child_node) is list:
-                for_node.children.extend(child_node)
-            else:
-                for_node.children.append(child_node)
+            for_node.add_children(child_node)
 
         return for_node
 
@@ -252,10 +226,10 @@ class CDecorateVisitor(NodeVisitor):
 
         # body
         for child in pyc_for.stmt.block_items:
-            while_node.children.extend(self.visit(child))
+            while_node.add_children(self.visit(child))
 
         # update
-        while_node.children.extend(self.visit(pyc_for.next))
+        while_node.add_children(self.visit(pyc_for.next))
 
         # return initialization and while
         return [self.visit(pyc_for.init), while_node]

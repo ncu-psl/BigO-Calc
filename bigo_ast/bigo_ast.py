@@ -5,7 +5,7 @@ class BasicNode(object):
 
     def __init__(self):
         self.time_complexity = 1
-        self.children = []
+        self.__children = []
         self.col = 0
         self.line_number = 0
         self.parent = None
@@ -14,18 +14,31 @@ class BasicNode(object):
         pass
 
     def __iter__(self):
-        for child in self.children:
+        for child in self.__children:
             yield child
 
+    @property
+    def children(self) -> []:
+        return self.__children
+
+    def add_children(self, children):
+        if not children:
+            return
+
+        if type(children) is list:
+            self.__children.extend(children)
+        else:
+            self.__children.append(children)
+
     def add_parent_to_children(self):
-        for child in self.children:
+        for child in self.__children:
             child.parent = self
             child.add_parent_to_children()
         pass
 
     def copy_node_info_from(self, basic_node):
         self.time_complexity = basic_node.time_complexity
-        self.children = basic_node.children
+        self.__children = basic_node.children
         self.col = basic_node.col
         self.line_number = basic_node.line_number
         self.parent = basic_node.parent
@@ -40,7 +53,7 @@ class BasicNode(object):
              'parent': None}
 
         children_list = []
-        for child in self.children:
+        for child in self.__children:
             children_list.append(child.to_dict())
 
         d.update({'children': children_list})
@@ -175,6 +188,13 @@ class AssignNode(BasicNode):
 
         pass
 
+    @property
+    def children(self):
+        self.add_children(self.target)
+        self.add_children(self.value)
+
+        return super().children
+
     def to_dict(self):
         d = super().to_dict()
         d.update({'target': self.target.to_dict()})
@@ -282,6 +302,13 @@ class IfNode(BasicNode):
         self.false_stmt = []
 
         pass
+
+    @property
+    def children(self):
+        self.add_children(self.true_stmt)
+        self.add_children(self.false_stmt)
+
+        return super().children
 
     def to_dict(self):
         d = super().to_dict()
