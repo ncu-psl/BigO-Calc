@@ -32,7 +32,7 @@ def main():
         bigo_ast = CTransformVisitor().decorate(origin_ast)
     elif language == 'java':
         origin_ast = JavaASTGenerator().generate(source_file_name)
-        bigo_ast = JavaTransformVisitor().visit(origin_ast)
+        bigo_ast = JavaTransformVisitor().transform(origin_ast)
     else:
         raise Exception("Language does not support : " + language)
 
