@@ -89,15 +89,15 @@ class CDecorateVisitor(NodeVisitor):
 
         return assign_node
 
-    def visit_Decl(self, pyc_assign: Decl):
+    def visit_Decl(self, pyc_decl: Decl):
         assign_node = AssignNode()
         self.set_coordinate(assign_node, pyc_decl.coord)
         variable = VariableNode()
-        variable.name = pyc_assign.name
+        variable.name = pyc_decl.name
         assign_node.target = variable
-        if pyc_assign.init:
-            if hasattr(pyc_assign.init, 'value'):
-                assign_node.value = pyc_assign.init.value
+        if pyc_decl.init:
+            # if hasattr(pyc_decl.init, 'value'):
+            assign_node.value = self.visit(pyc_decl.init)
 
         return assign_node
 
