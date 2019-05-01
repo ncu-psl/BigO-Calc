@@ -5,7 +5,7 @@ from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, 
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
 
-class CDecorateVisitor(NodeVisitor):
+class CTransformVisitor(NodeVisitor):
     def __init__(self):
         self.parent = None
         self.cu = None

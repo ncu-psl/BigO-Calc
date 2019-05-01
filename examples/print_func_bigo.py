@@ -5,9 +5,9 @@ import sys
 import sympy
 
 from ast_decorator.c.ast_generator import CASTGenerator
-from ast_decorator.c.decorate_visitor import CDecorateVisitor
+from ast_decorator.c.transform_visitor import CTransformVisitor
 from ast_decorator.java.ast_generator import JavaASTGenerator
-from ast_decorator.java.decorate_visitor import JavaDecorateVisitor
+from ast_decorator.java.transform_visitor import JavaTransformVisitor
 from bigo_ast.bigo_ast import FuncDeclNode
 from bigo_calculator.bigo_calculator import BigOCalculator
 from bigo_calculator.bigo_simplify import BigOSimplify
@@ -29,10 +29,10 @@ def main():
     # decorate ast
     if language == 'c':
         origin_ast = CASTGenerator().generate(source_file_name)
-        bigo_ast = CDecorateVisitor().decorate(origin_ast)
+        bigo_ast = CTransformVisitor().decorate(origin_ast)
     elif language == 'java':
         origin_ast = JavaASTGenerator().generate(source_file_name)
-        bigo_ast = JavaDecorateVisitor().visit(origin_ast)
+        bigo_ast = JavaTransformVisitor().visit(origin_ast)
     else:
         raise Exception("Language does not support : " + language)
 

@@ -6,7 +6,7 @@ from ast_decorator.java.bigo_ast_node_factory import JavaCompilationUnitNodeFact
 from lib.node_visitor import NodeVisitor
 
 
-class JavaDecorateVisitor(NodeVisitor):
+class JavaTransformVisitor(NodeVisitor):
     def __init__(self):
         self.parent = None
         self.cu = None
