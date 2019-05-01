@@ -51,6 +51,10 @@ class BigOCalculator(BigOAstVisitor):
             return operator.mul(left, right)
         elif op == '/':
             return operator.truediv(left, right)
+        elif op == '<<':
+            return left * 2 ** right
+        elif op == '>>':
+            return left / (2 ** right)
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         if func_decl_node.determine_recursion():
