@@ -62,8 +62,8 @@ class CDecorateVisitor(NodeVisitor):
         # else:
         #    raise NotImplementedError('op=', op)
 
-        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', 1))
-        pyc_assign = Assignment('=', pyc_unary_op.expr, right)
+        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', 1), pyc_unary_op.coord)
+        pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
 
         return self.visit(pyc_assign)
 
@@ -93,6 +93,7 @@ class CDecorateVisitor(NodeVisitor):
         assign_node = AssignNode()
         self.set_coordinate(assign_node, pyc_decl.coord)
         variable = VariableNode()
+        self.set_coordinate(variable, pyc_decl.coord)
         variable.name = pyc_decl.name
         assign_node.target = variable
         if pyc_decl.init:
