@@ -21,6 +21,10 @@ class BasicNode(object):
     def children(self) -> []:
         return self.__children
 
+    @children.setter
+    def children(self, children):
+        self.__children = children
+
     def add_children(self, children):
         if not children:
             return
@@ -183,17 +187,28 @@ class AssignNode(BasicNode):
 
     def __init__(self):
         super().__init__()
-        self.target = BasicNode()
-        self.value = BasicNode()
+        self.__target = BasicNode()
+        self.__value = BasicNode()
 
         pass
 
     @property
-    def children(self):
-        self.add_children(self.target)
-        self.add_children(self.value)
+    def target(self):
+        return self.__target
 
-        return super().children
+    @target.setter
+    def target(self, target):
+        self.__target = target
+        self.add_children(self.target)
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.__value = value
+        self.add_children(self.value)
 
     def to_dict(self):
         d = super().to_dict()
@@ -298,17 +313,26 @@ class IfNode(BasicNode):
         super().__init__()
 
         self.condition = BasicNode()
-        self.true_stmt = []
-        self.false_stmt = []
+        self.__true_stmt = []
+        self.__false_stmt = []
 
         pass
 
     @property
-    def children(self):
-        self.add_children(self.true_stmt)
-        self.add_children(self.false_stmt)
+    def true_stmt(self):
+        return self.__true_stmt
 
-        return super().children
+    @true_stmt.setter
+    def true_stmt(self, true_stmt):
+        self.__true_stmt = true_stmt
+
+    @property
+    def false_stmt(self):
+        return self.__false_stmt
+
+    @false_stmt.setter
+    def false_stmt(self, false_stmt):
+        self.__false_stmt = false_stmt
 
     def to_dict(self):
         d = super().to_dict()
