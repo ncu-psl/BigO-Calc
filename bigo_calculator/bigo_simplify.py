@@ -17,6 +17,8 @@ class BigOSimplify(BigOAstVisitor):
                 func_dict.update({sympy.Symbol(func.name): func.time_complexity})
 
         for func in self.root.children:
+            if type(func) != FuncDeclNode:
+                continue
             symbol_set = func.time_complexity.free_symbols
 
             var_list = []
@@ -29,7 +31,12 @@ class BigOSimplify(BigOAstVisitor):
 
             func.time_complexity = func.time_complexity.simplify()
             if var_list:
-                func.time_complexity = O(func.time_complexity, (var_list[0], sympy.oo)).args[0]
+                try:
+                    func.time_complexity = func.time_complexity.expand().expand(force=True)
+                    func.time_complexity = O(func.time_complexity, (var_list[0], sympy.oo)).args[0]
+                except:
+                    pass
+                    # logging.exception("sympy can not simplify: ", func.time_complexity)
             else:
                 func.time_complexity = O(func.time_complexity)
 

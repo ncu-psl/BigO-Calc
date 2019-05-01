@@ -40,14 +40,6 @@ class BigOCalculator(BigOAstVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
 
-        # operators = {
-        #     '+': operator.add,
-        #     '-': operator.sub,
-        #     '*': operator.mul,
-        #     '/': operator.truediv,
-        # }
-        # return operators[op](left, right)
-
         if op == '+':
             return operator.add(left, right)
         elif op == '-':

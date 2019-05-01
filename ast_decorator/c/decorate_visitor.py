@@ -26,7 +26,10 @@ class CDecorateVisitor(NodeVisitor):
     def visit_Constant(self, pyc_constant: Constant):
         constant_node = ConstantNode()
         self.set_coordinate(constant_node, pyc_constant.coord)
-        constant_node.value = pyc_constant.value
+        if pyc_constant.type == 'int':
+            constant_node.value = int(pyc_constant.value)
+        else:
+            raise NotImplementedError('Constant type not support: ', pyc_constant.type)
 
         return constant_node
 
@@ -151,7 +154,7 @@ class CDecorateVisitor(NodeVisitor):
         self.parent = if_node.true_stmt
         for child in pyc_if.iftrue or []:
             child_node = self.visit(child)
-            if child_node is list:
+            if type(child_node) is list:
                 if_node.true_stmt.extend(child_node)
             else:
                 if_node.true_stmt.append(child_node)
@@ -159,7 +162,7 @@ class CDecorateVisitor(NodeVisitor):
         self.parent = if_node.true_stmt
         for child in pyc_if.iffalse or []:
             child_node = self.visit(child)
-            if child_node is list:
+            if type(child_node) is list:
                 if_node.false_stmt.extend(child_node)
             else:
                 if_node.false_stmt.append(child_node)
@@ -175,8 +178,20 @@ class CDecorateVisitor(NodeVisitor):
 
         for_node = ForNode()
         for_node.init.append(self.visit(pyc_for.init))
+
+        init = self.visit(pyc_for.init)
+        if type(init) is list:
+            for_node.init.extend(init)
+        else:
+            for_node.init.append(init)
+
         for_node.term = self.visit(pyc_for.cond)
-        for_node.update.append(self.visit(pyc_for.next))
+
+        update = self.visit(pyc_for.next)
+        if type(update) is list:
+            for_node.update.extend(update)
+        else:
+            for_node.update.append(update)
 
         for child in pyc_for.stmt or []:
             child_node = self.visit(child)
