@@ -160,6 +160,14 @@ class CDecorateVisitor(NodeVisitor):
 
         if_node.condition = self.visit(pyc_if.cond)
 
+        # convert pyc true statement to list
+        if type(pyc_if.iftrue) is not list:
+            pyc_if.iftrue = [pyc_if.iftrue]
+
+        # convert pyc false statement to list
+        if type(pyc_if.iffalse) is not list:
+            pyc_if.iffalse = [pyc_if.iffalse]
+
         self.parent = if_node.true_stmt
         for child in pyc_if.iftrue or []:
             child_node = self.visit(child)
@@ -202,7 +210,10 @@ class CDecorateVisitor(NodeVisitor):
         else:
             for_node.update.append(update)
 
-        for child in pyc_for.stmt or []:
+        if type(pyc_for.stmt) is not list:
+            pyc_for.stmt = [pyc_for.stmt]
+
+        for child in pyc_for.stmt:
             child_node = self.visit(child)
             if type(child_node) is list:
                 for_node.children.extend(child_node)
