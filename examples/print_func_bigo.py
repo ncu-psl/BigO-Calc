@@ -44,13 +44,18 @@ def main():
     for func in bigo_ast.children:
         if type(func) != FuncDeclNode:
             continue
-        if not func.time_complexity:
+
+        complexity = func.time_complexity
+        if not complexity:
             func.time_complexity = sympy.Rational(1)
-            complexity = func.time_complexity
+            complexity = sympy.Rational(1)
         elif func.recursive:
             complexity = 'is a recursive function call'
         else:
-            complexity = str(func.time_complexity)
+            if type(complexity) is sympy.Order:
+                complexity = str(complexity)
+            else:
+                complexity = 'O(' + str(complexity) + ')'
         func_bigo_dict.update({func.name: complexity})
 
     json_str = json.dumps(func_bigo_dict, indent=4)
