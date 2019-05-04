@@ -183,28 +183,41 @@ class JavaTransformVisitor(NodeVisitor):
                 else:
                     func_call.parameter.append(str(arg))
 
-        pass
+        return func_call
 
-    def visit_IfStatement(self, java_if_stmt: IfStatement):
+    def visit_IfStatement(self, java_if: IfStatement):
         if_node = IfNode()
-        self.set_coordinate(if_node, java_if_stmt)
+        self.set_coordinate(if_node, java_if)
 
-        raise NotImplementedError()
-        for child in java_if_stmt.condition or []:
-            self.parent = if_node.condition
-            self.visit(child)
+        # condition
+        if_node.condition = self.visit(java_if.condition)
 
-        if java_if_stmt.then_statement and hasattr(java_if_stmt.then_statement, 'statements'):
-            for child in java_if_stmt.then_statement.statements or []:
-                self.parent = if_node.true_stmt
-                self.visit(child)
+        # true stmt
+        if hasattr(java_if.then_statement, 'statements'):
+            true_stmt = java_if.then_statement.statements
+        else:
+            true_stmt = java_if.then_statement.expression
 
-        if java_if_stmt.else_statement and hasattr(java_if_stmt.else_statement, 'statements'):
-            for child in java_if_stmt.else_statement.statements or []:
-                self.parent = if_node.false_stmt
-                self.visit(child)
+        for stmt in true_stmt:
+            child = self.visit(stmt)
+            if type(child) is not list:
+                child = [child]
+            if_node.true_stmt.extend(child)
 
-        pass
+        # false stmt
+        if java_if.else_statement:
+            if hasattr(java_if.then_statement, 'statements'):
+                false_stmt = java_if.else_statement.statements
+            else:
+                false_stmt = java_if.else_statement.expression
+
+            for stmt in false_stmt:
+                child = self.visit(stmt)
+                if type(child) is not list:
+                    child = [child]
+                if_node.false_stmt.extend(child)
+
+        return if_node
 
     def visit_ForStatement(self, java_for_stmt: ForStatement):
         for_node = self.visit_ForControl(java_for_stmt.control)
@@ -233,6 +246,8 @@ class JavaTransformVisitor(NodeVisitor):
 
         for_node.term = self.visit(java_for_control.condition)
 
+        if type(java_for_control.update) is not list:
+            java_for_control.update = [java_for_control.update]
         for child in java_for_control.update:
             update = self.visit(child)
             if type(update) is list:
