@@ -34,7 +34,7 @@ class BigOCalculator(BigOAstVisitor):
         value = assign_node.value
         self.visit(target)
         self.visit(value)
-        assign_node.time_complexity = target.time_complexity + value.time_complexity
+        assign_node.time_complexity = value.time_complexity
 
         return target, value
 
