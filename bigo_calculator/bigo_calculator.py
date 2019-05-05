@@ -68,6 +68,15 @@ class BigOCalculator(BigOAstVisitor):
 
         pass
 
+    def visit_FuncCallNode(self, func_call: FuncCallNode):
+        target = func_call.name
+        for func in self.function_list:
+            if target == func.name:
+                func_call.time_complexity = sympy.Symbol(func.name)
+                break
+
+        pass
+
     def visit_ForNode(self, for_node: ForNode):
         if len(for_node.init) != 1:
             raise NotImplementedError("len(for_node.init) != 1")
@@ -110,19 +119,6 @@ class BigOCalculator(BigOAstVisitor):
             self.visit(child)
             tc += child.time_complexity
         for_node.time_complexity = step * tc
-
-        pass
-
-    def visit_FuncCallNode(self, func_call: FuncCallNode):
-        target = func_call.name
-        for func in self.function_list:
-            if target == func.name:
-                if func.time_complexity:
-                    func_call.time_complexity = func.time_complexity
-                else:
-                    func_call.time_complexity = sympy.Symbol(func.name)
-
-                break
 
         pass
 
