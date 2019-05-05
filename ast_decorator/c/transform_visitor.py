@@ -209,7 +209,7 @@ class CTransformVisitor(NodeVisitor):
         if children:
             return children
 
-    def decorate(self, root):
+    def transform(self, root):
         self.visit(root)
         return self.cu
 

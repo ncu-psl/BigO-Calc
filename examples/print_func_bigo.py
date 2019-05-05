@@ -26,10 +26,10 @@ def main():
     if len(sys.argv) == 3:
         language = sys.argv[2].lower()
 
-    # decorate ast
+    # transform ast
     if language == 'c':
         origin_ast = CASTGenerator().generate(source_file_name)
-        bigo_ast = CTransformVisitor().decorate(origin_ast)
+        bigo_ast = CTransformVisitor().transform(origin_ast)
     elif language == 'java':
         origin_ast = JavaASTGenerator().generate(source_file_name)
         bigo_ast = JavaTransformVisitor().transform(origin_ast)
