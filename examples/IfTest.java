@@ -33,9 +33,9 @@ class Main {
 
     static int if_fun_call_n2(int n) {
         if (if_1(n)) {
-            return if_else_1();
+            return if_else_1(n);
         } else {
-            return if_for_n2();
+            return if_for_n2(n);
         }
     }
 
