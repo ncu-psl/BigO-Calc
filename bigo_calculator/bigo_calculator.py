@@ -24,7 +24,7 @@ class BigOCalculator(BigOAstVisitor):
         pass
 
     def visit_VariableNode(self, variable_node: VariableNode):
-        return sympy.Symbol(variable_node.name, positive=True)
+        return sympy.Symbol(variable_node.name, integer=True, positive=True)
 
     def visit_ConstantNode(self, const_node: ConstantNode):
         return sympy.Rational(const_node.value)
