@@ -185,6 +185,22 @@ class GE(CompareOp):
         pass
 
 
+class VariableNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.name = ''
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'value': self.name})
+
+        return d
+
+
 class AssignNode(BasicNode):
 
     def __init__(self):
@@ -216,22 +232,6 @@ class AssignNode(BasicNode):
         d = super().to_dict()
         d.update({'target': self.target.to_dict()})
         d.update({'value': self.value.to_dict()})
-
-        return d
-
-
-class VariableNode(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-
-        self.name = ''
-
-        pass
-
-    def to_dict(self):
-        d = super().to_dict()
-        d.update({'value': self.name})
 
         return d
 
