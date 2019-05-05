@@ -78,8 +78,9 @@ class JavaTransformVisitor(NodeVisitor):
         assign_node.target = variable_node
 
         # value
-        if java_var.initializer:
-            assign_node.value = self.visit(java_var.initializer)
+        if hasattr(java_var, 'initializer'):
+            if java_var.initializer:
+                assign_node.value = self.visit(java_var.initializer)
 
         return assign_node
 
@@ -157,7 +158,8 @@ class JavaTransformVisitor(NodeVisitor):
         func_decl_node.name = java_method_decl.name
         if java_method_decl.parameters:
             for param in java_method_decl.parameters:
-                func_decl_node.parameter.append(param.type.name + ' ' + param.name)
+                # func_decl_node.parameter.append(param.type.name + ' ' + param.name)
+                func_decl_node.parameter.append(self.visit_VariableDeclarator(param))
 
         for child in java_method_decl.body:
             func_decl_node.add_children(self.visit(child))
