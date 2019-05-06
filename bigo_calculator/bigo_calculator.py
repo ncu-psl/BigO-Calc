@@ -112,7 +112,7 @@ class BigOCalculator(BigOAstVisitor):
             step = (a_n - a_1) / d + 1
         elif op.is_Mul:
             q = op / variable
-            step = sympy.log(a_n / a_1) / sympy.log(q) + 1
+            step = sympy.log(a_n / a_1, q) + 1
 
         tc = 0
         for child in for_node.children:
