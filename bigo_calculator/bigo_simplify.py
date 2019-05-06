@@ -8,6 +8,9 @@ class BigOSimplify(BigOAstVisitor):
     def __init__(self, root: BasicNode):
         self.root = root
 
+        # store simplified function (dynamic programming)
+        self.simplified_function = []
+
         self.func_list = []
         for func in self.root.children:
             if type(func) == FuncDeclNode:
@@ -22,6 +25,9 @@ class BigOSimplify(BigOAstVisitor):
         pass
 
     def recursively_simplify(self, func: FuncDeclNode):
+        if func in self.simplified_function:
+            return func.time_complexity
+
         # expend function call
         for symbol in func.time_complexity.free_symbols:
             target_func = self.get_function_by_name(str(symbol))
@@ -49,6 +55,7 @@ class BigOSimplify(BigOAstVisitor):
         else:
             func.time_complexity = sympy.O(func.time_complexity, *var_list).args[0]
 
+        self.simplified_function.append(func)
         return func.time_complexity
 
     def get_function_by_name(self, target_name: str) -> FuncDeclNode:
