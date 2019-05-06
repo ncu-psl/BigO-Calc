@@ -20,11 +20,11 @@ class BigOSimplify(BigOAstVisitor):
 
     def simplify(self):
         for func in self.func_list:
-            self.recursively_simplify(func)
+            self.visit_FuncDeclNode(func)
 
         pass
 
-    def recursively_simplify(self, func: FuncDeclNode):
+    def visit_FuncDeclNode(self, func: FuncDeclNode):
         if func in self.simplified_function:
             return func.time_complexity
 
@@ -34,7 +34,7 @@ class BigOSimplify(BigOAstVisitor):
 
             if target_func:
                 if not target_func.recursive:
-                    target_tc = self.recursively_simplify(target_func)
+                    target_tc = self.visit_FuncDeclNode(target_func)
 
                     # substitute target function complexity into function
                     func.time_complexity = func.time_complexity.subs(symbol, target_tc)
