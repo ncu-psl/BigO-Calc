@@ -33,10 +33,19 @@ class BigOCalculator(BigOAstVisitor):
         target = assign_node.target
         value = assign_node.value
         self.visit(target)
-        self.visit(value)
-        assign_node.time_complexity = value.time_complexity
 
-        return target, value
+        value_tc = 0
+        if type(value) is not list:
+            self.visit(value)
+            value_tc = value.time_complexity
+        else:
+            for child in value:
+                self.visit(child)
+                value_tc += child.time_complexity
+
+        assign_node.time_complexity = value_tc
+
+        pass
 
     def visit_Operator(self, node: Operator):
         op = node.op

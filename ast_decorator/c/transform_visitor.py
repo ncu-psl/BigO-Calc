@@ -1,5 +1,5 @@
 from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
-    UnaryOp, Decl
+    UnaryOp, Decl, ArrayDecl, ArrayRef
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
@@ -23,6 +23,21 @@ class CTransformVisitor(NodeVisitor):
 
         return variable_node
 
+    def visit_ArrayRef(self, pyc_arr_ref: ArrayRef):
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, pyc_arr_ref.coord)
+
+        # add all index into variable_node.children
+        pyc_arr = pyc_arr_ref
+        while type(pyc_arr) == ArrayRef:
+            variable_node.add_children(self.visit(pyc_arr.subscript))
+            pyc_arr = pyc_arr.name
+
+        # ArrayRef variable name will store in the last attr pyc_arr_ref.name.name...name
+        variable_node.name = pyc_arr.name
+
+        return variable_node
+
     def visit_Constant(self, pyc_constant: Constant):
         constant_node = ConstantNode()
         self.set_coordinate(constant_node, pyc_constant.coord)
@@ -40,6 +55,17 @@ class CTransformVisitor(NodeVisitor):
         operator_node.left = self.visit(pyc_bin_op.left)
         operator_node.right = self.visit(pyc_bin_op.right)
 
+        # need to do some trick at signed variable (-1, +1, -n, +n)
+        if hasattr(pyc_bin_op.right, 'value'):
+            if type(pyc_bin_op.right.value) is int:
+                if pyc_bin_op.right.value == 1:
+                    zero = ConstantNode()
+                    self.set_coordinate(zero, pyc_bin_op.coord)
+                    zero.value = 0
+
+                    operator_node.right = operator_node.left
+                    operator_node.left = zero
+
         operator_node.add_children(operator_node.left)
         operator_node.add_children(operator_node.right)
 
@@ -55,7 +81,7 @@ class CTransformVisitor(NodeVisitor):
         elif op != '+' and op != '-':
             raise NotImplementedError('op=', op)
 
-        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', 1), pyc_unary_op.coord)
+        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1'), pyc_unary_op.coord)
         pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
 
         return self.visit(pyc_assign)
@@ -80,21 +106,27 @@ class CTransformVisitor(NodeVisitor):
         return assign_node
 
     def visit_Decl(self, pyc_decl: Decl):
-        assign_node = AssignNode()
-        self.set_coordinate(assign_node, pyc_decl.coord)
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, pyc_decl.coord)
+        variable_node.name = pyc_decl.name
 
-        variable = VariableNode()
-        self.set_coordinate(variable, pyc_decl.coord)
+        if type(pyc_decl.type) == ArrayDecl:
+            pyc_arr = pyc_decl
+            while type(pyc_arr.type) == ArrayDecl:
+                variable_node.add_children(self.visit(pyc_arr.type.dim))
+                pyc_arr = pyc_arr.type
 
-        # target
-        variable.name = pyc_decl.name
-        assign_node.target = variable
-
-        # value
+        # if have init, then create assign node
         if pyc_decl.init:
+            assign_node = AssignNode()
+            self.set_coordinate(assign_node, pyc_decl.coord)
+
+            assign_node.target = variable_node
             assign_node.value = self.visit(pyc_decl.init)
 
-        return assign_node
+            return assign_node
+        else:
+            return variable_node
 
     def visit_FileAST(self, pyc_file_ast: FileAST):
         self.cu = CompilationUnitNode()
