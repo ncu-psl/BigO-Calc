@@ -52,6 +52,8 @@ class BigOCalculator(BigOAstVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
 
+        node.time_complexity = node.left.time_complexity + node.right.time_complexity
+
         if op == '+':
             return operator.add(left, right)
         elif op == '-':
