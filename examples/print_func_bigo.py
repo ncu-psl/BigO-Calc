@@ -46,16 +46,16 @@ def main():
             continue
 
         complexity = func.time_complexity
-        if not complexity:
-            func.time_complexity = sympy.Rational(1)
-            complexity = sympy.Rational(1)
-        elif func.recursive:
+
+        if func.recursive:
             complexity = 'is a recursive function call'
+        elif not complexity:
+            raise ArithmeticError('complexity can not recognize.')
+        elif type(complexity) is sympy.Order:
+            complexity = str(complexity)
         else:
-            if type(complexity) is sympy.Order:
-                complexity = str(complexity)
-            else:
-                complexity = 'O(' + str(complexity) + ')'
+            complexity = 'O(' + str(complexity) + ')'
+
         func_bigo_dict.update({func.name: complexity})
 
     json_str = json.dumps(func_bigo_dict, indent=4)
