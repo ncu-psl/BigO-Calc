@@ -12,121 +12,9 @@ class CTransformVisitor(NodeVisitor):
 
         pass
 
-    def visit_ID(self, pyc_id: ID):
-        variable_node = VariableNode()
-        self.set_coordinate(variable_node, pyc_id.coord)
-        variable_node.name = pyc_id.name
-
-        self.parent = variable_node
-        for child in pyc_id:
-            self.visit(child)
-
-        return variable_node
-
-    def visit_ArrayRef(self, pyc_arr_ref: ArrayRef):
-        variable_node = VariableNode()
-        self.set_coordinate(variable_node, pyc_arr_ref.coord)
-
-        # add all index into variable_node.children
-        pyc_arr = pyc_arr_ref
-        while type(pyc_arr) == ArrayRef:
-            variable_node.add_children(self.visit(pyc_arr.subscript))
-            pyc_arr = pyc_arr.name
-
-        # ArrayRef variable name will store in the last attr pyc_arr_ref.name.name...name
-        variable_node.name = pyc_arr.name
-
-        return variable_node
-
-    def visit_Constant(self, pyc_constant: Constant):
-        constant_node = ConstantNode()
-        self.set_coordinate(constant_node, pyc_constant.coord)
-        if pyc_constant.type == 'int':
-            constant_node.value = int(pyc_constant.value)
-        else:
-            raise NotImplementedError('Constant type not support: ', pyc_constant.type)
-
-        return constant_node
-
-    def visit_BinaryOp(self, pyc_bin_op: BinaryOp):
-        operator_node = Operator()
-        self.set_coordinate(operator_node, pyc_bin_op.coord)
-        operator_node.op = pyc_bin_op.op
-        operator_node.left = self.visit(pyc_bin_op.left)
-        operator_node.right = self.visit(pyc_bin_op.right)
-
-        # need to do some trick at signed variable (-1, +1, -n, +n)
-        if hasattr(pyc_bin_op.right, 'value'):
-            if type(pyc_bin_op.right.value) is int:
-                if pyc_bin_op.right.value == 1:
-                    zero = ConstantNode()
-                    self.set_coordinate(zero, pyc_bin_op.coord)
-                    zero.value = 0
-
-                    operator_node.right = operator_node.left
-                    operator_node.left = zero
-
-        operator_node.add_children(operator_node.left)
-        operator_node.add_children(operator_node.right)
-
-        return operator_node
-
-    def visit_UnaryOp(self, pyc_unary_op: UnaryOp):
-        # convert pyc_unary operator to pyc_assignment
-        op = pyc_unary_op.op
-        if op == '++' or op == 'p++':
-            op = '+'
-        elif op == '--' or op == 'p--':
-            op = '-'
-        elif op != '+' and op != '-':
-            raise NotImplementedError('op=', op)
-
-        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1'), pyc_unary_op.coord)
-        pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
-
-        return self.visit(pyc_assign)
-
-    def visit_Assignment(self, pyc_assign: Assignment):
-        # need to do some trick of +=, -=, *=, /=
-        if len(pyc_assign.op) > 1:
-            op = pyc_assign.op[:-1]
-            if op == '+' or op == '-' or op == '*' or op == '/':
-                new_op = BinaryOp(op, pyc_assign.lvalue, pyc_assign.rvalue)
-            else:
-                raise Exception("does not support operator: ", pyc_assign.op)
-            pyc_assign.op = '='
-            pyc_assign.rvalue = new_op
-
-        # create Big-O AST assign node
-        assign_node = AssignNode()
-        self.set_coordinate(assign_node, pyc_assign.coord)
-        assign_node.target = self.visit(pyc_assign.lvalue)
-        assign_node.value = self.visit(pyc_assign.rvalue)
-
-        return assign_node
-
-    def visit_Decl(self, pyc_decl: Decl):
-        variable_node = VariableNode()
-        self.set_coordinate(variable_node, pyc_decl.coord)
-        variable_node.name = pyc_decl.name
-
-        if type(pyc_decl.type) == ArrayDecl:
-            pyc_arr = pyc_decl
-            while type(pyc_arr.type) == ArrayDecl:
-                variable_node.add_children(self.visit(pyc_arr.type.dim))
-                pyc_arr = pyc_arr.type
-
-        # if have init, then create assign node
-        if pyc_decl.init:
-            assign_node = AssignNode()
-            self.set_coordinate(assign_node, pyc_decl.coord)
-
-            assign_node.target = variable_node
-            assign_node.value = self.visit(pyc_decl.init)
-
-            return assign_node
-        else:
-            return variable_node
+    def transform(self, root):
+        self.visit(root)
+        return self.cu
 
     def visit_FileAST(self, pyc_file_ast: FileAST):
         self.cu = CompilationUnitNode()
@@ -165,6 +53,122 @@ class CTransformVisitor(NodeVisitor):
                     func_call_node.parameter.append(param.name)
 
         return func_call_node
+
+    def visit_Decl(self, pyc_decl: Decl):
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, pyc_decl.coord)
+        variable_node.name = pyc_decl.name
+
+        if type(pyc_decl.type) == ArrayDecl:
+            pyc_arr = pyc_decl
+            while type(pyc_arr.type) == ArrayDecl:
+                variable_node.add_children(self.visit(pyc_arr.type.dim))
+                pyc_arr = pyc_arr.type
+
+        # if have init, then create assign node
+        if pyc_decl.init:
+            assign_node = AssignNode()
+            self.set_coordinate(assign_node, pyc_decl.coord)
+
+            assign_node.target = variable_node
+            assign_node.value = self.visit(pyc_decl.init)
+
+            return assign_node
+        else:
+            return variable_node
+
+    def visit_ID(self, pyc_id: ID):
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, pyc_id.coord)
+        variable_node.name = pyc_id.name
+
+        self.parent = variable_node
+        for child in pyc_id:
+            self.visit(child)
+
+        return variable_node
+
+    def visit_ArrayRef(self, pyc_arr_ref: ArrayRef):
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, pyc_arr_ref.coord)
+
+        # add all index into variable_node.children
+        pyc_arr = pyc_arr_ref
+        while type(pyc_arr) == ArrayRef:
+            variable_node.add_children(self.visit(pyc_arr.subscript))
+            pyc_arr = pyc_arr.name
+
+        # ArrayRef variable name will store in the last attr pyc_arr_ref.name.name...name
+        variable_node.name = pyc_arr.name
+
+        return variable_node
+
+    def visit_Constant(self, pyc_constant: Constant):
+        constant_node = ConstantNode()
+        self.set_coordinate(constant_node, pyc_constant.coord)
+        if pyc_constant.type == 'int':
+            constant_node.value = int(pyc_constant.value)
+        else:
+            raise NotImplementedError('Constant type not support: ', pyc_constant.type)
+
+        return constant_node
+
+    def visit_Assignment(self, pyc_assign: Assignment):
+        # need to do some trick of +=, -=, *=, /=
+        if len(pyc_assign.op) > 1:
+            op = pyc_assign.op[:-1]
+            if op == '+' or op == '-' or op == '*' or op == '/':
+                new_op = BinaryOp(op, pyc_assign.lvalue, pyc_assign.rvalue)
+            else:
+                raise Exception("does not support operator: ", pyc_assign.op)
+            pyc_assign.op = '='
+            pyc_assign.rvalue = new_op
+
+        # create Big-O AST assign node
+        assign_node = AssignNode()
+        self.set_coordinate(assign_node, pyc_assign.coord)
+        assign_node.target = self.visit(pyc_assign.lvalue)
+        assign_node.value = self.visit(pyc_assign.rvalue)
+
+        return assign_node
+
+    def visit_BinaryOp(self, pyc_bin_op: BinaryOp):
+        operator_node = Operator()
+        self.set_coordinate(operator_node, pyc_bin_op.coord)
+        operator_node.op = pyc_bin_op.op
+        operator_node.left = self.visit(pyc_bin_op.left)
+        operator_node.right = self.visit(pyc_bin_op.right)
+
+        # need to do some trick at signed variable (-1, +1, -n, +n)
+        if hasattr(pyc_bin_op.right, 'value'):
+            if type(pyc_bin_op.right.value) is int:
+                if pyc_bin_op.right.value == 1:
+                    zero = ConstantNode()
+                    self.set_coordinate(zero, pyc_bin_op.coord)
+                    zero.value = 0
+
+                    operator_node.right = operator_node.left
+                    operator_node.left = zero
+
+        operator_node.add_children(operator_node.left)
+        operator_node.add_children(operator_node.right)
+
+        return operator_node
+
+    def visit_UnaryOp(self, pyc_unary_op: UnaryOp):
+        # convert pyc_unary operator to pyc_assignment
+        op = pyc_unary_op.op
+        if op == '++' or op == 'p++':
+            op = '+'
+        elif op == '--' or op == 'p--':
+            op = '-'
+        elif op != '+' and op != '-':
+            raise NotImplementedError('op=', op)
+
+        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1'), pyc_unary_op.coord)
+        pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
+
+        return self.visit(pyc_assign)
 
     def visit_If(self, pyc_if: If):
         if_node = IfNode()
@@ -240,10 +244,6 @@ class CTransformVisitor(NodeVisitor):
 
         if children:
             return children
-
-    def transform(self, root):
-        self.visit(root)
-        return self.cu
 
     @staticmethod
     def set_coordinate(node: BasicNode, coord):

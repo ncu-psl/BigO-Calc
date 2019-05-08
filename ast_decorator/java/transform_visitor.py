@@ -18,53 +18,58 @@ class JavaTransformVisitor(NodeVisitor):
 
         return self.cu
 
-    def visit_Literal(self, java_literal: Literal):
-        constant_node = ConstantNode()
-        self.set_coordinate(constant_node, java_literal)
+    def visit_CompilationUnit(self, java_cu: CompilationUnit):
+        self.cu = CompilationUnitNode()
+        self.set_coordinate(self.cu, java_cu)
 
-        try:
-            constant_node.value = int(java_literal.value)
-        except:
-            raise NotImplementedError('Constant type not support: ', java_literal.type)
+        if java_cu.types:
+            for child in java_cu.types:
+                self.cu.add_children(self.visit(child))
 
-        return constant_node
+        return self.cu
 
-    def visit_BinaryOperation(self, java_op_node: BinaryOperation):
-        operator_node = Operator()
-        self.set_coordinate(operator_node, java_op_node)
+    def visit_ClassDeclaration(self, java_class_def):
+        stmts = []
+        for stmt in java_class_def.body:
+            stmts.append(self.visit(stmt))
 
-        operator_node.op = java_op_node.operator
-        operator_node.left = self.visit(java_op_node.operandl)
-        operator_node.right = self.visit(java_op_node.operandr)
+        return stmts
 
-        operator_node.add_children(operator_node.left)
-        operator_node.add_children(operator_node.right)
+    def visit_MethodDeclaration(self, java_method_decl: MethodDeclaration):
+        func_decl_node = FuncDeclNode()
+        self.set_coordinate(func_decl_node, java_method_decl)
 
-        return operator_node
+        func_decl_node.name = java_method_decl.name
+        if java_method_decl.parameters:
+            for param in java_method_decl.parameters:
+                # func_decl_node.parameter.append(param.type.name + ' ' + param.name)
+                func_decl_node.parameter.append(self.visit_VariableDeclarator(param))
 
-    def visit_Assignment(self, java_assign: Assignment):
-        assign_node = AssignNode()
-        self.set_coordinate(assign_node, java_assign)
+        for child in java_method_decl.body:
+            func_decl_node.add_children(self.visit(child))
 
-        # need to do some trick of +=, -=, *=, /=
-        if len(java_assign.type) > 1:
-            op = java_assign.type[:-1]
-            if op == '+' or op == '-' or op == '*' or op == '/':
-                new_op = BinaryOperation()
-                self.set_coordinate(new_op, java_assign)
+        return func_decl_node
 
-                new_op.operator = op
-                new_op.operandl = java_assign.expressionl
-                new_op.operandr = java_assign.value
-            else:
-                raise Exception("does not support operator: ", java_assign.op)
-            java_assign.type = '='
-            java_assign.value = new_op
+    def visit_MethodInvocation(self, java_method_invocation: MethodInvocation):
+        # func_call_node = JavaFuncCallNodeFactory().create(java_method_invocation)
+        # self.parent.children.append(func_call_node)
+        # func_call.copy_node_info_from(basic_node)
 
-        assign_node.target = self.visit(java_assign.expressionl)
-        assign_node.value = self.visit(java_assign.value)
+        func_call = FuncCallNode()
+        self.set_coordinate(func_call, java_method_invocation)
+        func_call.name = java_method_invocation.member
+        if java_method_invocation.arguments:
+            for arg in java_method_invocation.arguments:
+                if type(arg) == Literal:
+                    func_call.parameter.append(str(arg.value))
+                elif type(arg) == MemberReference:
+                    func_call.parameter.append(str(arg.member))
+                elif type(arg) == BinaryOperation:
+                    func_call.parameter.append(str(arg.operandl) + str(arg.operator) + str(arg.operandr))
+                else:
+                    func_call.parameter.append(str(arg))
 
-        return assign_node
+        return func_call
 
     def visit_VariableDeclarator(self, java_var: VariableDeclarator):
         assign_node = AssignNode()
@@ -134,58 +139,53 @@ class JavaTransformVisitor(NodeVisitor):
 
         return variable_node
 
-    def visit_CompilationUnit(self, java_cu: CompilationUnit):
-        self.cu = CompilationUnitNode()
-        self.set_coordinate(self.cu, java_cu)
+    def visit_Literal(self, java_literal: Literal):
+        constant_node = ConstantNode()
+        self.set_coordinate(constant_node, java_literal)
 
-        if java_cu.types:
-            for child in java_cu.types:
-                self.cu.add_children(self.visit(child))
+        try:
+            constant_node.value = int(java_literal.value)
+        except:
+            raise NotImplementedError('Constant type not support: ', java_literal.type)
 
-        return self.cu
+        return constant_node
 
-    def visit_ClassDeclaration(self, java_class_def):
-        stmts = []
-        for stmt in java_class_def.body:
-            stmts.append(self.visit(stmt))
+    def visit_Assignment(self, java_assign: Assignment):
+        assign_node = AssignNode()
+        self.set_coordinate(assign_node, java_assign)
 
-        return stmts
+        # need to do some trick of +=, -=, *=, /=
+        if len(java_assign.type) > 1:
+            op = java_assign.type[:-1]
+            if op == '+' or op == '-' or op == '*' or op == '/':
+                new_op = BinaryOperation()
+                self.set_coordinate(new_op, java_assign)
 
-    def visit_MethodDeclaration(self, java_method_decl: MethodDeclaration):
-        func_decl_node = FuncDeclNode()
-        self.set_coordinate(func_decl_node, java_method_decl)
+                new_op.operator = op
+                new_op.operandl = java_assign.expressionl
+                new_op.operandr = java_assign.value
+            else:
+                raise Exception("does not support operator: ", java_assign.op)
+            java_assign.type = '='
+            java_assign.value = new_op
 
-        func_decl_node.name = java_method_decl.name
-        if java_method_decl.parameters:
-            for param in java_method_decl.parameters:
-                # func_decl_node.parameter.append(param.type.name + ' ' + param.name)
-                func_decl_node.parameter.append(self.visit_VariableDeclarator(param))
+        assign_node.target = self.visit(java_assign.expressionl)
+        assign_node.value = self.visit(java_assign.value)
 
-        for child in java_method_decl.body:
-            func_decl_node.add_children(self.visit(child))
+        return assign_node
 
-        return func_decl_node
+    def visit_BinaryOperation(self, java_op_node: BinaryOperation):
+        operator_node = Operator()
+        self.set_coordinate(operator_node, java_op_node)
 
-    def visit_MethodInvocation(self, java_method_invocation: MethodInvocation):
-        # func_call_node = JavaFuncCallNodeFactory().create(java_method_invocation)
-        # self.parent.children.append(func_call_node)
-        # func_call.copy_node_info_from(basic_node)
+        operator_node.op = java_op_node.operator
+        operator_node.left = self.visit(java_op_node.operandl)
+        operator_node.right = self.visit(java_op_node.operandr)
 
-        func_call = FuncCallNode()
-        self.set_coordinate(func_call, java_method_invocation)
-        func_call.name = java_method_invocation.member
-        if java_method_invocation.arguments:
-            for arg in java_method_invocation.arguments:
-                if type(arg) == Literal:
-                    func_call.parameter.append(str(arg.value))
-                elif type(arg) == MemberReference:
-                    func_call.parameter.append(str(arg.member))
-                elif type(arg) == BinaryOperation:
-                    func_call.parameter.append(str(arg.operandl) + str(arg.operator) + str(arg.operandr))
-                else:
-                    func_call.parameter.append(str(arg))
+        operator_node.add_children(operator_node.left)
+        operator_node.add_children(operator_node.right)
 
-        return func_call
+        return operator_node
 
     def visit_IfStatement(self, java_if: IfStatement):
         if_node = IfNode()
