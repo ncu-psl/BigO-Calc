@@ -70,188 +70,6 @@ class BasicNode(object):
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
 
-class Bool(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class And(Bool):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class Or(Bool):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class Operator(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-
-        self.op = ''
-        self.left = BasicNode()
-        self.right = BasicNode()
-
-        pass
-
-    def to_dict(self):
-        d = super().to_dict()
-        d.update({'left': self.left.to_dict()})
-        d.update({'right': self.right.to_dict()})
-
-        return d
-
-
-class Add(Operator):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class Sub(Operator):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class Mul(Operator):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class Div(Operator):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class CompareOp(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class LT(CompareOp):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class LE(CompareOp):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class GT(CompareOp):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class GE(CompareOp):
-
-    def __init__(self):
-        super().__init__()
-
-        pass
-
-
-class VariableNode(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-
-        self.name = ''
-
-        pass
-
-    def to_dict(self):
-        d = super().to_dict()
-        d.update({'value': self.name})
-
-        return d
-
-
-class AssignNode(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-        self.__target = BasicNode()
-        self.__value = BasicNode()
-
-        pass
-
-    @property
-    def target(self):
-        return self.__target
-
-    @target.setter
-    def target(self, target):
-        self.__target = target
-        self.add_children(self.target)
-
-    @property
-    def value(self):
-        return self.__value
-
-    @value.setter
-    def value(self, value):
-        self.__value = value
-        self.add_children(self.value)
-
-    def to_dict(self):
-        d = super().to_dict()
-        d.update({'target': self.target.to_dict()})
-        d.update({'value': self.value.to_dict()})
-
-        return d
-
-
-class ConstantNode(BasicNode):
-
-    def __init__(self):
-        super().__init__()
-
-        self.value = 0
-
-        pass
-
-    def to_dict(self):
-        d = super().to_dict()
-        d.update({'value': self.value})
-
-        return d
-
-
 class CompilationUnitNode(BasicNode):
 
     def __init__(self):
@@ -306,6 +124,92 @@ class FuncCallNode(BasicNode):
         d = super().to_dict()
         d.update({'name': self.name})
         d.update({'parameter': self.parameter})
+
+        return d
+
+
+class VariableNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.name = ''
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'value': self.name})
+
+        return d
+
+
+class ConstantNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.value = 0
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'value': self.value})
+
+        return d
+
+
+class AssignNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+        self.__target = BasicNode()
+        self.__value = BasicNode()
+
+        pass
+
+    @property
+    def target(self):
+        return self.__target
+
+    @target.setter
+    def target(self, target):
+        self.__target = target
+        self.add_children(self.target)
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.__value = value
+        self.add_children(self.value)
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'target': self.target.to_dict()})
+        d.update({'value': self.value.to_dict()})
+
+        return d
+
+
+class Operator(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.op = ''
+        self.left = BasicNode()
+        self.right = BasicNode()
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'left': self.left.to_dict()})
+        d.update({'right': self.right.to_dict()})
 
         return d
 
