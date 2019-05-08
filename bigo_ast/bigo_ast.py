@@ -1,31 +1,50 @@
 import json
 
+import sympy
+
 
 class BasicNode(object):
 
     def __init__(self):
-        self.time_complexity = ''
-        self.children = []
+        self.time_complexity = sympy.Rational(1)
+        self.__children = []
         self.col = 0
         self.line_number = 0
         self.parent = None
-        self._type = self.__class__.__name__
+        self.__type = self.__class__.__name__
 
         pass
 
     def __iter__(self):
-        for child in self.children:
+        for child in self.__children:
             yield child
 
+    @property
+    def children(self) -> []:
+        return self.__children
+
+    @children.setter
+    def children(self, children):
+        self.__children = children
+
+    def add_children(self, children):
+        if not children:
+            return
+
+        if type(children) is list:
+            self.__children.extend(children)
+        else:
+            self.__children.append(children)
+
     def add_parent_to_children(self):
-        for child in self.children:
+        for child in self.__children:
             child.parent = self
             child.add_parent_to_children()
         pass
 
     def copy_node_info_from(self, basic_node):
         self.time_complexity = basic_node.time_complexity
-        self.children = basic_node.children
+        self.__children = basic_node.children
         self.col = basic_node.col
         self.line_number = basic_node.line_number
         self.parent = basic_node.parent
@@ -33,14 +52,14 @@ class BasicNode(object):
         pass
 
     def to_dict(self):
-        d = {'_type': self._type,
+        d = {'_type': self.__type,
              'time_complexity': self.time_complexity,
              'col': self.col,
              'line_number': self.line_number,
              'parent': None}
 
         children_list = []
-        for child in self.children:
+        for child in self.__children:
             children_list.append(child.to_dict())
 
         d.update({'children': children_list})
@@ -109,21 +128,123 @@ class FuncCallNode(BasicNode):
         return d
 
 
-class IfNode(BasicNode):
+class VariableNode(BasicNode):
+
     def __init__(self):
         super().__init__()
 
-        self.condition = BasicNode()
-        self.true_stmt = BasicNode()
-        self.false_stmt = BasicNode()
+        self.name = ''
 
         pass
 
     def to_dict(self):
         d = super().to_dict()
+        d.update({'value': self.name})
+
+        return d
+
+
+class ConstantNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.value = 0
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'value': self.value})
+
+        return d
+
+
+class AssignNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+        self.__target = BasicNode()
+        self.__value = BasicNode()
+
+        pass
+
+    @property
+    def target(self):
+        return self.__target
+
+    @target.setter
+    def target(self, target):
+        self.__target = target
+        self.add_children(self.target)
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.__value = value
+        self.add_children(self.value)
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'target': self.target.to_dict()})
+        d.update({'value': self.value.to_dict()})
+
+        return d
+
+
+class Operator(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.op = ''
+        self.left = BasicNode()
+        self.right = BasicNode()
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'left': self.left.to_dict()})
+        d.update({'right': self.right.to_dict()})
+
+        return d
+
+
+class IfNode(BasicNode):
+    def __init__(self):
+        super().__init__()
+
+        self.condition = BasicNode()
+        self.__true_stmt = []
+        self.__false_stmt = []
+
+        pass
+
+    @property
+    def true_stmt(self):
+        return self.__true_stmt
+
+    @true_stmt.setter
+    def true_stmt(self, true_stmt):
+        self.__true_stmt = true_stmt
+
+    @property
+    def false_stmt(self):
+        return self.__false_stmt
+
+    @false_stmt.setter
+    def false_stmt(self, false_stmt):
+        self.__false_stmt = false_stmt
+
+    def to_dict(self):
+        d = super().to_dict()
         d.update({'condition': self.condition.to_dict()})
-        d.update({'true': self.true_stmt.to_dict()})
-        d.update({'false': self.false_stmt.to_dict()})
+        d.update({'true': self.true_stmt})
+        d.update({'false': self.false_stmt})
 
         return d
 
@@ -132,24 +253,46 @@ class ForNode(BasicNode):
     def __init__(self):
         super().__init__()
 
-        # self.init = ' '.join(str(x) for x in for_node.init or [])
-        # self.term = ' '.join(str(x) for x in for_node.cond or [])
-        # self.next = ' '.join(str(x) for x in for_node.next or [])
-
         self.variable = None
-        self.init = None
-        self.term = None
-        self.update = None
-
-        # self.children = ' '.join(str(x) for x in for_node.stmt.block_items or [])
+        self.init = []
+        self.term = []
+        self.update = []
 
         pass
 
     def to_dict(self):
         d = super().to_dict()
         d.update({'variable': self.variable})
-        d.update({'init': self.init})
+
+        init_list = []
+        for child in self.init:
+            init_list.append(child.to_dict())
+
+        d.update({'init': init_list})
+
+        term_list = []
+        for child in self.init:
+            term_list.append(child.to_dict())
+        d.update({'terminal': term_list})
+
+        update_list = []
+        for child in self.init:
+            update_list.append(child.to_dict())
+        d.update({'update': update_list})
+
+        return d
+
+
+class WhileNode(BasicNode):
+    def __init__(self):
+        super().__init__()
+
+        self.term = None
+
+        pass
+
+    def to_dict(self):
+        d = super().to_dict()
         d.update({'terminal': self.term})
-        d.update({'update': self.update})
 
         return d

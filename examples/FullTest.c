@@ -15,8 +15,8 @@ int is_odd(int n) { // if else
 }
 
 int calc_sum(int n) { // basic for
-	int i=0,sum = 0;
-	for (i = 1; i <= n; i++) {
+	int i = 0, sum = 0;
+	for (i = 1; i <= n; i *= 2) {
 		sum += i;
 	}
 
@@ -24,10 +24,11 @@ int calc_sum(int n) { // basic for
 }
 
 int calc_odd_sum(int n) { // for * if
-	int i=0,sum = 0;
+	int i = 0, sum = 0;
 	for (i = 1; i <= n; i++) {
 	    if(is_odd(i)) {
 		    sum = sum + i;
+		    nested_loop(i);
 	    }
 	}
 
@@ -35,11 +36,10 @@ int calc_odd_sum(int n) { // for * if
 }
 
 void nested_loop(int n) { // for * for
-	int i, j;
-	int a[100][100];
+	int i, j, a;
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
-			a[i][j] = i * j;
+			a = i * j;
 		}
 	}
 }
