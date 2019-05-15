@@ -6,15 +6,14 @@ An automated Big-O analysis tool base on Big-O AST.
 
 ## How to use
 ```sh
-git clone --recurse-submodules -j8 https://github.com/ncu-psl/ABOAT.git
+git clone --recurse-submodules https://github.com/ncu-psl/BigO-Calc.git
+cd BigO-Calc
 pip install -r requirements.txt
-cd examples
-python3 print_func_bigo.py FullTest.c C
+python3 bigo_calc.py examples/ForTest.c C
 ```
 
 ## Dependency
-
-* See [Dependency graph](https://github.com/ncu-psl/ABOAT/network/dependencies) or [requirements.txt](requirements.txt) in detail.
+* See [Dependency graph](https://github.com/ncu-psl/BigO-Calc/network/dependencies) or [requirements.txt](requirements.txt) in detail.
 
     * C AST is generated from [pycparser](https://github.com/eliben/pycparser)
 
@@ -27,6 +26,6 @@ python3 print_func_bigo.py FullTest.c C
 [TANET_2018_ABOAT]:https://drive.google.com/file/d/1DI91vHIPUzVy0Eb6nXdoB3CwqWpJu9UB
 
 ## AST version & CST version
-* [AST version](https://github.com/ncu-psl/ABOAT/tree/master) (Current Version)
+* [AST version](https://github.com/ncu-psl/BigO-Calc/tree/master) (Current Version)
 
-* [CST version](https://github.com/ncu-psl/ABOAT/tree/CST) (This Version is no longer maintained)
+* [CST version](https://github.com/ncu-psl/BigO-Calc/tree/CST) (This Version is no longer maintained)
