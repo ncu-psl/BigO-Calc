@@ -97,7 +97,7 @@ class FuncDeclNode(BasicNode):
                 if node.name == self.name:
                     self.recursive = True
                     break
-            for child in node.children:
+            for child in node:
                 que.append(child)
 
         return self.recursive
