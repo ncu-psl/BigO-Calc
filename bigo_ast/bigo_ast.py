@@ -219,26 +219,18 @@ class IfNode(BasicNode):
         super().__init__()
 
         self.condition = BasicNode()
-        self.__true_stmt = []
-        self.__false_stmt = []
+        self.true_stmt = []
+        self.false_stmt = []
 
         pass
 
-    @property
-    def true_stmt(self):
-        return self.__true_stmt
-
-    @true_stmt.setter
-    def true_stmt(self, true_stmt):
-        self.__true_stmt = true_stmt
-
-    @property
-    def false_stmt(self):
-        return self.__false_stmt
-
-    @false_stmt.setter
-    def false_stmt(self, false_stmt):
-        self.__false_stmt = false_stmt
+    def __iter__(self):
+        for child in self.condition:
+            yield child
+        for child in self.true_stmt:
+            yield child
+        for child in self.false_stmt:
+            yield child
 
     def to_dict(self):
         d = super().to_dict()
