@@ -239,10 +239,11 @@ class CTransformVisitor(NodeVisitor):
         children = []
         for c in node:
             child = self.visit(c)
-            if type(child) is list:
-                children.extend(child)
-            else:
-                children.append(child)
+            if child:
+                if type(child) is list:
+                    children.extend(child)
+                else:
+                    children.append(child)
 
         if children:
             return children
