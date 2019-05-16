@@ -25,7 +25,7 @@ class BigOCalculator(BigOAstVisitor):
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         if func_decl_node.determine_recursion():
-            func_decl_node.time_complexity = sympy.Symbol(func_decl_node.name)
+            func_decl_node.time_complexity = sympy.Symbol(func_decl_node.name, integer=True, positive=True)
         else:
             tc = 0
             for child in func_decl_node.children:
@@ -39,7 +39,7 @@ class BigOCalculator(BigOAstVisitor):
         target = func_call.name
         for func in self.function_list:
             if target == func.name:
-                func_call.time_complexity = sympy.Symbol(func.name)
+                func_call.time_complexity = sympy.Symbol(func.name, integer=True, positive=True)
                 break
 
         pass
