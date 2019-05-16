@@ -3,6 +3,11 @@ from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
+from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
+    UnaryOp, Decl, ArrayDecl, ArrayRef
+
+from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
+    FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
 
 class CTransformVisitor(NodeVisitor):
@@ -108,8 +113,8 @@ class CTransformVisitor(NodeVisitor):
         self.set_coordinate(constant_node, pyc_constant.coord)
         if pyc_constant.type == 'int':
             constant_node.value = int(pyc_constant.value)
-        else:
-            raise NotImplementedError('Constant type not support: ', pyc_constant.type)
+        # else:
+        #     raise NotImplementedError('Constant type not support: ', pyc_constant.type)
 
         return constant_node
 
