@@ -141,8 +141,8 @@ class CTransformVisitor(NodeVisitor):
 
         # need to do some trick at signed variable (-1, +1, -n, +n)
         if hasattr(pyc_bin_op.right, 'value'):
-            if type(pyc_bin_op.right.value) is int:
-                if pyc_bin_op.right.value == 1:
+            if pyc_bin_op.left.coord == pyc_bin_op.right.coord:
+                if type(pyc_bin_op.left) == Constant and type(pyc_bin_op.right) == Constant:
                     zero = ConstantNode()
                     self.set_coordinate(zero, pyc_bin_op.coord)
                     zero.value = 0
@@ -162,10 +162,12 @@ class CTransformVisitor(NodeVisitor):
             op = '+'
         elif op == '--' or op == 'p--':
             op = '-'
-        elif op != '+' and op != '-':
+        elif op == '+' or op == '-':
+            bin_op = BinaryOp(op, Constant('int', '0', pyc_unary_op.coord), pyc_unary_op.expr, pyc_unary_op.coord)
+            return self.visit(bin_op)
+        else:
             raise NotImplementedError('op=', op)
-
-        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1'), pyc_unary_op.coord)
+        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1', pyc_unary_op.coord), pyc_unary_op.coord)
         pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
 
         return self.visit(pyc_assign)
