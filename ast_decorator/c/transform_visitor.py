@@ -1,10 +1,5 @@
 from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
-    UnaryOp, Decl, ArrayDecl, ArrayRef
-
-from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
-    FuncCallNode, CompilationUnitNode, IfNode, ForNode
-from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
-    UnaryOp, Decl, ArrayDecl, ArrayRef
+    UnaryOp, Decl, ArrayDecl, ArrayRef, Cast
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
@@ -92,6 +87,9 @@ class CTransformVisitor(NodeVisitor):
             self.visit(child)
 
         return variable_node
+
+    def visit_Cast(self, cast: Cast):
+        return self.visit(cast.expr)
 
     def visit_ArrayRef(self, pyc_arr_ref: ArrayRef):
         variable_node = VariableNode()
