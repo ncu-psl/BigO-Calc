@@ -131,13 +131,18 @@ class BigOCalculator(BigOAstVisitor):
 
         if variable == t_left:
             a_n = t_right
+            if term.op == '<':
+                a_n = a_n - 1
+            elif term.op == '>':
+                a_n = a_n + 1
         elif variable == t_right:
             a_n = t_left
+            if term.op == '<':
+                a_n = a_n + 1
+            elif term.op == '>':
+                a_n = a_n - 1
         else:
             raise NotImplementedError("unknown condition: ", t_left, t_right)
-
-        if term.op == '<' or term.op == '>':
-            a_n = a_n - 1
 
         # update
         update = for_node.update[0]
