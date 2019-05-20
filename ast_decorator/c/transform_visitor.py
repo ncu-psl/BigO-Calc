@@ -1,5 +1,5 @@
 from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
-    UnaryOp, Decl, ArrayDecl, ArrayRef
+    UnaryOp, Decl, ArrayDecl, ArrayRef, Cast
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
@@ -88,6 +88,9 @@ class CTransformVisitor(NodeVisitor):
 
         return variable_node
 
+    def visit_Cast(self, cast: Cast):
+        return self.visit(cast.expr)
+
     def visit_ArrayRef(self, pyc_arr_ref: ArrayRef):
         variable_node = VariableNode()
         self.set_coordinate(variable_node, pyc_arr_ref.coord)
@@ -108,8 +111,8 @@ class CTransformVisitor(NodeVisitor):
         self.set_coordinate(constant_node, pyc_constant.coord)
         if pyc_constant.type == 'int':
             constant_node.value = int(pyc_constant.value)
-        else:
-            raise NotImplementedError('Constant type not support: ', pyc_constant.type)
+        # else:
+        #     raise NotImplementedError('Constant type not support: ', pyc_constant.type)
 
         return constant_node
 
@@ -141,8 +144,8 @@ class CTransformVisitor(NodeVisitor):
 
         # need to do some trick at signed variable (-1, +1, -n, +n)
         if hasattr(pyc_bin_op.right, 'value'):
-            if type(pyc_bin_op.right.value) is int:
-                if pyc_bin_op.right.value == 1:
+            if pyc_bin_op.left.coord == pyc_bin_op.right.coord:
+                if type(pyc_bin_op.left) == Constant and type(pyc_bin_op.right) == Constant:
                     zero = ConstantNode()
                     self.set_coordinate(zero, pyc_bin_op.coord)
                     zero.value = 0
@@ -162,10 +165,12 @@ class CTransformVisitor(NodeVisitor):
             op = '+'
         elif op == '--' or op == 'p--':
             op = '-'
-        elif op != '+' and op != '-':
-            raise NotImplementedError('op=', op)
-
-        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1'), pyc_unary_op.coord)
+        elif op == '+' or op == '-':
+            bin_op = BinaryOp(op, Constant('int', '0', pyc_unary_op.coord), pyc_unary_op.expr, pyc_unary_op.coord)
+            return self.visit(bin_op)
+        # else:
+        #     raise NotImplementedError('op=', op)
+        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1', pyc_unary_op.coord), pyc_unary_op.coord)
         pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
 
         return self.visit(pyc_assign)
@@ -237,10 +242,11 @@ class CTransformVisitor(NodeVisitor):
         children = []
         for c in node:
             child = self.visit(c)
-            if type(child) is list:
-                children.extend(child)
-            else:
-                children.append(child)
+            if child:
+                if type(child) is list:
+                    children.extend(child)
+                else:
+                    children.append(child)
 
         if children:
             return children

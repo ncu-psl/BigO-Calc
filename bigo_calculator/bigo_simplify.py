@@ -45,7 +45,11 @@ class BigOSimplify(BigOAstVisitor):
             var_list.update([(symbol, sympy.oo)])
 
         # simplify time complexity
-        func.time_complexity = sympy.O(func.time_complexity, *var_list).args[0]
+        if var_list:
+            func.time_complexity = sympy.O(func.time_complexity, *var_list).args[0]
+        else:
+            func.time_complexity = sympy.O(func.time_complexity).args[0]
+
         func.time_complexity = func.time_complexity.simplify()
         func.time_complexity = func.time_complexity.expand()
 

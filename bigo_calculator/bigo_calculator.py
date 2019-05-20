@@ -25,12 +25,14 @@ class BigOCalculator(BigOAstVisitor):
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         if func_decl_node.determine_recursion():
-            func_decl_node.time_complexity = sympy.Symbol(func_decl_node.name)
+            func_decl_node.time_complexity = sympy.Symbol(func_decl_node.name, integer=True, positive=True)
         else:
             tc = 0
             for child in func_decl_node.children:
                 self.visit(child)
                 tc += child.time_complexity
+            if tc == 0:
+                tc = 1
             func_decl_node.time_complexity = tc
 
         pass
@@ -39,7 +41,7 @@ class BigOCalculator(BigOAstVisitor):
         target = func_call.name
         for func in self.function_list:
             if target == func.name:
-                func_call.time_complexity = sympy.Symbol(func.name)
+                func_call.time_complexity = sympy.Symbol(func.name, integer=True, positive=True)
                 break
 
         pass
@@ -97,10 +99,16 @@ class BigOCalculator(BigOAstVisitor):
             self.visit(child)
             true_tc += child.time_complexity
 
+        if true_tc == 0:
+            true_tc = 1
+
         false_tc = 0
         for child in if_node.false_stmt:
             self.visit(child)
             false_tc += child.time_complexity
+
+        if false_tc == 0:
+            false_tc = 1
 
         if_node.time_complexity = cond_tc + sympy.Max(true_tc, false_tc)
 
@@ -123,13 +131,18 @@ class BigOCalculator(BigOAstVisitor):
 
         if variable == t_left:
             a_n = t_right
+            if term.op == '<':
+                a_n = a_n - 1
+            elif term.op == '>':
+                a_n = a_n + 1
         elif variable == t_right:
             a_n = t_left
+            if term.op == '<':
+                a_n = a_n + 1
+            elif term.op == '>':
+                a_n = a_n - 1
         else:
             raise NotImplementedError("unknown condition: ", t_left, t_right)
-
-        if term.op == '<' or term.op == '>':
-            a_n = a_n - 1
 
         # update
         update = for_node.update[0]
@@ -141,12 +154,21 @@ class BigOCalculator(BigOAstVisitor):
             step = (a_n - a_1) / d + 1
         elif op.is_Mul:
             q = op / variable
-            step = sympy.log(a_n / a_1, q) + 1
+            if q > 1:
+                # i = 1 ~ n, i *= q
+                step = sympy.log(a_n / a_1, q) + 1
+            elif q < 1:
+                # i = n ~ 1, i /= q
+                step = sympy.log(a_1 / a_n, q) + 1
+            else:
+                raise NotImplementedError('can not handle step: ', q)
 
         tc = 0
         for child in for_node.children:
             self.visit(child)
             tc += child.time_complexity
+        if tc == 0:
+            tc = 1
         for_node.time_complexity = step * tc
 
         pass
