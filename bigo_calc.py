@@ -48,7 +48,7 @@ def main():
         complexity = func.time_complexity
 
         if func.recursive:
-            complexity = 'is a recursive function call'
+            complexity = 'is a recursive function'
         elif not complexity:
             raise ArithmeticError('complexity can not recognize.')
         elif type(complexity) is sympy.Order:
