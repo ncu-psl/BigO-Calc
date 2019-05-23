@@ -1,6 +1,6 @@
 # BigO-Calc
-[![Python](https://img.shields.io/badge/python-3.5.0-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-350/)
-
+[![Python](https://img.shields.io/badge/python-3.5.0-blue.svg?style=popout)](https://www.python.org/downloads/release/python-350/)
+[![SymPy](https://img.shields.io/badge/SymPy-1.3-brightgreen.svg?style=popout)](https://docs.sympy.org/1.3/index.html/)
 ## Introduction
 An automated Big-O analysis tool base on Big-O AST.
 
