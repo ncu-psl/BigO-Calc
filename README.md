@@ -8,8 +8,8 @@ An automated Big-O analysis tool base on Big-O AST.
 ```sh
 git clone --recurse-submodules https://github.com/ncu-psl/BigO-Calc.git
 cd BigO-Calc
-pip install -r requirements.txt
-python3 bigo_calc.py examples/ForTest.c C
+pip3 install -r requirements.txt
+sh run_eval.sh
 ```
 
 ## Dependency
