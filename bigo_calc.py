@@ -4,10 +4,10 @@ import sys
 
 import sympy
 
-from ast_decorator.c.ast_generator import CASTGenerator
-from ast_decorator.c.transform_visitor import CTransformVisitor
-from ast_decorator.java.ast_generator import JavaASTGenerator
-from ast_decorator.java.transform_visitor import JavaTransformVisitor
+from ast_transformer.c.ast_generator import CASTGenerator
+from ast_transformer.c.transform_visitor import CTransformVisitor
+from ast_transformer.java.ast_generator import JavaASTGenerator
+from ast_transformer.java.transform_visitor import JavaTransformVisitor
 from bigo_ast.bigo_ast import FuncDeclNode
 from bigo_calculator.bigo_calculator import BigOCalculator
 from bigo_calculator.bigo_simplify import BigOSimplify
