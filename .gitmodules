@@ -1,3 +1,3 @@
-[submodule "ast_decorator/c/pycparser"]
-	path = ast_decorator/c/pycparser
+[submodule "ast_transformer/c/pycparser"]
+	path = ast_transformer/c/pycparser
 	url = https://github.com/eliben/pycparser

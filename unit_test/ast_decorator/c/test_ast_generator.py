@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from pycparser.c_ast import FileAST
 
-from ast_decorator.c.ast_generator import CASTGenerator
+from ast_transformer.c.ast_generator import CASTGenerator
 
 
 class TestCASTGenerator(TestCase):
