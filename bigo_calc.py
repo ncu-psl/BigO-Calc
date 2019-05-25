@@ -1,6 +1,6 @@
+import argparse
 import json
 import os
-import sys
 
 import sympy
 
@@ -14,17 +14,23 @@ from bigo_calculator.bigo_simplify import BigOSimplify
 
 
 def main():
-    if len(sys.argv) == 0:
-        raise EnvironmentError("not enough argument")
-    elif len(sys.argv) > 3:
-        raise EnvironmentError("too many arguments")
+    arg_parse = argparse.ArgumentParser(description='A static Big-O analysis tool base on Big-O AST.')
+    arg_parse.format_help()
+    arg_parse.add_argument('filename', type=str, help='target code filename')
 
-    source_file_name = sys.argv[1]
+    arg_parse.add_argument('-lang', nargs='?', type=str,
+                           help='this argument is optional if file extension is .c or .java')
+    # arg_parse.add_argument('-loop', action='store_false', help='calculate loop time complexity.')
+    arg_parse.add_argument('-no-simplify', action='store_true', help=' do not simplify time complexity.')
+
+    args = arg_parse.parse_args()
+
+    source_file_name = args.filename
 
     # default get programming language by extension
     language = os.path.splitext(source_file_name)[1][1:].lower()
-    if len(sys.argv) == 3:
-        language = sys.argv[2].lower()
+    if args.lang:
+        language = args.lang.lower()
 
     # transform ast
     if language == 'c':
@@ -38,7 +44,9 @@ def main():
 
     # evaluate big o
     BigOCalculator(bigo_ast).calc()
-    BigOSimplify(bigo_ast).simplify()
+
+    if not args.no_simplify:
+        BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
     for func in bigo_ast.children:
@@ -66,4 +74,5 @@ def main():
     return json_str
 
 
-main()
+if __name__ == '__main__':
+    main()
