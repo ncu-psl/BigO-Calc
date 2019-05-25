@@ -9,9 +9,6 @@ class CASTGenerator(object):
         pass
 
     def generate(self, filename: str) -> FileAST:
-        if not os.path.isfile(filename):
-            raise FileNotFoundError
-
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fake_libc_include_path = os.path.join(current_dir, 'pycparser/utils/fake_libc_include')
 

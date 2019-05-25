@@ -25,7 +25,10 @@ def main():
 
     args = arg_parse.parse_args()
 
+    # check file exist
     source_file_name = args.filename
+    if not os.path.isfile(source_file_name):
+        raise FileNotFoundError
 
     # default get programming language by extension
     language = os.path.splitext(source_file_name)[1][1:].lower()
