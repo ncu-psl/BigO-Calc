@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from pycparser.c_ast import Node, FileAST, ID
 
-from ast_decorator.c.bigo_ast_node_factory import CBigOAstNodeFactory, CCompilationUnitNodeFactory
+from ast_transformer.c.bigo_ast_node_factory import CBigOAstNodeFactory, CCompilationUnitNodeFactory
 from bigo_ast.bigo_ast import BasicNode
 
 
