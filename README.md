@@ -1,7 +1,8 @@
 # BigO-Calc
 [![Python](https://img.shields.io/badge/python-3.5.0-blue.svg?style=popout)](https://www.python.org/downloads/release/python-350/)
 [![SymPy](https://img.shields.io/badge/SymPy-1.3-brightgreen.svg?style=popout)](https://docs.sympy.org/1.3/index.html/)
-[![Travis build](https://travis-ci.org/dyhe83/BigO-Calc.svg?branch=master)](https://travis-ci.org/dyhe83/BigO-Calc)
+[![Jenkins Build Status](http://140.115.53.191:3334/buildStatus/icon?job=BigO-Calc)](http://140.115.53.191:3334/job/BigO-Calc/)
+
 
 ## Introduction
 A static Big-O analysis tool base on Big-O AST.
@@ -13,9 +14,9 @@ A static Big-O analysis tool base on Big-O AST.
 
 
 ## What kind of code can this tool analyze?
-[Please read here before you use!][wiki]
+[Please read this before you use!][wiki]
 
-[wiki]: https://github.com/dyhe83/BigO-Calc/wiki
+[wiki]: https://github.com/ncu-psl/BigO-Calc/wiki
 
 
 ## How to use
