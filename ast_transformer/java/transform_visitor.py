@@ -146,7 +146,13 @@ class JavaTransformVisitor(NodeVisitor):
         try:
             constant_node.value = int(java_literal.value)
         except:
-            raise NotImplementedError('Constant type not support: ', java_literal.type)
+
+            if java_literal.value == 'true':
+                constant_node.value = 1
+            elif java_literal.value == 'false':
+                constant_node.value = 0
+            else:
+                raise NotImplementedError('Constant type not support: ', java_literal)
 
         return constant_node
 
