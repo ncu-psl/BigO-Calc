@@ -179,6 +179,7 @@ class CTransformVisitor(NodeVisitor):
         if_node = IfNode()
         self.set_coordinate(if_node, pyc_if.coord)
 
+        # condition
         if_node.condition = self.visit(pyc_if.cond)
 
         # convert pyc true statement to list
@@ -188,10 +189,11 @@ class CTransformVisitor(NodeVisitor):
         self.parent = if_node.true_stmt
         for child in pyc_if.iftrue or []:
             child_node = self.visit(child)
-            if type(child_node) is list:
-                if_node.true_stmt.extend(child_node)
-            else:
-                if_node.true_stmt.append(child_node)
+            if child_node:
+                if type(child_node) is list:
+                    if_node.true_stmt.extend(child_node)
+                else:
+                    if_node.true_stmt.append(child_node)
 
         # convert pyc false statement to list
         if pyc_if.iffalse:
@@ -201,10 +203,11 @@ class CTransformVisitor(NodeVisitor):
             self.parent = if_node.false_stmt
             for child in pyc_if.iffalse or []:
                 child_node = self.visit(child)
-                if type(child_node) is list:
-                    if_node.false_stmt.extend(child_node)
-                else:
-                    if_node.false_stmt.append(child_node)
+                if child_node:
+                    if type(child_node) is list:
+                        if_node.false_stmt.extend(child_node)
+                    else:
+                        if_node.false_stmt.append(child_node)
 
         return if_node
 
