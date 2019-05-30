@@ -122,7 +122,7 @@ int for_loop_n_s(int n) {
 // O(log(N)), i*=2
 int for_loop_logn_m(int n) {
 	int i = 0, sum = 0;
-	for (i = n; i >= 1; i*=2) {
+	for (i = 1; i <= n; i*=2) {
 		sum += i;
 	}
 
