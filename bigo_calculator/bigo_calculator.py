@@ -155,6 +155,8 @@ class BigOCalculator(BigOAstVisitor):
         elif op.is_Mul:
             q = op / variable
             step = sympy.log(a_n / a_1, q) + 1
+        else:
+            raise NotImplementedError('can not handle loop update, op=', op)
 
         if step.expand().is_negative:
             raise NotImplementedError('this loop can not analyze.\n', )
