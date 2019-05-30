@@ -115,3 +115,8 @@ gradle-app.setting
 *.dot
 *.json
 *.ser
+
+###############################################################################
+# pycparser
+parser.out
+yacctab.py
