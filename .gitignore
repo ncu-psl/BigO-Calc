@@ -111,7 +111,7 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 ###############################################################################
-# ABOAT
+# BigO-Calc
 *.dot
 *.json
 *.ser
