@@ -1,3 +1,4 @@
+import copy
 import logging
 
 import sympy
@@ -8,7 +9,7 @@ from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
 class BigOSimplify(BigOAstVisitor):
     def __init__(self, root: BasicNode):
-        self.root = root
+        self.root = copy.deepcopy(root)
 
         # store simplified function (dynamic programming)
         self.simplified_function = []
@@ -24,7 +25,7 @@ class BigOSimplify(BigOAstVisitor):
         for func in self.func_list:
             self.visit_FuncDeclNode(func)
 
-        pass
+        return self.root
 
     def visit_FuncDeclNode(self, func: FuncDeclNode):
         if func in self.simplified_function:

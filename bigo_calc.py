@@ -48,11 +48,12 @@ def main():
     # evaluate big o
     BigOCalculator(bigo_ast).calc()
 
+    new_bigo_ast = bigo_ast
     if not args.no_simplify:
-        BigOSimplify(bigo_ast).simplify()
+        new_bigo_ast = BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
-    for func in bigo_ast.children:
+    for func in new_bigo_ast.children:
         if type(func) != FuncDeclNode:
             continue
 
