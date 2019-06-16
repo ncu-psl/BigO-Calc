@@ -1,3 +1,6 @@
+import copy
+import logging
+
 import sympy
 
 from bigo_ast.bigo_ast import BasicNode, FuncDeclNode
@@ -6,7 +9,7 @@ from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
 class BigOSimplify(BigOAstVisitor):
     def __init__(self, root: BasicNode):
-        self.root = root
+        self.root = copy.deepcopy(root)
 
         # store simplified function (dynamic programming)
         self.simplified_function = []
@@ -22,7 +25,7 @@ class BigOSimplify(BigOAstVisitor):
         for func in self.func_list:
             self.visit_FuncDeclNode(func)
 
-        pass
+        return self.root
 
     def visit_FuncDeclNode(self, func: FuncDeclNode):
         if func in self.simplified_function:
@@ -45,8 +48,22 @@ class BigOSimplify(BigOAstVisitor):
             var_list.update([(symbol, sympy.oo)])
 
         # simplify time complexity
+        func.time_complexity = func.time_complexity.expand()
         if var_list:
-            func.time_complexity = sympy.O(func.time_complexity, *var_list).args[0]
+            try:
+                func.time_complexity = sympy.O(func.time_complexity, *var_list).args[0]
+            except:
+                # SymPy cannot solve Max(n, log(n))
+                # so we have to rewrite Max(a, b) to a + b then simplify it
+
+                new_time_complexity = func.time_complexity.replace(sympy.Max, sympy.Add)
+                logging.warning('in function ' + func.name + ':\nSymPy can not solve ' + str(
+                    func.time_complexity) + ', we convert it into ' + str(
+                    new_time_complexity))
+
+                new_time_complexity = sympy.O(new_time_complexity, *var_list).args[0]
+                func.time_complexity = new_time_complexity
+
         else:
             func.time_complexity = sympy.O(func.time_complexity).args[0]
 
