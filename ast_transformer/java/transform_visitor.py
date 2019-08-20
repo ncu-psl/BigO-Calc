@@ -4,10 +4,10 @@ from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodD
 
 from bigo_ast.bigo_ast import FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode, VariableNode, AssignNode, ConstantNode, Operator, BasicNode
-from lib.node_visitor import NodeVisitor
+from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
 
-class JavaTransformVisitor(NodeVisitor):
+class JavaTransformVisitor(BigOAstVisitor):
     def __init__(self):
         self.cu = None
 
