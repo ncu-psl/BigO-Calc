@@ -1,6 +1,6 @@
 # BigO-Calc
 [![Python](https://img.shields.io/badge/python-3.5.0-blue.svg?style=popout)](https://www.python.org/downloads/release/python-350/)
-[![SymPy](https://img.shields.io/badge/SymPy-1.3-brightgreen.svg?style=popout)](https://docs.sympy.org/1.3/index.html/)
+[![SymPy](https://img.shields.io/badge/SymPy-1.3-brightgreen.svg?style=popout)](https://docs.sympy.org/1.3/index.html)
 [![Jenkins Build Status](http://140.115.53.191:3334/buildStatus/icon?job=BigO-Calc)](http://140.115.53.191:3334/job/BigO-Calc/)
 
 
@@ -21,7 +21,7 @@ A static Big-O analysis tool base on Big-O AST.
 
 ## How to use
 ```sh
-git clone --recurse-submodules https://github.com/ncu-psl/BigO-Calc.git
+git clone --recurse-submodules https://github.com/ncu-psl/BigO-Calc.git --depth=1
 cd BigO-Calc
 pip3 install -r requirements.txt
 
