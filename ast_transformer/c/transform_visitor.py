@@ -72,6 +72,7 @@ class CTransformVisitor(NodeVisitor):
 
             assign_node.target = variable_node
             assign_node.value = self.visit(pyc_decl.init)
+#             assign_node.value = pyc_decl.init
 
             return assign_node
         else:

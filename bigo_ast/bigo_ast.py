@@ -134,6 +134,7 @@ class VariableNode(BasicNode):
         super().__init__()
 
         self.name = ''
+        self.value = ''
 
         pass
 
@@ -158,8 +159,8 @@ class ConstantNode(BasicNode):
         d.update({'value': self.value})
 
         return d
-
-
+    
+    
 class AssignNode(BasicNode):
 
     def __init__(self):

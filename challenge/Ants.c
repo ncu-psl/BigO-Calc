@@ -1,4 +1,5 @@
 // 输入
+int k
 int L, n;
 int x[MAX_N];
 void solve() {

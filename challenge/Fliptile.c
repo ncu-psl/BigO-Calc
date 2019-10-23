@@ -2,7 +2,8 @@
 const int dx[5] = {-1, 0, 0, 0, 1};
 const int dy[5] = {0, -1, 0, 1, 0};
 // 输入
-int M, N;
+int M = a;
+int N = b;
 int tile[MAX_M][MAX_N];
 int opt[MAX_M][MAX_N]; // 保存最优解
 int flip[MAX_M][MAX_N]; // 保存中间结果
