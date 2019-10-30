@@ -3,7 +3,7 @@ import operator
 import sympy
 
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
-    AssignNode, ConstantNode, Operator
+    AssignNode, ConstantNode, Operator, BasicNode
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 from symbol_table.table_manager import table_manager, symbol_table, symbol
 
@@ -24,6 +24,38 @@ class BigOCalculator(BigOAstVisitor):
 
         pass
     
+    def find_changed_symbol(self, node : BasicNode):#回傳值可以是 str or (str,str)
+        if type(node) is AssignNode:
+            if type(node.target) is VariableNode:
+                value = self.find_changed_symbol(node.value)
+                return (node.target.name, value)
+            else:
+                return ('','')
+        if type(node) is VariableNode:
+            return str(node.name)
+        
+        if type(node) is ConstantNode:
+            return str(node.value)
+        
+        if type(node) is Operator:
+            if node.op is '+':              
+                return self.find_changed_symbol(node.left) + '+' + self.find_changed_symbol(node.right)
+            
+            elif node.op is '-':              
+                return self.find_changed_symbol(node.left) + '-' + self.find_changed_symbol(node.right)
+            
+            elif node.op is '*':              
+                return self.find_changed_symbol(node.left) + '*' + self.find_changed_symbol(node.right)
+            
+            elif node.op is '/':              
+                return self.find_changed_symbol(node.left) + '/' + self.find_changed_symbol(node.right)
+            
+            elif node.op is '<<':
+                return self.find_changed_symbol(node.left) + '*2**' + self.find_changed_symbol(node.right)
+            
+            elif node.op is '>>':
+                return self.find_changed_symbol(node.left)+ '/(2**' + self.find_changed_symbol(node.right) + ')'
+            
     def visit_CompilationUnitNode(self, compilation_unit_node: CompilationUnitNode):
         self.table_manager.add_table()
         for child in compilation_unit_node.children:
@@ -72,15 +104,10 @@ class BigOCalculator(BigOAstVisitor):
 
         value_tc = 0
         
-        if type(target) == VariableNode:
-            if type(value) == ConstantNode:
-#                 print('assign -> var,const')
-                self.table_manager.add_symbol(str(target.name), str(value.value))
-#                 print(self.table_manager.print_current_table())
-            elif type(value) == VariableNode:
-#                 print('assign -> var,var')
-                self.table_manager.add_symbol(str(target.name), str(value.name))
-#                 print(self.table_manager.print_current_table())
+        key,item = self.find_changed_symbol(assign_node)
+        if (key and item) is not '':
+            self.table_manager.add_symbol(key, item)
+#           print(self.table_manager.print_current_table())
 
         if type(value) is not list:
             self.visit(value)
@@ -222,7 +249,8 @@ class BigOCalculator(BigOAstVisitor):
 #             print('replace_symbol : ',replace_symbol)
             if replace_symbol != None:
 #                 print('replace')
-                for_node.time_complexity = for_node.time_complexity.subs(symbol, sympy.Symbol(replace_symbol, integer=True, positive=True))
+                replace_symbol = sympy.sympify(replace_symbol)
+                for_node.time_complexity = for_node.time_complexity.subs(symbol, replace_symbol)
 #             print('for_node.time_complexity :',for_node.time_complexity)
 #             print('\n')
         
@@ -230,3 +258,5 @@ class BigOCalculator(BigOAstVisitor):
         self.table_manager.pop_table()
 
         pass
+    
+    

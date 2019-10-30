@@ -1,5 +1,5 @@
 void n_n(int n) {
-    int m = n;
+    int m = m/n;
     for(int i=1;i<m;i++)
         for(int j=1;j<=m;j++)
             k++;
