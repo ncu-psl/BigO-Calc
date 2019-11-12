@@ -3,7 +3,7 @@ import operator
 import sympy
 
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
-    AssignNode, ConstantNode, Operator, BasicNode
+    AssignNode, ConstantNode, Operator, BasicNode, WhileNode
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 from symbol_table.table_manager import table_manager, symbol_table, symbol
 
@@ -25,9 +25,11 @@ class BigOCalculator(BigOAstVisitor):
         pass
     
     def find_changed_symbol(self, node : BasicNode):#回傳值可以是 str or (str,str)
+        #不能處理 m = n++ 這類的 expression
         if type(node) is AssignNode:
             if type(node.target) is VariableNode:
                 value = self.find_changed_symbol(node.value)
+#                 print('node.target.name, value',(node.target.name, value))
                 return (node.target.name, value)
             else:
                 return ('','')
@@ -38,23 +40,26 @@ class BigOCalculator(BigOAstVisitor):
             return str(node.value)
         
         if type(node) is Operator:
-            if node.op is '+':              
+            if node.op == '+':              
                 return self.find_changed_symbol(node.left) + '+' + self.find_changed_symbol(node.right)
             
-            elif node.op is '-':              
+            elif node.op == '-':              
                 return self.find_changed_symbol(node.left) + '-' + self.find_changed_symbol(node.right)
             
-            elif node.op is '*':              
+            elif node.op == '*':              
                 return self.find_changed_symbol(node.left) + '*' + self.find_changed_symbol(node.right)
             
-            elif node.op is '/':              
+            elif node.op == '/':              
                 return self.find_changed_symbol(node.left) + '/' + self.find_changed_symbol(node.right)
             
-            elif node.op is '<<':
+            elif node.op == '<<':
                 return self.find_changed_symbol(node.left) + '*2**' + self.find_changed_symbol(node.right)
             
-            elif node.op is '>>':
+            elif node.op == '>>':
                 return self.find_changed_symbol(node.left)+ '/(2**' + self.find_changed_symbol(node.right) + ')'
+            else:
+                raise NotImplementedError('this operatror can not analyze.\n', )
+
             
     def visit_CompilationUnitNode(self, compilation_unit_node: CompilationUnitNode):
         self.table_manager.add_table()
@@ -107,7 +112,7 @@ class BigOCalculator(BigOAstVisitor):
         key,item = self.find_changed_symbol(assign_node)
         if (key and item) is not '':
             self.table_manager.add_symbol(key, item)
-#           print(self.table_manager.print_current_table())
+            print('print_current_table',self.table_manager.print_current_table())
 
         if type(value) is not list:
             self.visit(value)
@@ -179,6 +184,7 @@ class BigOCalculator(BigOAstVisitor):
         pass
 
     def visit_ForNode(self, for_node: ForNode):
+        print('enter for loop\n')
         if len(for_node.init) != 1:
             raise NotImplementedError("len(for_node.init) != 1")
         if len(for_node.update) != 1:
@@ -246,17 +252,35 @@ class BigOCalculator(BigOAstVisitor):
         for symbol in self.table_manager.current_table.can_replace_varables:
 #             print('symbol.name : ',symbol.name)
             replace_symbol = self.table_manager.get_symbol_value(symbol.name)
-#             print('replace_symbol : ',replace_symbol)
+            print('replace_symbol : ',replace_symbol)
             if replace_symbol != None:
 #                 print('replace')
                 replace_symbol = sympy.sympify(replace_symbol)
                 for_node.time_complexity = for_node.time_complexity.subs(symbol, replace_symbol)
 #             print('for_node.time_complexity :',for_node.time_complexity)
 #             print('\n')
-        
-#         print('for_node_tc',for_node.time_complexity)
+        print('for_node_tc',for_node.time_complexity)
         self.table_manager.pop_table()
-
+        print('leave for loop\n')
         pass
     
-    
+    def visit_whileNode(self, while_node: WhileNode):
+        if len(while_node.cond) != 1:
+            raise NotImplementedError("len(while_node.cond) != 1")
+            
+        cond = while_node.cond
+        c_left = self.visit(cond.left)
+        #紀錄可能可以替換的symbol
+        if type(c_left) == sympy.Symbol:                        
+            self.table_manager.current_table.can_replace_varables.append(c_left)
+        
+        c_right = self.visit(cond.right)
+        #紀錄可能可以替換的symbol
+        if type(c_right) == sympy.Symbol:                        
+            self.table_manager.current_table.can_replace_varables.append(c_right)
+
+        update = {}
+        def find_while_update(self,update,node):
+            if type(node) is AssignNode:
+                return 1
+        pass

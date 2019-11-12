@@ -1,8 +1,8 @@
 from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
-    UnaryOp, Decl, ArrayDecl, ArrayRef, Cast
+    UnaryOp, Decl, ArrayDecl, ArrayRef, Cast, While
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
-    FuncCallNode, CompilationUnitNode, IfNode, ForNode
+    FuncCallNode, CompilationUnitNode, IfNode, ForNode, WhileNode
 
 
 class CTransformVisitor(NodeVisitor):
@@ -241,7 +241,22 @@ class CTransformVisitor(NodeVisitor):
             for_node.add_children(child_node)
 
         return for_node
-
+    
+    def visit_While(self, pyc_while: While):
+        while_node = WhileNode()
+        self.set_coordinate(while_node, pyc_while.coord)
+        
+        cond = self.visit(pyc_while.cond)
+        if type(cond) is list:
+            while_node.cond.extend(cond)
+        else:
+            whild_node.cond.append(cond)
+            
+        for child in pyc_while.stmt:
+            child_node = self.visit(child)
+            while_node.add_children(child_node)
+            
+        return whild_node
     def generic_visit(self, node):
         children = []
         for c in node:
