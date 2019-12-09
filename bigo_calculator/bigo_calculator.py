@@ -1,18 +1,19 @@
 import operator
 
 import sympy
-
+from sympy.core.mul import Mul
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
     AssignNode, ConstantNode, Operator, BasicNode, WhileNode
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
-from symbol_table.table_manager import table_manager, symbol_table, symbol
+from symbol_table.table_manager import table_manager, symbol_table, symbol, find_changed_symbol
 
 class BigOCalculator(BigOAstVisitor):
 
     def __init__(self, root: CompilationUnitNode):
         self.root = root
         self.function_list = []
-        self.table_manager = table_manager()
+        self.backward_table_manager = table_manager()
+        self.forward_table_manager = table_manager()
         for func in root.children:
             if type(func) == FuncDeclNode:
                 self.function_list.append(func)
@@ -24,48 +25,17 @@ class BigOCalculator(BigOAstVisitor):
 
         pass
     
-    def find_changed_symbol(self, node : BasicNode):#回傳值可以是 str or (str,str)
-        #不能處理 m = n++ 這類的 expression
-        if type(node) is AssignNode:
-            if type(node.target) is VariableNode:
-                value = self.find_changed_symbol(node.value)
-#                 print('node.target.name, value',(node.target.name, value))
-                return (node.target.name, value)
-            else:
-                return ('','')
-        if type(node) is VariableNode:
-            return str(node.name)
-        
-        if type(node) is ConstantNode:
-            return str(node.value)
-        
-        if type(node) is Operator:
-            if node.op == '+':              
-                return self.find_changed_symbol(node.left) + '+' + self.find_changed_symbol(node.right)
-            
-            elif node.op == '-':              
-                return self.find_changed_symbol(node.left) + '-' + self.find_changed_symbol(node.right)
-            
-            elif node.op == '*':              
-                return self.find_changed_symbol(node.left) + '*' + self.find_changed_symbol(node.right)
-            
-            elif node.op == '/':              
-                return self.find_changed_symbol(node.left) + '/' + self.find_changed_symbol(node.right)
-            
-            elif node.op == '<<':
-                return self.find_changed_symbol(node.left) + '*2**' + self.find_changed_symbol(node.right)
-            
-            elif node.op == '>>':
-                return self.find_changed_symbol(node.left)+ '/(2**' + self.find_changed_symbol(node.right) + ')'
-            else:
-                raise NotImplementedError('this operatror can not analyze.\n', )
 
             
     def visit_CompilationUnitNode(self, compilation_unit_node: CompilationUnitNode):
-        self.table_manager.add_table()
+        self.backward_table_manager.add_table()
+        self.forward_table_manager.add_table()
+
         for child in compilation_unit_node.children:
             self.visit(child)
-        self.table_manager.pop_table()
+
+        self.forward_table_manager.pop_table()
+        self.backward_table_manager.pop_table()
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         if func_decl_node.determine_recursion():
@@ -73,7 +43,9 @@ class BigOCalculator(BigOAstVisitor):
         else:
             tc = 0
             print('enter funcDec')
-            self.table_manager.add_table()
+            self.backward_table_manager.add_table()
+            self.forward_table_manager.add_table()
+
             for child in func_decl_node.children:
                 self.visit(child)
                 tc += child.time_complexity
@@ -81,8 +53,11 @@ class BigOCalculator(BigOAstVisitor):
                 tc = 1
             func_decl_node.time_complexity = tc
             
-            print(self.table_manager.print_current_table())
-            self.table_manager.pop_table()
+            print('backward_table',self.backward_table_manager.print_current_table())
+            print('self.forward_table_managerward_table',self.forward_table_manager.print_current_table())
+
+            self.backward_table_manager.pop_table()
+            self.forward_table_manager.pop_table()
             print('leave funcDec\n')
 
         pass
@@ -108,11 +83,16 @@ class BigOCalculator(BigOAstVisitor):
         self.visit(target)
 
         value_tc = 0
-        
-        key,item = self.find_changed_symbol(assign_node)
-        if (key and item) is not '':
-            self.table_manager.add_symbol(key, item)
-            print('print_current_table',self.table_manager.print_current_table())
+
+        backward_key,backward_item = find_changed_symbol(assign_node)
+        if (backward_key and backward_item) is not '':
+            self.backward_table_manager.add_symbol(backward_key, backward_item)
+            print('print_backward_table_manager',self.backward_table_manager.print_current_table())
+
+        forward_key,forward_item = find_changed_symbol(assign_node)
+        if (forward_key and forward_item) is not '':
+            self.forward_table_manager.add_symbol(forward_key, forward_item)
+            print('print_forward_table_manager',self.forward_table_manager.print_current_table())
 
         if type(value) is not list:
             self.visit(value)
@@ -132,9 +112,9 @@ class BigOCalculator(BigOAstVisitor):
         right = self.visit(node.right)
         
         if type(left) == sympy.Symbol:
-            self.table_manager.current_table.can_replace_varables.append(left)
+            self.backward_table_manager.current_table.can_replace_varables.append(left.name)
         elif type(right) == sympy.Symbol:
-            self.table_manager.current_table.can_replace_varables.append(right)
+            self.backward_table_manager.current_table.can_replace_varables.append(right.name)
             
         node.time_complexity = node.left.time_complexity + node.right.time_complexity
 
@@ -153,16 +133,18 @@ class BigOCalculator(BigOAstVisitor):
 
     def visit_IfNode(self, if_node: IfNode):
         self.visit(if_node.condition)
+        self.forward_table_manager.add_table()
+
         cond_tc = if_node.condition.time_complexity
 
         true_tc = 0
         for child in if_node.true_stmt:
             print('enter true cond')
-            self.table_manager.add_table()
+            self.backward_table_manager.add_table()
             self.visit(child)
             true_tc += child.time_complexity
-            print(self.table_manager.print_current_table())
-            self.table_manager.pop_table()
+            print(self.backward_table_manager.print_current_table())
+            self.backward_table_manager.pop_table()
             print('leave true cond\n')
         if true_tc == 0:
             true_tc = 1
@@ -170,15 +152,16 @@ class BigOCalculator(BigOAstVisitor):
         false_tc = 0
         for child in if_node.false_stmt:
             print('enter false cond')
-            self.table_manager.add_table()
+            self.backward_table_manager.add_table()
             self.visit(child)
             false_tc += child.time_complexity
-            print(self.table_manager.print_current_table())
-            self.table_manager.pop_table()
+            print(self.backward_table_manager.print_current_table())
+            self.backward_table_manager.pop_table()
             print('leave false cond\n')
         if false_tc == 0:
             false_tc = 1
 
+        self.forward_table_manager.pop_table()
         if_node.time_complexity = cond_tc + sympy.Max(true_tc, false_tc)
 
         pass
@@ -189,8 +172,9 @@ class BigOCalculator(BigOAstVisitor):
             raise NotImplementedError("len(for_node.init) != 1")
         if len(for_node.update) != 1:
             raise NotImplementedError("len(for_node.update)")
-        self.table_manager.add_table()
-       
+        self.backward_table_manager.add_table()
+        self.forward_table_manager.add_table()
+
         # init
         variable = self.visit(for_node.init[0].target)
         a_1 = self.visit(for_node.init[0].value)
@@ -201,36 +185,69 @@ class BigOCalculator(BigOAstVisitor):
         t_left = self.visit(term.left)
         #紀錄可能可以替換的symbol
         if type(t_left) == sympy.Symbol:
-            self.table_manager.current_table.can_replace_varables.append(t_left)
+            self.backward_table_manager.current_table.can_replace_varables.append(t_left.name)
             
         t_right = self.visit(term.right)
         #紀錄可能可以替換的symbol
         if type(t_right) == sympy.Symbol:
-            self.table_manager.current_table.can_replace_varables.append(t_right)
+            self.backward_table_manager.current_table.can_replace_varables.append(t_right.name)
         
         if variable == t_left:
             a_n = t_right
             if term.op == '<':
                 a_n = a_n - 1
+                if term.op == '<' and term.op == '<=':
+                    self.forward_table_manager.current_table.can_replace_varables.append([variable.name,'minimal'])
             elif term.op == '>':
                 a_n = a_n + 1
+                if term.op == '>' and term.op == '>=':
+                    self.forward_table_manager.current_table.can_replace_varables.append([variable.name,'maximal'])
         elif variable == t_right:
             a_n = t_left
             if term.op == '<':
                 a_n = a_n + 1
+                if term.op == '<' and term.op == '<=':
+                    self.forward_table_manager.current_table.can_replace_varables.append([variable.name,'maximal'])
             elif term.op == '>':
                 a_n = a_n - 1
+                if term.op == '>' and term.op == '>=':
+                    self.forward_table_manager.current_table.can_replace_varables.append([variable.name,'minimal'])
         else:
             raise NotImplementedError("unknown condition: ", t_left, t_right)
 
         # update
+        tc = 0
+        for child in for_node.children:
+            self.visit(child)
+            tc += child.time_complexity
+        if tc == 0:
+            tc = 1
+
         update = for_node.update[0]
         op = self.visit(update.value)
 
         step = 0
         if op.is_Add:
-            d = op - variable
-            step = (a_n - a_1) / d + 1
+            changed_variable = sympy.sympify(
+                                            self.forward_table_manager.get_symbol_value_from_current_table(variable.name)
+                                            )
+            # print('variable.name:',variable.name)
+            # print('forward_table_manager.get_symbol_value_from_current_table(variable.name)',self.forward_table_manager.get_symbol_value_from_current_table(variable.name))
+            # print('changed_variable',changed_variable)
+            print('(str(type(changed_variable))',(str(type(changed_variable))))
+            if(changed_variable != None) and \
+              ((variable.name in str(changed_variable.args))) and \
+              type(changed_variable) == Mul:
+                if tc == 1:
+                    tc = 0
+                q = changed_variable / variable
+                step = sympy.log(a_n / a_1, q) + 1 
+
+            else:
+                d = op - variable
+                print('type(a_n) ',type(a_n),'\n')
+                step = (a_n - a_1) / d + 1
+                
         elif op.is_Mul:
             q = op / variable
             step = sympy.log(a_n / a_1, q) + 1
@@ -240,27 +257,25 @@ class BigOCalculator(BigOAstVisitor):
         if step.expand().is_negative:
             raise NotImplementedError('this loop can not analyze.\n', )
 
-        tc = 0
-        for child in for_node.children:
-            self.visit(child)
-            tc += child.time_complexity
-        if tc == 0:
-            tc = 1
+        
         for_node.time_complexity = step * tc
-
+        self.forward_table_manager.pop_table()
+        # print('can replace variable',self.backward_table_manager.current_table.can_replace_varables)
         #replace symbol
-        for symbol in self.table_manager.current_table.can_replace_varables:
-#             print('symbol.name : ',symbol.name)
-            replace_symbol = self.table_manager.get_symbol_value(symbol.name)
-            print('replace_symbol : ',replace_symbol)
+        for symbol in self.backward_table_manager.current_table.can_replace_varables:
+            replace_symbol = self.backward_table_manager.get_symbol_value(symbol)
             if replace_symbol != None:
-#                 print('replace')
                 replace_symbol = sympy.sympify(replace_symbol)
-                for_node.time_complexity = for_node.time_complexity.subs(symbol, replace_symbol)
+                # print('replace_symbol ',replace_symbol)
+
+                for_node.time_complexity = for_node.time_complexity.subs(
+                                                                        sympy.Symbol(symbol, integer=True, positive=True)
+                                                                        , replace_symbol
+                                                                        )
 #             print('for_node.time_complexity :',for_node.time_complexity)
 #             print('\n')
-        print('for_node_tc',for_node.time_complexity)
-        self.table_manager.pop_table()
+        # print('for_node_tc',for_node.time_complexity)
+        self.backward_table_manager.pop_table()
         print('leave for loop\n')
         pass
     
@@ -272,15 +287,18 @@ class BigOCalculator(BigOAstVisitor):
         c_left = self.visit(cond.left)
         #紀錄可能可以替換的symbol
         if type(c_left) == sympy.Symbol:                        
-            self.table_manager.current_table.can_replace_varables.append(c_left)
+            self.backward_table_manager.current_table.can_replace_varables.append(c_left)
         
         c_right = self.visit(cond.right)
         #紀錄可能可以替換的symbol
         if type(c_right) == sympy.Symbol:                        
-            self.table_manager.current_table.can_replace_varables.append(c_right)
+            self.backward_table_manager.current_table.can_replace_varables.append(c_right)
 
-        update = {}
-        def find_while_update(self,update,node):
-            if type(node) is AssignNode:
-                return 1
+        tc = 0
+        for child in while_node.children:
+            self.visit(child)
+            tc += child.time_complexity
+        if tc == 0:
+            tc = 1
+        
         pass

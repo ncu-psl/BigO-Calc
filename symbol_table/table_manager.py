@@ -1,10 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # ![title](https://i.imgur.com/GSGG2ps.png)
-
-# In[99]:
-
+from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
+    AssignNode, ConstantNode, Operator, BasicNode, WhileNode
 
 class table_manager(object):
     '''
@@ -45,11 +41,18 @@ class table_manager(object):
         self.current_table.update(sym)
         
     def get_symbol_value(self,symbol_name:str):
-        for t in reversed(self.table_list):
+        '''
+        往父層scope尋找是symbol 是否被重新賦值
+        '''
+        for t in reversed(self.table_list[:-1]):
             if symbol_name in t.table:
                 return t.get_symbol_value(symbol_name)
         return None
-    
+    def get_symbol_value_from_current_table(self, symbol_name:str):
+        '''尋找當前的scope查看是否有 a = a (+-*/) (number) 的pattern'''
+        return self.current_table.get_symbol_value(symbol_name)
+
+
     def print_current_table(self):
         return self.current_table.table
 
@@ -73,19 +76,67 @@ class symbol_table(object):
         self.table.update({symbol.name:symbol.value})
         
     def get_symbol_value(self,symbol_name:str):
-        return self.table[symbol_name]
+        try:
+            return self.table[symbol_name]
+        except:
+            return None
        
 class symbol():
     '''
     存放著symbol的名字以及被賦的值
     皆以字串保存    
     '''
-    def __init__(self, name:str, value:str):
+    def __init__(self, name:str, value:str, Stype:str = None):
         self.name = name
         self.value = value
+        self.type = Stype #為了要讓if else這兩個scope共用同一個table
     
-
-
+def find_changed_symbol( node : BasicNode):#回傳值是 (str,str)
+    #不能處理 m = n++ 這類的 expression
+    if type(node) == AssignNode:
+        if type(node.target) == VariableNode:
+            value = find_changed_symbol(node.value)
+#                 print('node.target.name, value',(node.target.name, value))
+            return (node.target.name, value)
+        else:
+            return ('','')
+    if type(node) == VariableNode:
+        return str(node.name)
+    
+    if type(node) == ConstantNode:
+        return str(node.value)
+    
+    if type(node) == Operator:
+        # if node.op == '+':              
+        #     return '(' + find_changed_symbol(node.left) + '+' + find_changed_symbol(node.right) + ')'
+        
+        # elif node.op == '-':              
+        #     return '(' + find_changed_symbol(node.left) + '-' + find_changed_symbol(node.right) + ')'
+        
+        # elif node.op == '*':              
+        #     return '(' + find_changed_symbol(node.left) + '*' + find_changed_symbol(node.right) + ')'
+        
+        # elif node.op == '/':              
+        #     return '(' + find_changed_symbol(node.left) + '/' + find_changed_symbol(node.right) + ')'
+        
+        if node.op == '<<':
+            return '(' + find_changed_symbol(node.left) + '*2**' + find_changed_symbol(node.right) + ')'
+        
+        elif node.op == '>>':
+            return '(' + find_changed_symbol(node.left)+ '/(2**' + find_changed_symbol(node.right) + ')' + ')'
+        else: #op = ['+' '-' '*' '/']
+            return '(' + find_changed_symbol(node.left)+ node.op + find_changed_symbol(node.right) + ')'
+        # else:
+        #     raise NotImplementedError('this operatror can not analyze.\n')
+# def is_Subtree(tree: BasicNode, subtree: BasicNode):
+#     bool isSub = True
+    
+# def check(tree :BasicNode, subtree: BasicNode, isSub: bool):
+#     if (isSub == False):
+#         return False
+#     else if(type(tree) == type(subtree)):
+#         if(type(tree) == VariableNode):
+            
 # manager = table_manager()
 # current_scope_number = -1
 # manager.add_table()

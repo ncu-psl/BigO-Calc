@@ -1,5 +1,5 @@
 from pycparser.c_ast import FileAST, FuncDef, FuncCall, For, NodeVisitor, If, ID, Assignment, Constant, BinaryOp, \
-    UnaryOp, Decl, ArrayDecl, ArrayRef, Cast, While
+    UnaryOp, Decl, ArrayDecl, ArrayRef, Cast, While, StructRef
 
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode, WhileNode
@@ -78,6 +78,25 @@ class CTransformVisitor(NodeVisitor):
         else:
             return variable_node
 
+    def visit_StructRef(self, pyc_struct_ref):
+        print('type ',pyc_struct_ref.type,'\n')
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, pyc_struct_ref.coord)
+        variable_node.name = self.combine_structure_ref_name(pyc_struct_ref)
+        # variable_node.name = pyc_struct_ref.name.name + pyc_struct_ref.field.name
+        # print('name '+variable_node.name+'\n')
+        self.parent = variable_node
+        for child in pyc_struct_ref:
+            self.visit(child)
+        return variable_node
+
+    def combine_structure_ref_name(self, node):
+        if(type(node) == ID):
+            return node.name[0].upper()+node.name[1:]
+        if(type(node) == StructRef):
+            return self.combine_structure_ref_name(node.name) + self.combine_structure_ref_name(node.field)
+        
+
     def visit_ID(self, pyc_id: ID):
         variable_node = VariableNode()
         self.set_coordinate(variable_node, pyc_id.coord)
@@ -133,7 +152,6 @@ class CTransformVisitor(NodeVisitor):
         self.set_coordinate(assign_node, pyc_assign.coord)
         assign_node.target = self.visit(pyc_assign.lvalue)
         assign_node.value = self.visit(pyc_assign.rvalue)
-
         return assign_node
 
     def visit_BinaryOp(self, pyc_bin_op: BinaryOp):
@@ -246,17 +264,17 @@ class CTransformVisitor(NodeVisitor):
         while_node = WhileNode()
         self.set_coordinate(while_node, pyc_while.coord)
         
-        cond = self.visit(pyc_while.cond)
-        if type(cond) is list:
-            while_node.cond.extend(cond)
-        else:
-            whild_node.cond.append(cond)
-            
+        while_node.cond = self.visit(pyc_while.cond)
+        print(type(while_node.cond))
+        if type(pyc_while) is not list:
+            pyc_while.stmt = [pyc_while.stmt]
+
         for child in pyc_while.stmt:
             child_node = self.visit(child)
             while_node.add_children(child_node)
             
-        return whild_node
+        return while_node
+
     def generic_visit(self, node):
         children = []
         for c in node:
