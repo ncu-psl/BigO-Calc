@@ -3,11 +3,13 @@ import json
 import os
 
 import sympy
-
 from ast_transformer.c.ast_generator import CASTGenerator
 from ast_transformer.c.transform_visitor import CTransformVisitor
 from ast_transformer.java.ast_generator import JavaASTGenerator
 from ast_transformer.java.transform_visitor import JavaTransformVisitor
+import ast
+from ast_transformer.python.transform_visitor import PyTransformVisitor
+
 from bigo_ast.bigo_ast import FuncDeclNode
 from bigo_calculator.bigo_calculator import BigOCalculator
 from bigo_calculator.bigo_simplify import BigOSimplify
@@ -42,6 +44,11 @@ def main():
     elif language == 'java':
         origin_ast = JavaASTGenerator().generate(source_file_name)
         bigo_ast = JavaTransformVisitor().transform(origin_ast)
+    elif language == 'py':
+        origin_ast = ast.parse(source_file_name)
+        bigo_ast = PyTransformVisitor().transform(origin_ast)
+        print(bigo_ast)
+        return
     else:
         raise Exception("Language does not support : " + language)
 
