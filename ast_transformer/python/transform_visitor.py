@@ -1,10 +1,9 @@
 from ast import Module, FunctionDef, Call, Starred, Assign, AnnAssign, AugAssign,\
-    BinOp, Add, Sub, Mult, Div, Num, Name
-from bigo_ast.bigo_ast_visitor import BigOAstVisitor
+    BinOp, Add, Sub, Mult, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
-class PyTransformVisitor(BigOAstVisitor):
+class PyTransformVisitor(NodeVisitor):
     def __init__(self):
         self.parent = None
         self.cu = None
@@ -17,8 +16,8 @@ class PyTransformVisitor(BigOAstVisitor):
 
     def visit_Module(self, ast_module: Module):
         self.cu = CompilationUnitNode()
-        self.set_coordinate(self.cu, ast_module.coord)
-
+        # coord = coordinate( ast_module.col_offset, ast_module.lineno)
+        # self.set_coordinate(self.cu, coord)
         for child in ast_module.body:
             self.parent = self.cu
             self.cu.add_children(self.visit(child))
@@ -27,7 +26,8 @@ class PyTransformVisitor(BigOAstVisitor):
 
     def visit_FunctionDef(self, ast_func_def: FunctionDef):
         func_decl_node = FuncDeclNode()
-        self.set_coordinate(func_decl_node, ast_func_def.coord)
+        # coord = coordinate(ast_func_def.col_offset, ast_func_def.lineno)
+        # self.set_coordinate(func_decl_node, coord)
         func_decl_node.name = ast_func_def.name
         # arg
         if ast_func_def.args.args:
@@ -53,9 +53,10 @@ class PyTransformVisitor(BigOAstVisitor):
         return func_decl_node
 
     #先做3.5版
-    def visit_Call(self, ast_call: Call):
+    def visit_Call(self, ast_call: Call): 
         func_call_node = FuncCallNode()
-        self.set_coordinate(func_call_node, ast_call.coord)
+        # coord = coordinate(ast_call.col_offset, ast_call.lineno)
+        # self.set_coordinate(func_call_node, coord)
         func_call_node.name = ast_call.func.id
 
         if ast_call.args:
@@ -76,43 +77,28 @@ class PyTransformVisitor(BigOAstVisitor):
     
     def visit_Name(self, ast_name: Name):
         variable_node = VariableNode()
-        self.set_coordinate(variable_node, ast_name.coord)
+        # coord = coordinate(ast_name.col_offset, ast_name.lineno)
+        # self.set_coordinate(variable_node, coord)
         variable_node.name = ast_name.id
-
-        return variable_node
-
-    def visit_Cast(self, cast: Cast):
-        return self.visit(cast.expr)
-
-    def visit_ArrayRef(self, pyc_arr_ref: ArrayRef):
-        variable_node = VariableNode()
-        self.set_coordinate(variable_node, pyc_arr_ref.coord)
-
-        # add all index into variable_node.children
-        pyc_arr = pyc_arr_ref
-        while type(pyc_arr) == ArrayRef:
-            variable_node.add_children(self.visit(pyc_arr.subscript))
-            pyc_arr = pyc_arr.name
-
-        # ArrayRef variable name will store in the last attr pyc_arr_ref.name.name...name
-        variable_node.name = pyc_arr.name
 
         return variable_node
 
     def visit_Num(self, ast_num: Num):
         constant_node = ConstantNode()
-        self.set_coordinate(constant_node, ast_num.coord)
+        # coord = coordinate(ast_num.col_offset, ast_num.lineno)
+        # self.set_coordinate(constant_node, coord) 
         if type(ast_num.n) == int:
             constant_node.value = ast_num.n
-        # else:
-        #     raise NotImplementedError('Constant type not support: ', pyc_constant.type)
+        else:
+            raise NotImplementedError('Constant type not support: ', type(ast_num.n))
 
         return constant_node
 
     def visit_Assign(self, ast_assign: Assign):
         # create Big-O AST assign node
         assign_node = AssignNode()
-        self.set_coordinate(assign_node, ast_assign.coord)
+        # coord = coordinate(ast_assign.col_offset, ast_assign.lineno)
+        # self.set_coordinate(assign_node, coord) 
         assign_node.target = self.visit(ast_assign.targets[0])
         assign_node.value = self.visit(ast_assign.value)
 
@@ -121,7 +107,8 @@ class PyTransformVisitor(BigOAstVisitor):
     def visit_AnnAssign(self, ast_ann_assign: AnnAssign):
         # create Big-O AST assign node
         assign_node = AssignNode()
-        self.set_coordinate(assign_node, ast_assign.coord)
+        # coord = coordinate(ast_ann_assign.col_offset, ast_ann_assign.lineno)
+        # self.set_coordinate(assign_node, coord)
         assign_node.target = self.visit(ast_assign.targets[0])
         assign_node.value = self.visit(ast_assign.value)
 
@@ -143,7 +130,8 @@ class PyTransformVisitor(BigOAstVisitor):
 
         # create Big-O AST assign node
         assign_node = AssignNode()
-        self.set_coordinate(assign_node, ast_aug_assign.coord)
+        # coord = coordinate(ast_aug_assign.col_offset, ast_aug_assign.lineno)
+        # self.set_coordinate(assign_node, coord)
         assign_node.target = self.visit(ast_assign.target)
         assign_node.value = self.visit(ast_assign.value)
 
@@ -151,82 +139,55 @@ class PyTransformVisitor(BigOAstVisitor):
 
     def visit_BinOp(self, ast_bin_op: BinOp):
         operator_node = Operator()
-        self.set_coordinate(operator_node, ast_bin_op.coord)
-        if type(ast_aug_assign.op) == Add:
+        # coord = coordinate(ast_bin_op.col_offset, ast_bin_op.lineno)
+        # self.set_coordinate(operator_node, coord)
+        if type(ast_bin_op.op) == Add:
             operator_node.op = '+'
-        elif type(ast_aug_assign.op) == Sub:
+        elif type(ast_bin_op.op) == Sub:
             operator_node.op = '-'
-        elif type(ast_aug_assign.op) == Mult:
+        elif type(ast_bin_op.op) == Mult:
             operator_node.op = '*'
-        elif type(ast_aug_assign.op) == Div:
+        elif type(ast_bin_op.op) == Div:
             operator_node.op = '/'
-        elif type(ast_aug_assign.op) == FloorDiv:
+        elif type(ast_bin_op.op) == FloorDiv:
             operator_node.op = '//'
-        elif type(ast_aug_assign.op) == Mod:
+        elif type(ast_bin_op.op) == Mod:
             operator_node.op = '%'
-        elif type(ast_aug_assign.op) == Pow:
+        elif type(ast_bin_op.op) == Pow:
             operator_node.op = '**'
-        elif type(ast_aug_assign.op) == LShift:
+        elif type(ast_bin_op.op) == LShift:
             operator_node.op = '<<'
-        elif type(ast_aug_assign.op) == RShift:
+        elif type(ast_bin_op.op) == RShift:
             operator_node.op = '>>'
-        elif type(ast_aug_assign.op) == BitOr:
+        elif type(ast_bin_op.op) == BitOr:
             operator_node.op = '|'
-        elif type(ast_aug_assign.op) == BitAnd:
+        elif type(ast_bin_op.op) == BitAnd:
             operator_node.op = '&'
-        elif type(ast_aug_assign.op) == MatMult:
+        elif type(ast_bin_op.op) == MatMult:
             operator_node.op = '@'
         else:
             raise Exception("does not support operator: ", ast_aug_assign.op)
         operator_node.left = self.visit(ast_bin_op.left)
         operator_node.right = self.visit(ast_bin_op.right)
 
-        # need to do some trick at signed variable (-1, +1, -n, +n)
-        if hasattr(pyc_bin_op.right, 'value'):
-            if pyc_bin_op.left.coord == pyc_bin_op.right.coord:
-                if type(pyc_bin_op.left) == Constant and type(pyc_bin_op.right) == Constant:
-                    zero = ConstantNode()
-                    self.set_coordinate(zero, pyc_bin_op.coord)
-                    zero.value = 0
-
-                    operator_node.right = operator_node.left
-                    operator_node.left = zero
-
         operator_node.add_children(operator_node.left)
         operator_node.add_children(operator_node.right)
 
         return operator_node
 
-    def visit_UnaryOp(self, pyc_unary_op: UnaryOp):
-        # convert pyc_unary operator to pyc_assignment
-        op = pyc_unary_op.op
-        if op == '++' or op == 'p++':
-            op = '+'
-        elif op == '--' or op == 'p--':
-            op = '-'
-        elif op == '+' or op == '-':
-            bin_op = BinaryOp(op, Constant('int', '0', pyc_unary_op.coord), pyc_unary_op.expr, pyc_unary_op.coord)
-            return self.visit(bin_op)
-        # else:
-        #     raise NotImplementedError('op=', op)
-        right = BinaryOp(op, pyc_unary_op.expr, Constant('int', '1', pyc_unary_op.coord), pyc_unary_op.coord)
-        pyc_assign = Assignment('=', pyc_unary_op.expr, right, pyc_unary_op.coord)
-
-        return self.visit(pyc_assign)
-
-    def visit_If(self, pyc_if: If):
+    def visit_If(self, ast_if: If):
         if_node = IfNode()
-        self.set_coordinate(if_node, pyc_if.coord)
-
+        # coord = coordinate(ast_if.col_offset, ast_if.lineno)
+        # self.set_coordinate(if_node, coord)
         # condition
-        if_node.condition = self.visit(pyc_if.cond)
+        if_node.condition = self.visit(ast_if.test)
 
         # convert pyc true statement to list
-        if type(pyc_if.iftrue) is not list:
-            pyc_if.iftrue = [pyc_if.iftrue]
+        if type(ast_if.body) is not list:
+            ast_if.body = [ast_if.body]
 
         self.parent = if_node.true_stmt
-        for child in pyc_if.iftrue or []:
+        for child in ast_if.body or []:
             child_node = self.visit(child)
             if child_node:
                 if type(child_node) is list:
@@ -235,63 +196,125 @@ class PyTransformVisitor(BigOAstVisitor):
                     if_node.true_stmt.append(child_node)
 
         # convert pyc false statement to list
-        if pyc_if.iffalse:
-            if type(pyc_if.iffalse) is not list:
-                pyc_if.iffalse = [pyc_if.iffalse]
+        if ast_if.orelse:
+            if type(ast_if.orelse) is not list:
+                ast_if.orelse = [ast_if.orelse]
 
             self.parent = if_node.false_stmt
-            for child in pyc_if.iffalse or []:
+            for child in ast_if.orelse or []:
                 child_node = self.visit(child)
                 if child_node:
                     if type(child_node) is list:
                         if_node.false_stmt.extend(child_node)
                     else:
                         if_node.false_stmt.append(child_node)
-
+                
         return if_node
 
-    def visit_For(self, pyc_for: For):
-        # convert pyc_for to while
-        # self.while_converter(pyc_for)
-
+    def visit_For(self, ast_for: For):
         for_node = ForNode()
-        self.set_coordinate(for_node, pyc_for.coord)
 
-        init = self.visit(pyc_for.init)
+        #init 做出 i = 0
+        init_variable = VariableNode()
+        init_variable.name = ast_for.target.id
+        init_value = ConstantNode()
+        init_value.value = 0
+        init = AssignNode()
+        init.target = init_variable
+        init.value = init_value
+        # print(init)
         if type(init) is list:
             for_node.init.extend(init)
         else:
             for_node.init.append(init)
 
-        for_node.term = self.visit(pyc_for.cond)
 
-        update = self.visit(pyc_for.next)
+        #term 做出 i < n
+        term_right = self.for_iter(ast_for.iter)
+        term_left = init_variable
+        term = Operator()
+        term.op = '<'
+        term.left = term_left
+        term.right = term_right
+        for_node.term = term
+
+        #update
+        update = AssignNode()
+        #i
+        update_target = VariableNode()
+        update_target.name = ast_for.target.id
+        #i+1
+        update_value = Operator()
+        update_value.left = update_target
+        one = ConstantNode()
+        one.value = 1
+        update_value.right = one
+        update_value.op = '+'
+        #i = i+1
+        update.target = update_target
+        update.value = update_value
         if type(update) is list:
             for_node.update.extend(update)
         else:
             for_node.update.append(update)
 
-        if type(pyc_for.stmt) is not list:
-            pyc_for.stmt = [pyc_for.stmt]
-
-        for child in pyc_for.stmt:
+        for child in ast_for.body:
             child_node = self.visit(child)
             for_node.add_children(child_node)
 
         return for_node
+    
+    def for_iter(self, ast_iter):
+        if type(ast_iter) == Call:
+            if ast_iter.func.id == 'range':
+                if len(ast_iter.args) == 1:
+                    start = ConstantNode()
+                    start.value = 0
+                    stop = self.visit(ast_iter.args[0])
+                if len(ast_iter.args) == 2:
+                    start = self.visit(ast_iter.args[0])
+                    stop = self.visit(ast_iter.args[1])
+
+                terminal = Operator()
+                terminal.left = stop
+                terminal.right = start
+                terminal.op = '-'
+
+                if len(ast_iter.args) == 3:
+                    step = self(visit(ast_name.args[2]))
+                    step_operator_node = Operator()
+                    step_operator_node.left = operator_node
+                    step_operator_node.right = step
+                    step_operator_node.op = '/'
+                    terminal = step_operator_node
+                return terminal
+            else:
+                raise Exception("only support function call : range() in for iterator, your function call is: ", ast_node.func.id) 
+        else:
+            if type(ast_iter) == Name:
+                terminal = self.visit(ast_iter)
+                return terminal
+        raise Exception("can't support this iter type : ", type(ast_node)) 
 
     def generic_visit(self, node):
         children = []
-        for c in node:
-            child = self.visit(c)
-            if child:
+        for field, value in iter_fields(node):
+            if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, AST):
+                        child = self.visit(item)
+                        if type(child) is list:
+                            children.extend(child)
+                        else:
+                            children.append(child)
+
+            elif isinstance(value, AST):
+                child = self.visit(value)
                 if type(child) is list:
                     children.extend(child)
                 else:
                     children.append(child)
-
-        if children:
-            return children
+        return children
 
     @staticmethod
     def set_coordinate(node: BasicNode, coord):
