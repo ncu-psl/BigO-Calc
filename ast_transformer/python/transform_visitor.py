@@ -1,5 +1,6 @@
 from ast import Module, FunctionDef, Call, Starred, Assign, AnnAssign, AugAssign,\
-    BinOp, Add, Sub, Mult, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST
+    BinOp, Add, Sub, Mult, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare
+import ast
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
@@ -132,7 +133,7 @@ class PyTransformVisitor(NodeVisitor):
         assign_node = AssignNode()
         # coord = coordinate(ast_aug_assign.col_offset, ast_aug_assign.lineno)
         # self.set_coordinate(assign_node, coord)
-        assign_node.target = self.visit(ast_assign.target)
+        assign_node.target = self.visit(ast_assign.targets)
         assign_node.value = self.visit(ast_assign.value)
 
         return assign_node
@@ -174,6 +175,47 @@ class PyTransformVisitor(NodeVisitor):
         operator_node.add_children(operator_node.right)
 
         return operator_node
+    def visit_Compare(self, ast_compare: Compare):
+        operator_node = Operator()
+        child_operator_node = Operator()
+        left = self.visit(ast_compare.left)
+        for index,comparator in enumerate(ast_compare.comparators):
+            if index == 0:
+                child_operator_node.left = left
+                child_operator_node.right = self.visit(comparator)
+                child_operator_node.op = self.transform_op(ast_compare.ops[index])
+            else:
+                parent_operator_node = Operator()
+                parent_operator_node.left = child_operator_node
+                parent_operator_node.right = self.visit(comparator)
+                parent_operator_node.op = self.transform_op(ast_compare.ops[index])
+        
+        return operator_node
+        
+    def transform_op(self, compare_op):
+        if isinstance(compare_op, ast.Eq):
+            return '=='
+        if isinstance(compare_op, ast.NotEq):
+            return '!='
+        if isinstance(compare_op, ast.Lt):
+            return '<'
+        if isinstance(compare_op, ast.LtE):
+            return '<='
+        if isinstance(compare_op, ast.Gt):
+            return '>'
+        if isinstance(compare_op, ast.GtE):
+            return '>='
+        if isinstance(compare_op, ast.Is):
+            return '=='
+        if isinstance(compare_op, ast.IsNot):
+            return '!='
+        if isinstance(compare_op, ast.In):
+            return '=='
+        if isinstance(compare_op, ast.NotIn):
+            return '!='
+        else:
+            raise Exception("can't support this compare op : ", type(compare_op)) 
+
 
     def visit_If(self, ast_if: If):
         if_node = IfNode()

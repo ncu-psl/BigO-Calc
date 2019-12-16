@@ -81,15 +81,14 @@ def main():
 
     return json_str
 
-def time_calc(self, filename: str):
-    origin_ast = PyASTGenerator().generate(source_file_name)
+def time_calc(filename: str):
+    origin_ast = PyASTGenerator().generate(filename)
     bigo_ast = PyTransformVisitor().transform(origin_ast)
     
     # evaluate big o
     BigOCalculator(bigo_ast).calc()
     new_bigo_ast = bigo_ast
-    if not args.no_simplify:
-        new_bigo_ast = BigOSimplify(bigo_ast).simplify()
+    new_bigo_ast = BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
     for func in new_bigo_ast.children:
@@ -112,8 +111,6 @@ def time_calc(self, filename: str):
     json_str = json.dumps(func_bigo_dict, indent=4)
 
     # print function Big-O
-    print(json_str)
-
     return json_str
 
 if __name__ == '__main__':
