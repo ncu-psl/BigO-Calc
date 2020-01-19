@@ -77,15 +77,7 @@ class BigOCalculator(BigOAstVisitor):
 
         value_tc = 0
 
-        backward_key,backward_item,rate = self.backward_table_manager.find_changed_symbol(assign_node)
-        if (backward_key and backward_item) is not '':
-            backward_rate = getUpateRate(backward_key,backward_item)
-            self.backward_table_manager.add_symbol(backward_key, backward_item,backward_rate)
-            print('print_backward_table_manager',self.backward_table_manager.print_current_table())
-
-        forward_key,forward_item,rate = self.backward_table_manager.find_changed_symbol(assign_node)
-        if (forward_key and forward_item) is not '':
-            forward_rate = getUpateRate(forward_key,forward_item)
+        self.backward_table_manager.add_symbol(assign_node)
 
         if type(value) is not list:
             self.visit(value)
@@ -196,19 +188,20 @@ class BigOCalculator(BigOAstVisitor):
         step = 0
         if op.is_Add:
             
-            print('(str(type(changed_variable))',(str(type(changed_variable))))
-            if(changed_variable != None) and \
-              ((variable.name in str(changed_variable.args))) and \
-              type(changed_variable) == Mul:
-                if tc == 1:
-                    tc = 0
-                q = changed_variable / variable
-                step = sympy.log(a_n / a_1, q) + 1 
+            # print('(str(type(changed_variable))',(str(type(changed_variable))))
+            # if(changed_variable != None) and \
+            #   ((variable.name in str(changed_variable.args))) and \
+            #   type(changed_variable) == Mul:
+            #     if tc == 1:
+            #         tc = 0
+            #     q = changed_variable / variable
+            #     step = sympy.log(a_n / a_1, q) + 1 
 
-            else:
-                d = op - variable
-                print('type(a_n) ',type(a_n),'\n')
-                step = (a_n - a_1) / d + 1
+            # else:
+            a_n = t_right
+            d = op - variable
+            print('type(a_n) ',type(a_n),'\n')
+            step = (a_n - a_1) / d + 1
                 
         elif op.is_Mul:
             q = op / variable
@@ -221,21 +214,21 @@ class BigOCalculator(BigOAstVisitor):
 
         
         for_node.time_complexity = step * tc
-        # print('can replace variable',self.backward_table_manager.current_table.can_replace_varables)
-        #replace symbol
-        for symbol in self.backward_table_manager.current_table.can_replace_varables:
-            replace_symbol = self.backward_table_manager.get_symbol_value(symbol)
-            if replace_symbol != None:
-                replace_symbol = sympy.sympify(replace_symbol)
-                # print('replace_symbol ',replace_symbol)
+#         # print('can replace variable',self.backward_table_manager.current_table.can_replace_varables)
+#         #replace symbol
+#         for symbol in self.backward_table_manager.current_table.can_replace_varables:
+#             replace_symbol = self.backward_table_manager.get_symbol_value(symbol)
+#             if replace_symbol != None:
+#                 replace_symbol = sympy.sympify(replace_symbol)
+#                 # print('replace_symbol ',replace_symbol)
 
-                for_node.time_complexity = for_node.time_complexity.subs(
-                                                                        sympy.Symbol(symbol, integer=True, positive=True)
-                                                                        , replace_symbol
-                                                                        )
-#             print('for_node.time_complexity :',for_node.time_complexity)
-#             print('\n')
-        # print('for_node_tc',for_node.time_complexity)
+#                 for_node.time_complexity = for_node.time_complexity.subs(
+#                                                                         sympy.Symbol(symbol, integer=True, positive=True)
+#                                                                         , replace_symbol
+#                                                                         )
+# #             print('for_node.time_complexity :',for_node.time_complexity)
+# #             print('\n')
+#         # print('for_node_tc',for_node.time_complexity)
         self.backward_table_manager.pop_table()
         print('leave for loop\n')
         pass
@@ -255,11 +248,42 @@ class BigOCalculator(BigOAstVisitor):
         c_right = self.visit(cond.right)
         if type(cond.right) != VariableNode or type(cond.right) != ConstantNode:
             raise NotImplementedError('can not handle this type of condition right node, node =', type(cond.right))
-
         #紀錄可能可以替換的symbol
         if type(c_right) == sympy.Symbol:                        
             self.backward_table_manager.current_table.can_replace_varables.append(c_right)
+
+        if variable == c_left:
+            a_n = c_right
+            a_n = c_left
+            if cond.op == '<':
+                a_n = a_n - 1
+            elif cond.op == '>':
+                a_n = a_n + 1
+        elif variable == c_right:
+            a_n = c_left
+            a_1 = c_right
+            if cond.op == '<':
+                a_n = a_n + 1
+            elif cond.op == '>':
+                a_n = a_n - 1
+        else:
+            raise NotImplementedError("unknown condition: ", t_left, t_right)
+
+        step = 0
+        if rate == '+':
+            d = 1
+            step = (a_n - a_1) / d + 1
+                
+        elif rate == '*':
+            q = 2
+            step = sympy.log(a_n / a_1, q) + 1
+        else:
+            raise NotImplementedError('can not handle loop update, op=', op)
+
+        if step.expand().is_negative:
+            raise NotImplementedError('this loop can not analyze.\n', )
         tc = 0
+        
         for child in while_node.children:
             self.visit(child)
             tc += child.time_complexity

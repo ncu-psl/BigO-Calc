@@ -1,16 +1,6 @@
-// struct M{
-//     int num;
-// };
-struct M* mm = malloc(sizeof(M));
-    mm->num = n;
-void n_n(struct M* mm,int n) {
-    // struct M* mm = malloc(sizeof(M));
-    // mm->num = n;
-    int k = 0;
-    for(int i=1;i<=mm->num;i++){
-        // for(int j=1;j<=m;j++)
-        i = i*2;
-        // k = 0;
+void n(int n){
+    for(int i = 0; i<k; i++){
+        // k=k;
     }
 }
 // void while_n(int n){
