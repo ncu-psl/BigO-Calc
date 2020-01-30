@@ -28,9 +28,11 @@ class BigOCalculator(BigOAstVisitor):
             
     def visit_CompilationUnitNode(self, compilation_unit_node: CompilationUnitNode):
         self.backward_table_manager.push_table('compilation')
+        print('enter compilation\n')
 
         for child in compilation_unit_node.children:
             self.visit(child)
+        print('leave compilation\n')
 
         self.backward_table_manager.pop_table()
 
@@ -39,6 +41,7 @@ class BigOCalculator(BigOAstVisitor):
             func_decl_node.time_complexity = sympy.Symbol(func_decl_node.name, integer=True, positive=True)
         else:
             tc = 0
+            print('enter funcDec\n')
             self.backward_table_manager.push_table('funcdef')
 
             for child in func_decl_node.children:
@@ -48,8 +51,6 @@ class BigOCalculator(BigOAstVisitor):
                 tc = 1
             func_decl_node.time_complexity = tc
             
-            print('backward_table',self.backward_table_manager.print_current_table())
-
             self.backward_table_manager.pop_table()
             print('leave funcDec\n')
 
@@ -120,32 +121,31 @@ class BigOCalculator(BigOAstVisitor):
         self.visit(if_node.condition)
 
         cond_tc = if_node.condition.time_complexity
+        self.backward_table_manager.push_table(scope_type = 'if')
 
         true_tc = 0
         for child in if_node.true_stmt:
-            print('enter true cond')
-            self.backward_table_manager.push_table()
             self.visit(child)
             true_tc += child.time_complexity
-            print(self.backward_table_manager.print_current_table())
-            self.backward_table_manager.pop_table()
-            print('leave true cond\n')
         if true_tc == 0:
             true_tc = 1
 
+        if len(if_node.false_stmt) != 0:
+            self.backward_table_manager.push_table(scope_type = 'else')
+
         false_tc = 0
         for child in if_node.false_stmt:
-            print('enter false cond')
-            self.backward_table_manager.push_table()
             self.visit(child)
             false_tc += child.time_complexity
-            print(self.backward_table_manager.print_current_table())
-            self.backward_table_manager.pop_table()
-            print('leave false cond\n')
         if false_tc == 0:
             false_tc = 1
 
+        if len(if_node.false_stmt) != 0:
+            self.backward_table_manager.pop_table()
+
+        self.backward_table_manager.pop_table()
         if_node.time_complexity = cond_tc + sympy.Max(true_tc, false_tc)
+
 
         pass
 
@@ -164,130 +164,100 @@ class BigOCalculator(BigOAstVisitor):
         # term
         term = for_node.term
         
-        t_left = self.visit(term.left)
-        #紀錄可能可以替換的symbol
-        if type(t_left) == sympy.Symbol:
-            self.backward_table_manager.current_table.can_replace_varables.append(t_left.name)
-            
+        t_left = self.visit(term.left)      
         t_right = self.visit(term.right)
-        #紀錄可能可以替換的symbol
-        if type(t_right) == sympy.Symbol:
-            self.backward_table_manager.current_table.can_replace_varables.append(t_right.name)
-
+        
         # update
         tc = 0
+        
+
         for child in for_node.children:
             self.visit(child)
             tc += child.time_complexity
         if tc == 0:
             tc = 1
 
+        if type(term.right) == VariableNode:
+            right_rate = self.backward_table_manager.get_symbol_rate(term.right.name)
+        if type(term.left) == VariableNode:
+            left_rate = self.backward_table_manager.get_symbol_rate(term.left.name)
+
         update = for_node.update[0]
         op = self.visit(update.value)
 
         step = 0
         if op.is_Add:
-            
-            # print('(str(type(changed_variable))',(str(type(changed_variable))))
-            # if(changed_variable != None) and \
-            #   ((variable.name in str(changed_variable.args))) and \
-            #   type(changed_variable) == Mul:
-            #     if tc == 1:
-            #         tc = 0
-            #     q = changed_variable / variable
-            #     step = sympy.log(a_n / a_1, q) + 1 
-
-            # else:
             a_n = t_right
             d = op - variable
-            print('type(a_n) ',type(a_n),'\n')
-            step = (a_n - a_1) / d + 1
+            if '*' == left_rate or '/' == right_rate:
+                q = 2
+                step = sympy.log(a_n, q) + 1
+            else:
+                step = (a_n - a_1) / d + 1
                 
         elif op.is_Mul:
+            a_n = t_right
             q = op / variable
-            step = sympy.log(a_n / a_1, q) + 1
+            step = sympy.log(a_n, q) + 1
         else:
             raise NotImplementedError('can not handle loop update, op=', op)
 
         if step.expand().is_negative:
-            raise NotImplementedError('this loop can not analyze.\n', )
-
-        
-        for_node.time_complexity = step * tc
-#         # print('can replace variable',self.backward_table_manager.current_table.can_replace_varables)
-#         #replace symbol
-#         for symbol in self.backward_table_manager.current_table.can_replace_varables:
-#             replace_symbol = self.backward_table_manager.get_symbol_value(symbol)
-#             if replace_symbol != None:
-#                 replace_symbol = sympy.sympify(replace_symbol)
-#                 # print('replace_symbol ',replace_symbol)
-
-#                 for_node.time_complexity = for_node.time_complexity.subs(
-#                                                                         sympy.Symbol(symbol, integer=True, positive=True)
-#                                                                         , replace_symbol
-#                                                                         )
-# #             print('for_node.time_complexity :',for_node.time_complexity)
-# #             print('\n')
-#         # print('for_node_tc',for_node.time_complexity)
+            raise NotImplementedError('this loop can not analyze.\n')
         self.backward_table_manager.pop_table()
+        for_node.time_complexity = step * tc
         print('leave for loop\n')
         pass
     
-    def visit_whileNode(self, while_node: WhileNode):
-        if len(while_node.cond) != 1:
-            raise NotImplementedError("len(while_node.cond) != 1")
-            
+
+    def visit_WhileNode(self, while_node: WhileNode):
+        self.backward_table_manager.push_table()
+
         cond = while_node.cond
-        if type(cond.left) != VariableNode or type(cond.left) != ConstantNode:
-            raise NotImplementedError('can not handle this type of condition left node, node =', type(cond.left))
+
+      
         c_left = self.visit(cond.left)
-        #紀錄可能可以替換的symbol
-        if type(c_left) == sympy.Symbol:                        
-            self.backward_table_manager.current_table.can_replace_varables.append(c_left)
-        
         c_right = self.visit(cond.right)
-        if type(cond.right) != VariableNode or type(cond.right) != ConstantNode:
-            raise NotImplementedError('can not handle this type of condition right node, node =', type(cond.right))
-        #紀錄可能可以替換的symbol
-        if type(c_right) == sympy.Symbol:                        
-            self.backward_table_manager.current_table.can_replace_varables.append(c_right)
 
-        if variable == c_left:
-            a_n = c_right
-            a_n = c_left
-            if cond.op == '<':
-                a_n = a_n - 1
-            elif cond.op == '>':
-                a_n = a_n + 1
-        elif variable == c_right:
-            a_n = c_left
-            a_1 = c_right
-            if cond.op == '<':
-                a_n = a_n + 1
-            elif cond.op == '>':
-                a_n = a_n - 1
-        else:
-            raise NotImplementedError("unknown condition: ", t_left, t_right)
-
-        step = 0
-        if rate == '+':
-            d = 1
-            step = (a_n - a_1) / d + 1
-                
-        elif rate == '*':
-            q = 2
-            step = sympy.log(a_n / a_1, q) + 1
-        else:
-            raise NotImplementedError('can not handle loop update, op=', op)
-
-        if step.expand().is_negative:
-            raise NotImplementedError('this loop can not analyze.\n', )
         tc = 0
-        
         for child in while_node.children:
             self.visit(child)
             tc += child.time_complexity
         if tc == 0:
             tc = 1
+
+        step = 0
+        if type(cond.right) == VariableNode:
+                right_rate = self.backward_table_manager.get_symbol_rate(cond.right.name)
+        if type(cond.left) == VariableNode:
+            left_rate = self.backward_table_manager.get_symbol_rate(cond.left.name)
+
+        if cond.op in ['<','<=']:
+            a_n = c_right
+            a_1 = c_left
+            if '*' == left_rate or '/' == right_rate:
+                q = 2
+                step = sympy.log(a_n, q) + 1
+            elif '+' == left_rate or '-' == right_rate:
+                d = 1
+                step = (a_n) / d + 1
+
+
+        elif cond.op in ['>', '>=']:
+            a_n = c_left
+            a_1 = c_right
+            if '/' == left_rate or '*' == right_rate:
+                q = 2
+                step = sympy.log(a_n / a_1, q) + 1
+            elif '-' == left_rate or '+' == right_rate:
+                d = 1
+                step = (a_n - a_1) / d + 1
         
+        else:
+            raise NotImplementedError('can not handle loop update, op=', cond.op)
+        if step.expand().is_negative:
+            raise NotImplementedError('this loop can not analyze.\n', )
+        self.backward_table_manager.pop_table()
+        while_node.time_complexity = step * tc
+
         pass

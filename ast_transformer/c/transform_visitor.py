@@ -264,12 +264,8 @@ class CTransformVisitor(NodeVisitor):
         while_node = WhileNode()
         self.set_coordinate(while_node, pyc_while.coord)
         
-        cond = self.visit(pyc_while.cond)
-        if type(pyc_while) is not list:
-            while_node.cond.append(cond)
-        else:
-            while_node.cond.extend(cond)
-        
+        while_node.cond = self.visit(pyc_while.cond)
+               
         for child in pyc_while.stmt:
             child_node = self.visit(child)
             while_node.add_children(child_node)

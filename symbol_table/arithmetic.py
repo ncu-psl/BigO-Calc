@@ -33,10 +33,6 @@ def toPostfix(infixString:str):
     re_VarOrNum = re.compile(r'\w')
     i = 1
     for expr in infix:
-        # print('step ',i,'\nexpr :',expr)
-        # i+=1
-        # print('stack :',stack)
-        # print('output :',output,'\n')
         if expr == '(':     #(
             stack.append('(')
         elif re_VarOrNum.match(expr): #var or num
@@ -44,10 +40,8 @@ def toPostfix(infixString:str):
         elif expr in '+-*/': #op
             if stack == []:
                 stack.append(expr)
-                # print(stack,'\n')
             else:
                 reverse_stack = stack[::-1]
-                # print('reverse_stack :',reverse_stack)
                 for i, op in enumerate(reverse_stack):
                     if op == '(':
                         stack.append(expr)
@@ -64,9 +58,7 @@ def toPostfix(infixString:str):
                 output.append(stack.pop())
             stack.pop()
     
-    # print('stack left',stack)
     output.extend(stack[::-1])
-    # print('output :',output)
     return output
 
 
@@ -82,13 +74,10 @@ def getUpateRate(name: str,infixString:str)->str:
     stack = []
     re_VarOrNum = re.compile(r'\w')
     for expr in postfix:
-        # print('rate :',rate)
-        print('stack :',stack)
         if re_VarOrNum.match(expr):
             stack.append(expr)
         elif expr in '+-*/':
             try: 
-                print('rate :',rate,'\top :',expr)
                 if name in stack[-2:]:
                     stack.pop()
                     stack.pop()
@@ -109,7 +98,4 @@ if __name__ == '__main__':
     a = 'a+b'
     postfixMidMinusOne = ['low','high','+','2','/','1','-']
     output = toPostfix(midMinusOne)
-    # print(output == postfixMidMinusOne)
     rate = getUpateRate('low', midMinusOne)
-    print('update :', rate)
-    # print(priority('+'))
