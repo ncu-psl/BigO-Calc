@@ -201,6 +201,7 @@ class BigOCalculator(BigOAstVisitor):
             step = sympy.log(a_n, q) + 1
         else:
             raise NotImplementedError('can not handle loop update, op=', op)
+        print('type(step)',type(step))
 
         if step.expand().is_negative:
             raise NotImplementedError('this loop can not analyze.\n')
@@ -228,19 +229,27 @@ class BigOCalculator(BigOAstVisitor):
 
         step = 0
         if type(cond.right) == VariableNode:
-                right_rate = self.backward_table_manager.get_symbol_rate(cond.right.name)
+            right_rate = self.backward_table_manager.get_symbol_rate(cond.right.name)
         if type(cond.left) == VariableNode:
             left_rate = self.backward_table_manager.get_symbol_rate(cond.left.name)
+
 
         if cond.op in ['<','<=']:
             a_n = c_right
             a_1 = c_left
+            print('an',a_n)
+            print('left_rate',left_rate)
+            print('right_rate',right_rate)
             if '*' == left_rate or '/' == right_rate:
                 q = 2
                 step = sympy.log(a_n, q) + 1
+                print('type(step)',type(step))
+
             elif '+' == left_rate or '-' == right_rate:
                 d = 1
                 step = (a_n) / d + 1
+                print('type(step)',type(step))
+
 
 
         elif cond.op in ['>', '>=']:
