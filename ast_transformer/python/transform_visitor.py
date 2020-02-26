@@ -1,5 +1,5 @@
 from ast import Module, FunctionDef, Call, Starred, Assign, AnnAssign, AugAssign,\
-    BinOp, Add, Sub, Mult, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare
+    BinOp, BoolOp, And, Or, Add, Sub, Mult, FloorDiv, Pow, Mod, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare
 import ast
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
@@ -58,21 +58,26 @@ class PyTransformVisitor(NodeVisitor):
         func_call_node = FuncCallNode()
         # coord = coordinate(ast_call.col_offset, ast_call.lineno)
         # self.set_coordinate(func_call_node, coord)
-        func_call_node.name = ast_call.func.id
+        if hasattr(ast_call.func,'id'):
+            func_call_node.name = ast_call.func.id
+        else:
+            func_call_node.name = ast_call.func.attr
 
-        if ast_call.args:
-            for arg in ast_call.args:
-                if type(arg) == Starred:
-                    func_call_node.parameter.append(arg.value.id)
-                else:
-                    func_call_node.parameter.append(arg.id)
+        # if ast_call.args:
+        #     for arg in ast_call.args:
+        #         if(hasattr(arg,'value')):
+        #             if type(arg) == Starred:
+        #                 func_call_node.parameter.append(arg.value.id)
+        #             else:
+        #                 func_call_node.parameter.append(arg.id)
 
-        if ast_call.keywords:
-            for keyword in ast_call.keywords:
-                if keyword.arg == None:
-                    func_call_node.parameter.append(keyword.value.id)
-                else:
-                    func_call_node.parameter.append(keyword.arg)
+        # if ast_call.keywords:
+        #     for keyword in ast_call.keywords:
+        #         if(hasattr(keyword,'value')):
+        #             if keyword.arg == None:
+        #                 func_call_node.parameter.append(keyword.value.id)
+        #             else:
+        #                 func_call_node.parameter.append(keyword.arg)
         return func_call_node
 
     
@@ -90,8 +95,8 @@ class PyTransformVisitor(NodeVisitor):
         # self.set_coordinate(constant_node, coord) 
         if type(ast_num.n) == int:
             constant_node.value = ast_num.n
-        else:
-            raise NotImplementedError('Constant type not support: ', type(ast_num.n))
+        # else:
+        #     raise NotImplementedError('Constant type not support: ', type(ast_num.n))
 
         return constant_node
 
@@ -137,6 +142,32 @@ class PyTransformVisitor(NodeVisitor):
         assign_node.value = self.visit(ast_assign.value)
 
         return assign_node
+    def visit_BoolOp(self, ast_bool_op: BoolOp):
+        operator_node = Operator()
+        if type(ast_bool_op.op) == And:
+            op = '=='
+        elif type(ast_bool_op.op) == Or:
+            op = '||'
+        else:
+            raise Exception("does not support operator: ", ast_bool_op.op)
+
+        right = BasicNode()
+        right_flag = False
+        for node in reversed(ast_bool_op.values):
+            if right_flag == False:
+                right = self.visit(node)
+                right_flag == True
+            else:
+                left = self.visit(node)
+                operator_node = Operator()
+                operator.op = op
+                operator.right = right
+                operator.left = left
+                right = operator
+
+        operator_node.add_children(operator_node.left)
+        operator_node.add_children(operator_node.right)
+        return operator_node
 
     def visit_BinOp(self, ast_bin_op: BinOp):
         operator_node = Operator()
@@ -167,7 +198,7 @@ class PyTransformVisitor(NodeVisitor):
         elif type(ast_bin_op.op) == MatMult:
             operator_node.op = '@'
         else:
-            raise Exception("does not support operator: ", ast_aug_assign.op)
+            raise Exception("does not support operator: ", ast_bin_op.op)
         operator_node.left = self.visit(ast_bin_op.left)
         operator_node.right = self.visit(ast_bin_op.right)
 
