@@ -142,7 +142,20 @@ class VariableNode(BasicNode):
         d.update({'value': self.name})
 
         return d
+        
+class ArrayNode(BasicNode):
+    
+    def __init__(self):
+        super().__init__()
 
+        self.array = []
+
+        pass
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'array': self.array})
+
+        return d
 
 class ConstantNode(BasicNode):
 

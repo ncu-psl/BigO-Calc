@@ -3,7 +3,7 @@ import operator
 import sympy
 
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
-    AssignNode, ConstantNode, Operator
+    AssignNode, ArrayNode, ConstantNode, Operator
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 
 
@@ -48,6 +48,14 @@ class BigOCalculator(BigOAstVisitor):
 
     def visit_VariableNode(self, variable_node: VariableNode):
         return sympy.Symbol(variable_node.name, integer=True, positive=True)
+
+    def visit_ArrayNode(self, array_node: ArrayNode):
+        tc = 0
+        for child in array_node.array:
+            self.visit(child)
+            tc += child.time_complexity
+        array_node.time_complexity = tc 
+        return array_node.time_complexity
 
     def visit_ConstantNode(self, const_node: ConstantNode):
         return sympy.Rational(const_node.value)

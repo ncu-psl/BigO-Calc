@@ -1,7 +1,7 @@
 from ast import Module, FunctionDef, Call, Starred, Assign, AnnAssign, AugAssign,\
-    BinOp, BoolOp, And, Or, Add, Sub, Mult, FloorDiv, Pow, Mod, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare
+    BinOp, BoolOp, And, Or, Add, Sub, Mult, FloorDiv, Pow, Mod, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare, List, Tuple
 import ast
-from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
+from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ArrayNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
 class PyTransformVisitor(NodeVisitor):
@@ -89,6 +89,18 @@ class PyTransformVisitor(NodeVisitor):
 
         return variable_node
 
+    def visit_List(self, ast_list: List):
+        array_node = ArrayNode()
+        for elt in ast_list.elts:
+            array_node.array.append(self.visit(elt))
+        return array_node
+
+    def visit_Tuple(self, ast_tuple: Tuple):
+        array_node = ArrayNode()
+        for elt in ast_tuple.elts:
+            array_node.array.append(self.visit(elt))
+        return array_node
+    
     def visit_Num(self, ast_num: Num):
         constant_node = ConstantNode()
         # coord = coordinate(ast_num.col_offset, ast_num.lineno)
