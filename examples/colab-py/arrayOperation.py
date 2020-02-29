@@ -5,4 +5,9 @@ def f(n):
     return i
 
 def main():
-    a = a + [1,f(n)]
+    a = [0]
+    a = a + [1,f(5)]
+    print(a)
+
+if __name__ == '__main__':
+    main()
