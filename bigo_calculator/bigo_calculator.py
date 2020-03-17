@@ -23,6 +23,16 @@ class BigOCalculator(BigOAstVisitor):
 
         pass
 
+    def visit_CompilationUnitNode(self, compilation_unit_node: CompilationUnitNode):
+        tc = 0
+        for child in compilation_unit_node.children:
+            self.visit(child)
+            if (type(child) != FuncDeclNode):
+                tc += child.time_complexity
+        if tc == 0:
+            tc = sympy.Rational(1)
+        compilation_unit_node.time_complexity = tc
+
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         if func_decl_node.determine_recursion():
             func_decl_node.time_complexity = sympy.Symbol(func_decl_node.name, integer=True, positive=True)
@@ -43,8 +53,7 @@ class BigOCalculator(BigOAstVisitor):
             if target == func.name:
                 func_call.time_complexity = sympy.Symbol(func.name, integer=True, positive=True)
                 break
-
-        pass
+        return sympy.Symbol('size('+target+'())', integer=True, positive=True)
 
     def visit_VariableNode(self, variable_node: VariableNode):
         return sympy.Symbol(variable_node.name, integer=True, positive=True)
@@ -93,8 +102,10 @@ class BigOCalculator(BigOAstVisitor):
             return operator.mul(left, right)
         elif op == '/':
             return operator.truediv(left, right)
-        elif op == '**':
+        elif op == '<<':
             return left * 2 ** right
+        elif op == '>>':
+            return left / (2 ** right)            
 
     def visit_IfNode(self, if_node: IfNode):
         self.visit(if_node.condition)
@@ -173,6 +184,15 @@ class BigOCalculator(BigOAstVisitor):
             tc += child.time_complexity
         if tc == 0:
             tc = 1
-        for_node.time_complexity = step * tc
+        tc *= step
 
+        for child in for_node.init:
+            tc += child.time_complexity
+        self.visit(for_node.term)
+        tc += for_node.term.time_complexity
+        for child in for_node.update:
+            tc += child.time_complexity
+
+        for_node.time_complexity = tc
+        
         pass

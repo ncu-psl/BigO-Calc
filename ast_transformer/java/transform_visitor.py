@@ -265,8 +265,6 @@ class JavaTransformVisitor(BigOAstVisitor):
         operator_node.add_children(operator_node.left)
         operator_node.add_children(operator_node.right)
         for_node.term = operator_node
-        print('left',operator_node.left)
-        print('right',operator_node.right)
         #update
         update_operator_node = Operator()
         update_const_node = ConstantNode()
