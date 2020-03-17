@@ -32,10 +32,23 @@ def main():
     if not os.path.isfile(source_file_name):
         raise FileNotFoundError
 
+    json_str = time_calc(source_file_name, args.lang)
+    
+    # print function Big-O
+    print(json_str)
+
+    return json_str
+
+def time_calc(filename : str, file_language : None):
+    # check file exist
+    source_file_name = filename
+    if not os.path.isfile(source_file_name):
+        raise FileNotFoundError
+
     # default get programming language by extension
     language = os.path.splitext(source_file_name)[1][1:].lower()
-    if args.lang:
-        language = args.lang.lower()
+    if file_language:
+        language = file_language
 
     # transform ast
     if language == 'c':
@@ -49,41 +62,6 @@ def main():
         bigo_ast = PyTransformVisitor().transform(origin_ast)
     else:
         raise Exception("Language does not support : " + language)
-
-    # evaluate big o
-    BigOCalculator(bigo_ast).calc()
-    new_bigo_ast = bigo_ast
-    if not args.no_simplify:
-        new_bigo_ast = BigOSimplify(bigo_ast).simplify()
-
-    func_bigo_dict = {}
-    for func in new_bigo_ast.children:
-        if type(func) != FuncDeclNode:
-            continue
-
-        complexity = func.time_complexity
-
-        if func.recursive:
-            complexity = 'is a recursive function'
-        elif not complexity:
-            raise ArithmeticError('complexity can not recognize.')
-        elif type(complexity) is sympy.Order:
-            complexity = str(complexity)
-        else:
-            complexity = 'O(' + str(complexity) + ')'
-
-        func_bigo_dict.update({func.name: complexity})
-
-    json_str = json.dumps(func_bigo_dict, indent=4)
-
-    # print function Big-O
-    print(json_str)
-
-    return json_str
-
-def time_calc(filename: str):
-    origin_ast = PyASTGenerator().generate(filename)
-    bigo_ast = PyTransformVisitor().transform(origin_ast)
     
     # evaluate big o
     BigOCalculator(bigo_ast).calc()
@@ -91,6 +69,14 @@ def time_calc(filename: str):
     new_bigo_ast = BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
+    complexity = new_bigo_ast.time_complexity
+    if type(complexity) is sympy.Order:
+            complexity = str(complexity)
+    else:
+        complexity = 'O(' + str(complexity) + ')'
+
+    func_bigo_dict.update({'compilation node': complexity})
+
     for func in new_bigo_ast.children:
         if type(func) != FuncDeclNode:
             continue
@@ -115,3 +101,4 @@ def time_calc(filename: str):
 
 if __name__ == '__main__':
     main()
+    # time_calc('examples/colab-py/md1.py')
