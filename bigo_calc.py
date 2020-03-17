@@ -8,6 +8,9 @@ from ast_transformer.c.ast_generator import CASTGenerator
 from ast_transformer.c.transform_visitor import CTransformVisitor
 from ast_transformer.java.ast_generator import JavaASTGenerator
 from ast_transformer.java.transform_visitor import JavaTransformVisitor
+from ast_transformer.python.ast_generator import PyASTGenerator
+from ast_transformer.python.transform_visitor import PyTransformVisitor
+
 from bigo_ast.bigo_ast import FuncDeclNode
 from bigo_calculator.bigo_calculator import BigOCalculator
 from bigo_calculator.bigo_simplify import BigOSimplify
@@ -42,6 +45,9 @@ def main():
     elif language == 'java':
         origin_ast = JavaASTGenerator().generate(source_file_name)
         bigo_ast = JavaTransformVisitor().transform(origin_ast)
+    elif language == 'py':
+        origin_ast = PyASTGenerator().generate(source_file_name)
+        bigo_ast = PyTransformVisitor().transform(origin_ast)
     else:
         raise Exception("Language does not support : " + language)
 
@@ -53,6 +59,15 @@ def main():
         new_bigo_ast = BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
+
+    complexity = new_bigo_ast.time_complexity
+    if type(complexity) is sympy.Order:
+            complexity = str(complexity)
+    else:
+        complexity = 'O(' + str(complexity) + ')'
+
+    func_bigo_dict.update({'compilation node': complexity})
+
     for func in new_bigo_ast.children:
         if type(func) != FuncDeclNode:
             continue
@@ -77,6 +92,37 @@ def main():
 
     return json_str
 
+def time_calc(filename: str):
+    origin_ast = PyASTGenerator().generate(filename)
+    bigo_ast = PyTransformVisitor().transform(origin_ast)
+
+    # evaluate big o
+    BigOCalculator(bigo_ast).calc()
+    new_bigo_ast = bigo_ast
+    new_bigo_ast = BigOSimplify(bigo_ast).simplify()
+
+    func_bigo_dict = {}
+    for func in new_bigo_ast.children:
+        if type(func) != FuncDeclNode:
+            continue
+
+        complexity = func.time_complexity
+
+        if func.recursive:
+            complexity = 'is a recursive function'
+        elif not complexity:
+            raise ArithmeticError('complexity can not recognize.')
+        elif type(complexity) is sympy.Order:
+            complexity = str(complexity)
+        else:
+            complexity = 'O(' + str(complexity) + ')'
+
+        func_bigo_dict.update({func.name: complexity})
+
+    json_str = json.dumps(func_bigo_dict, indent=4)
+
+    # print function Big-O
+    return json_str
 
 if __name__ == '__main__':
     main()

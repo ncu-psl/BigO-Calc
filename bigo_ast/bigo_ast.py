@@ -77,6 +77,13 @@ class CompilationUnitNode(BasicNode):
 
         pass
 
+class ClassNode(BasicNode):
+    def __init__(self):
+        super().__init__()
+        self.name = ''
+        self.inher = []
+        self.vir_inher = []
+    pass
 
 class FuncDeclNode(BasicNode):
     def __init__(self):
@@ -144,6 +151,19 @@ class VariableNode(BasicNode):
 
         return d
 
+class ArrayNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.array = []
+
+        pass
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'array': self.array})
+
+        return d
 
 class ConstantNode(BasicNode):
 

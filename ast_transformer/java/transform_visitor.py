@@ -1,6 +1,6 @@
 from javalang.ast import Node
 from javalang.tree import CompilationUnit, ForControl, MethodInvocation, MethodDeclaration, IfStatement, Literal, \
-    MemberReference, BinaryOperation, VariableDeclarator, Assignment, ForStatement
+    MemberReference, BinaryOperation, VariableDeclarator, Assignment, ForStatement, ReferenceType, EnhancedForControl
 
 from bigo_ast.bigo_ast import FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode, VariableNode, AssignNode, ConstantNode, Operator, BasicNode
@@ -89,6 +89,13 @@ class JavaTransformVisitor(BigOAstVisitor):
 
         return assign_node
 
+    def visit_ReferenceType(self, java_reference_type: ReferenceType):
+        variable_node = VariableNode()
+        self.set_coordinate(variable_node, java_reference_type)
+        variable_node.name = java_reference_type.name
+
+        return variable_node
+
     def visit_MemberReference(self, java_id: MemberReference):
         variable_node = VariableNode()
         self.set_coordinate(variable_node, java_id)
@@ -150,6 +157,8 @@ class JavaTransformVisitor(BigOAstVisitor):
             if java_literal.value == 'true':
                 constant_node.value = 1
             elif java_literal.value == 'false':
+                constant_node.value = 0
+            elif type(java_literal.value) == str:
                 constant_node.value = 0
             else:
                 raise NotImplementedError('Constant type not support: ', java_literal)
@@ -228,13 +237,45 @@ class JavaTransformVisitor(BigOAstVisitor):
         return if_node
 
     def visit_ForStatement(self, java_for_stmt: ForStatement):
-        for_node = self.visit_ForControl(java_for_stmt.control)
+        for_node = self.visit(java_for_stmt.control)
 
         if type(java_for_stmt.body) is not list:
             java_for_stmt.body = [java_for_stmt.body]
 
         for child in java_for_stmt.body:
             for_node.add_children(self.visit(child))
+
+        return for_node
+
+    def visit_EnhancedForControl(self, java_enhanced_for_control: EnhancedForControl):
+        for_node = ForNode()
+        self.set_coordinate(for_node, java_enhanced_for_control)
+        #init
+        assign_node = AssignNode()
+        variable_node = self.visit(java_enhanced_for_control.var)[0].target
+        constant_node = ConstantNode()
+        assign_node.target = variable_node
+        assign_node.value = constant_node
+        for_node.init.append(assign_node)
+        #condiction
+        operator_node = Operator()  
+        operator_node.op = '<'
+        operator_node.left = variable_node
+        operator_node.right = self.visit(java_enhanced_for_control.iterable)
+        operator_node.add_children(operator_node.left)
+        operator_node.add_children(operator_node.right)
+        for_node.term = operator_node
+        #update
+        update_operator_node = Operator()
+        update_const_node = ConstantNode()
+        update_const_node.value = 1
+        update_operator_node.right = update_const_node
+        update_operator_node.left = variable_node
+        update_operator_node.op = '+'
+        update_assign_node = AssignNode()
+        update_assign_node.target = variable_node
+        update_assign_node.value = update_operator_node
+        for_node.update.append(update_assign_node)
 
         return for_node
 

@@ -3,7 +3,7 @@ import operator
 import sympy
 from sympy.core.mul import Mul
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
-    AssignNode, ConstantNode, Operator, BasicNode, WhileNode
+    AssignNode, ArrayNode, ConstantNode, Operator, WhileNode, ClassNode
 from bigo_ast.bigo_ast_visitor import BigOAstVisitor
 from symbol_table.table_manager import table_manager
 
@@ -13,6 +13,7 @@ class BigOCalculator(BigOAstVisitor):
         self.root = root
         self.function_list = []
         self.backward_table_manager = table_manager()
+        self.current_class = None
         for func in root.children:
             if type(func) == FuncDeclNode:
                 self.function_list.append(func)
@@ -25,16 +26,29 @@ class BigOCalculator(BigOAstVisitor):
         pass
     
 
-            
+
     def visit_CompilationUnitNode(self, compilation_unit_node: CompilationUnitNode):
         self.backward_table_manager.push_table('compilation')
         print('enter compilation\n')
 
+        tc = 0
         for child in compilation_unit_node.children:
             self.visit(child)
+            if (type(child) != FuncDeclNode) and (type(child) != ClassNode):
+                print('child type',type(child))
+                tc += child.time_complexity
+        if tc == 0:
+            tc = sympy.Rational(1)
+        compilation_unit_node.time_complexity = tc
         print('leave compilation\n')
 
         self.backward_table_manager.pop_table()
+
+    def visit_ClassNode(self, class_node : ClassNode):
+        self.current_class = class_node.name
+        for child in class_node.children:
+            self.visit(child)
+        self.current_class = None
 
     def visit_FuncDeclNode(self, func_decl_node: FuncDeclNode):
         if func_decl_node.determine_recursion():
@@ -63,10 +77,18 @@ class BigOCalculator(BigOAstVisitor):
                 func_call.time_complexity = sympy.Symbol(func.name, integer=True, positive=True)
                 break
 
-        pass
+        return sympy.Symbol('size('+target+'())', integer=True, positive=True)
 
     def visit_VariableNode(self, variable_node: VariableNode):
         return sympy.Symbol(variable_node.name, integer=True, positive=True)
+
+    def visit_ArrayNode(self, array_node: ArrayNode):
+        tc = 0
+        for child in array_node.array:
+            self.visit(child)
+            tc += child.time_complexity
+        array_node.time_complexity = tc 
+        return array_node.time_complexity
 
     def visit_ConstantNode(self, const_node: ConstantNode):
         return sympy.Rational(const_node.value)
@@ -112,10 +134,8 @@ class BigOCalculator(BigOAstVisitor):
             return operator.mul(left, right)
         elif op == '/':
             return operator.truediv(left, right)
-        elif op == '<<':
+        elif op == '**':
             return left * 2 ** right
-        elif op == '>>':
-            return left / (2 ** right)
 
     def visit_IfNode(self, if_node: IfNode):
         self.visit(if_node.condition)
@@ -206,7 +226,16 @@ class BigOCalculator(BigOAstVisitor):
         if step.expand().is_negative:
             raise NotImplementedError('this loop can not analyze.\n')
         self.backward_table_manager.pop_table()
-        for_node.time_complexity = step * tc
+        tc *= step
+
+        for child in for_node.init:
+            tc += child.time_complexity
+        self.visit(for_node.term)
+        tc += for_node.term.time_complexity
+        for child in for_node.update:
+            tc += child.time_complexity
+
+        for_node.time_complexity = tc
         print('leave for loop\n')
         pass
     

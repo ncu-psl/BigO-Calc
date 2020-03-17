@@ -3,12 +3,12 @@ void n(int n){
         // k=k;
     }
 }
-// void while_n(int n){
-//     int i = 0;
-//     while (i<n){
-//         i++;
-//     }
-// }
+void while_n(int n){
+    int i = 0;
+    while (i<n){
+        i++;
+    }
+}
 // void n_logn(int n) {
 //     int k = n;
 //     for(int i=1;i<=n;i++)
