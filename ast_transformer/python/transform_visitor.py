@@ -1,6 +1,7 @@
 from ast import Module, FunctionDef, Call, Starred, Assign, AnnAssign, AugAssign,\
     BinOp, BoolOp, And, Or, Add, Sub, Mult, FloorDiv, Pow, Mod, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare, List, Tuple
 import ast
+from ast_transformer.python.print_ast_visitor import print_ast_visitor
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ArrayNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
     FuncCallNode, CompilationUnitNode, IfNode, ForNode
 
@@ -352,34 +353,41 @@ class PyTransformVisitor(NodeVisitor):
     def for_iter(self, ast_iter):
         if type(ast_iter) == Call:
             if ast_iter.func.id == 'range':
-                if len(ast_iter.args) == 1:
-                    start = ConstantNode()
-                    start.value = 0
-                    stop = self.visit(ast_iter.args[0])
-                if len(ast_iter.args) == 2:
-                    start = self.visit(ast_iter.args[0])
-                    stop = self.visit(ast_iter.args[1])
+                try:
+                    if len(ast_iter.args) == 1:
+                        start = ConstantNode()
+                        start.value = 0
+                        stop = self.visit(ast_iter.args[0])
+                    if len(ast_iter.args) == 2:
+                        start = self.visit(ast_iter.args[0])
+                        stop = self.visit(ast_iter.args[1])
 
-                terminal = Operator()
-                terminal.left = stop
-                terminal.right = start
-                terminal.op = '-'
+                    terminal = Operator()
+                    terminal.left = stop
+                    terminal.right = start
+                    terminal.op = '-'
 
-                if len(ast_iter.args) == 3:
-                    step = self(visit(ast_name.args[2]))
-                    step_operator_node = Operator()
-                    step_operator_node.left = operator_node
-                    step_operator_node.right = step
-                    step_operator_node.op = '/'
-                    terminal = step_operator_node
-                return terminal
+                    if len(ast_iter.args) == 3:
+                        step = self(visit(ast_name.args[2]))
+                        step_operator_node = Operator()
+                        step_operator_node.left = operator_node
+                        step_operator_node.right = step
+                        step_operator_node.op = '/'
+                        terminal = step_operator_node
+                    return terminal
+                except:
+                    variable_node = VariableNode()
+                    variable_node.name = print_ast_visitor().print_node(ast_iter)
+                    return variable_node                  
             else:
-                raise Exception("only support function call : range() in for iterator, your function call is: ", ast_node.func.id) 
+                variable_node = VariableNode()
+                variable_node.name = print_ast_visitor().print_node(ast_iter)
+                return variable_node              
         else:
             if type(ast_iter) == Name:
                 terminal = self.visit(ast_iter)
                 return terminal
-        raise Exception("can't support this iter type : ", type(ast_node)) 
+        raise Exception("can't support this iter type : ", type(ast_iter)) 
 
     def generic_visit(self, node):
         children = []

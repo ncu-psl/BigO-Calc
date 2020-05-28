@@ -102,10 +102,28 @@ class BigOCalculator(BigOAstVisitor):
             return operator.mul(left, right)
         elif op == '/':
             return operator.truediv(left, right)
+        elif op == '**':
+            return left ** right
         elif op == '<<':
             return left * 2 ** right
         elif op == '>>':
-            return left / (2 ** right)            
+            return left / (2 ** right)
+        elif op == '//':
+            return left // right
+        elif op == '>>':
+            return left / (2 ** right)
+        elif op == '%':
+            return left % right
+        elif op == '>>':
+            return left / (2 ** right)
+        elif op == '|':
+            return left | right
+        elif op == '&':
+            return left & right
+        elif op == '>>':
+            return left / (2 ** right)
+        elif op == '@':
+            return left @ right
 
     def visit_IfNode(self, if_node: IfNode):
         self.visit(if_node.condition)

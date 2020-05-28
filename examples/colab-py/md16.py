@@ -2,6 +2,6 @@ import math
 def module16():
     result = []
     for i in dir(math):
-        if 'expm' in i:
+        if 'exam' == i:
             result.append(i)
     print(result)

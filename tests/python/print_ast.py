@@ -1,5 +1,5 @@
 import ast
 from astpp import parseprint
 
-s = "(i,i,i)"
+s = "b = a.pop()"
 parseprint('\n'+s)
