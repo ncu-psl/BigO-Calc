@@ -5,7 +5,7 @@
 
 
 ## Introduction
-A static Big-O analysis tool base on Big-O Calc.
+A static Big-O analysis tool base on [Big-O Calc](https://github.com/ncu-psl/BigO-Calc).
 
 
 ## Supported Language
