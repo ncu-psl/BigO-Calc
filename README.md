@@ -1,5 +1,5 @@
 # BigO-Calc
-[![Python](https://img.shields.io/badge/python-3.5.0-blue.svg?style=popout)](https://www.python.org/downloads/release/python-350/)
+[![Python](https://img.shields.io/badge/python-3.6.5-blue.svg?style=popout)](https://www.python.org/downloads/release/python-360/)
 [![SymPy](https://img.shields.io/badge/SymPy-1.3-brightgreen.svg?style=popout)](https://docs.sympy.org/1.3/index.html)
 [![Jenkins Build Status](http://140.115.53.191:3334/buildStatus/icon?job=BigO-Calc)](http://140.115.53.191:3334/job/BigO-Calc/)
 
