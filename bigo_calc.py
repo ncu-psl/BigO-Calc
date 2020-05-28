@@ -69,6 +69,10 @@ def time_calc(filename : str, file_language : None):
     new_bigo_ast = BigOSimplify(bigo_ast).simplify()
 
     func_bigo_dict = {}
+<<<<<<< HEAD
+=======
+
+>>>>>>> symbol_table
     complexity = new_bigo_ast.time_complexity
     if type(complexity) is sympy.Order:
             complexity = str(complexity)
@@ -99,6 +103,41 @@ def time_calc(filename : str, file_language : None):
     # print function Big-O
     return json_str
 
+<<<<<<< HEAD
+=======
+def time_calc(filename: str):
+    origin_ast = PyASTGenerator().generate(filename)
+    bigo_ast = PyTransformVisitor().transform(origin_ast)
+
+    # evaluate big o
+    BigOCalculator(bigo_ast).calc()
+    new_bigo_ast = bigo_ast
+    new_bigo_ast = BigOSimplify(bigo_ast).simplify()
+
+    func_bigo_dict = {}
+    for func in new_bigo_ast.children:
+        if type(func) != FuncDeclNode:
+            continue
+
+        complexity = func.time_complexity
+
+        if func.recursive:
+            complexity = 'is a recursive function'
+        elif not complexity:
+            raise ArithmeticError('complexity can not recognize.')
+        elif type(complexity) is sympy.Order:
+            complexity = str(complexity)
+        else:
+            complexity = 'O(' + str(complexity) + ')'
+
+        func_bigo_dict.update({func.name: complexity})
+
+    json_str = json.dumps(func_bigo_dict, indent=4)
+
+    # print function Big-O
+    return json_str
+
+>>>>>>> symbol_table
 if __name__ == '__main__':
     main()
     # time_calc('examples/colab-py/md1.py')

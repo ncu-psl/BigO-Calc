@@ -1,9 +1,7 @@
 """
 A pretty-printing dump function for the ast module.  The code was copied from
 the ast.dump function and modified slightly to pretty-print.
-
 Alex Leone (acleone ~AT~ gmail.com), 2010-01-30
-
 From http://alexleone.blogspot.co.uk/2010/01/python-ast-pretty-printer.html
 """
 
@@ -41,7 +39,11 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
                 lines[-1] += ']'
             return '\n'.join(lines)
         return repr(node)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> symbol_table
     if not isinstance(node, AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
     return _format(node)
@@ -57,10 +59,17 @@ pdp = parseprint
 def load_ipython_extension(ip):
     from IPython.core.magic import Magics, magics_class, cell_magic
     from IPython.core import magic_arguments
+<<<<<<< HEAD
     
     @magics_class
     class AstMagics(Magics):
         
+=======
+
+    @magics_class
+    class AstMagics(Magics):
+
+>>>>>>> symbol_table
         @magic_arguments.magic_arguments()
         @magic_arguments.argument(
             '-m', '--mode', default='exec',
@@ -72,9 +81,15 @@ def load_ipython_extension(ip):
             """Parse the code in the cell, and pretty-print the AST."""
             args = magic_arguments.parse_argstring(self.dump_ast, line)
             parseprint(cell, mode=args.mode)
+<<<<<<< HEAD
     
     ip.register_magics(AstMagics)
     
+=======
+
+    ip.register_magics(AstMagics)
+
+>>>>>>> symbol_table
 if __name__ == '__main__':
     import sys, tokenize
     for filename in sys.argv[1:]:
@@ -83,6 +98,11 @@ if __name__ == '__main__':
         print('=' * 50)
         with tokenize.open(filename) as f:
             fstr = f.read()
+<<<<<<< HEAD
         
         parseprint(fstr, filename=filename, include_attributes=True)
         print()
+=======
+
+        parseprint(fstr, filename=filename, include_attributes=True)
+>>>>>>> symbol_table

@@ -278,7 +278,6 @@ class JavaTransformVisitor(BigOAstVisitor):
         for_node.update.append(update_assign_node)
 
         return for_node
-        
 
     def visit_ForControl(self, java_for_control: ForControl):
         for_node = ForNode()

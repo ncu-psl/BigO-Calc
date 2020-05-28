@@ -26,6 +26,20 @@ class PyTransformVisitor(NodeVisitor):
 
         pass
 
+    def visit_ClassDef(self, ast_class_def : ClassDef):
+        class_def_node = ClassNode()
+        #class name
+        class_def_node.name = ast_class_def.name
+        #class inher
+        for parant in ast_class_def.bases:
+            class_def_node.inher.append(parent)
+        
+        for child in ast_class_def.body:
+            self.parent = class_def_node
+            class_def_node.add_children(self.visit(child))
+        
+        return class_def_node
+            
     def visit_FunctionDef(self, ast_func_def: FunctionDef):
         func_decl_node = FuncDeclNode()
         # coord = coordinate(ast_func_def.col_offset, ast_func_def.lineno)
@@ -81,7 +95,6 @@ class PyTransformVisitor(NodeVisitor):
         #                 func_call_node.parameter.append(keyword.arg)
         return func_call_node
 
-    
     def visit_Name(self, ast_name: Name):
         variable_node = VariableNode()
         # coord = coordinate(ast_name.col_offset, ast_name.lineno)
@@ -101,7 +114,7 @@ class PyTransformVisitor(NodeVisitor):
         for elt in ast_tuple.elts:
             array_node.array.append(self.visit(elt))
         return array_node
-    
+
     def visit_Num(self, ast_num: Num):
         constant_node = ConstantNode()
         # coord = coordinate(ast_num.col_offset, ast_num.lineno)
@@ -233,9 +246,9 @@ class PyTransformVisitor(NodeVisitor):
                 parent_operator_node.left = child_operator_node
                 parent_operator_node.right = self.visit(comparator)
                 parent_operator_node.op = self.transform_op(ast_compare.ops[index])
-        
+
         return operator_node
-        
+
     def transform_op(self, compare_op):
         if isinstance(compare_op, ast.Eq):
             return '=='
@@ -294,7 +307,6 @@ class PyTransformVisitor(NodeVisitor):
                         if_node.false_stmt.extend(child_node)
                     else:
                         if_node.false_stmt.append(child_node)
-                
         return if_node
 
     def visit_For(self, ast_for: For):
