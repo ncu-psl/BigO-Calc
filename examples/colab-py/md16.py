@@ -1,6 +1,6 @@
 import math
 def module16():
-    # result = []
+    result = []
     for i in dir(math):
         if 'exam' == i:
             result.append(i)

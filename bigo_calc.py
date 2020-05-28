@@ -32,7 +32,7 @@ def main():
     if not os.path.isfile(source_file_name):
         raise FileNotFoundError
 
-    json_str = time_calc(source_file_name, file_language = 'py')
+    json_str = time_calc(source_file_name, file_language = args.lang)
     
     # print function Big-O
     print(json_str)

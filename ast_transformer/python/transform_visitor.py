@@ -1,5 +1,5 @@
 from ast import Module, FunctionDef, Call, Starred, Assign, AnnAssign, AugAssign,\
-    BinOp, BoolOp, And, Or, Add, Sub, Mult, FloorDiv, Pow, Mod, Div, Num, Name, If, For, NodeVisitor, iter_fields, AST, Compare, List, Tuple, ClassDef
+    BinOp, BoolOp, And, Or, Add, Sub, Mult, FloorDiv, Pow, Mod, Div, Num, Name, If, For, While, NodeVisitor, iter_fields, AST, Compare, List, Tuple, ClassDef
 import ast
 from ast_transformer.python.print_ast_visitor import print_ast_visitor
 from bigo_ast.bigo_ast import WhileNode, BasicNode, VariableNode, ArrayNode, ConstantNode, AssignNode, Operator, FuncDeclNode, \
@@ -404,6 +404,11 @@ class PyTransformVisitor(NodeVisitor):
                 return terminal
         raise Exception("can't support this iter type : ", type(ast_iter)) 
 
+
+    def visit_While(self, ast_while):
+        
+        pass
+
     def generic_visit(self, node):
         children = []
         for field, value in iter_fields(node):
@@ -429,21 +434,3 @@ class PyTransformVisitor(NodeVisitor):
         if coord:
             node.col = coord.column
             node.line_number = coord.line
-
-    def while_converter(self, pyc_for: For):
-        # use pyc_for to generate while_node
-        while_node = WhileNode()
-
-        # termination
-        self.parent = while_node
-        while_node.term = self.visit(pyc_for.cond)
-
-        # body
-        for child in pyc_for.stmt.block_items:
-            while_node.add_children(self.visit(child))
-
-        # update
-        while_node.add_children(self.visit(pyc_for.next))
-
-        # return initialization and while
-        return [self.visit(pyc_for.init), while_node]

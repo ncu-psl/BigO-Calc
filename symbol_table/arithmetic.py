@@ -68,28 +68,31 @@ def getUpateRate(name: str,infixString:str)->str:
     input : infix , type:str
     output: upateRate , type:str 
     '''
-    infix = infixStringToList(infixString)
-    postfix = toPostfix(infix)
-    rate:str=''
-    stack = []
-    re_VarOrNum = re.compile(r'\w')
-    for expr in postfix:
-        if re_VarOrNum.match(expr):
-            stack.append(expr)
-        elif expr in '+-*/':
-            try: 
-                if name in stack[-2:]:
-                    stack.pop()
-                    stack.pop()
-                    stack.append(name)
-                    if rate == '':
-                        rate = expr
-                    elif priority(rate) < priority(expr):
-                        rate = expr
-                else:
-                    stack.pop()
-            except:
-                print('var or num less than two elements when meeting op')
+    try:
+        infix = infixStringToList(infixString)
+        postfix = toPostfix(infix)
+        rate:str=''
+        stack = []
+        re_VarOrNum = re.compile(r'\w')
+        for expr in postfix:
+            if re_VarOrNum.match(expr):
+                stack.append(expr)
+            elif expr in '+-*/':
+                try: 
+                    if name in stack[-2:]:
+                        stack.pop()
+                        stack.pop()
+                        stack.append(name)
+                        if rate == '':
+                            rate = expr
+                        elif priority(rate) < priority(expr):
+                            rate = expr
+                    else:
+                        stack.pop()
+                except:
+                    print('var or num less than two elements when meeting op')
+    except:
+        return ''
     return rate
 
 if __name__ == '__main__':

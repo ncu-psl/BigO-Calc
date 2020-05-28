@@ -1,6 +1,6 @@
 # ![title](https://i.imgur.com/GSGG2ps.png)
 from bigo_ast.bigo_ast import FuncDeclNode, ForNode, FuncCallNode, CompilationUnitNode, IfNode, VariableNode, \
-    AssignNode, ConstantNode, Operator, BasicNode, WhileNode
+    AssignNode, ConstantNode, Operator, BasicNode, WhileNode, ArrayNode
 from symbol_table.arithmetic import priority, getUpateRate
 import symbol_table.arithmetic
 class table_manager(object):
@@ -121,10 +121,10 @@ class table_manager(object):
                 return '(' + self.find_changed_symbol(node.left) + '*2**' + self.find_changed_symbol(node.right) + ')'
             elif node.op == '>>':
                 return '(' + self.find_changed_symbol(node.left)+ '/(2**' + self.find_changed_symbol(node.right) + ')' + ')'
-            elif node.op in '+-*/':  #op = ['+' '-' '*' '/']
-                return '(' + self.find_changed_symbol(node.left)+ node.op + self.find_changed_symbol(node.right) + ')'
             else:
-                raise NotImplementedError('this operatror can not analyze.\n')
+                return '(' + self.find_changed_symbol(node.left)+ node.op + self.find_changed_symbol(node.right) + ')'
+        if type(node) == ArrayNode:
+            return 'array'
 
     def getUpateRate(name: str,infixString:str)->str:
         return arithmetic.getUpateRate(name, infixString)
