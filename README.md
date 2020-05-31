@@ -23,7 +23,7 @@ A static Big-O analysis tool which is based on Big-O AST.
 ## How to use
 ```sh
 git clone --recurse-submodules https://github.com/ncu-psl/BigO-Calc.git --depth=1
-cd DYSTA
+cd Bigo_Calc
 pip3 install -r requirements.txt
 
 # python3 bigo_calc.py target_code Language(optional)
