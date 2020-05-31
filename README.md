@@ -5,7 +5,7 @@
 
 
 ## Introduction
-A static Big-O analysis tool base on [Big-O Calc](https://github.com/ncu-psl/BigO-Calc).
+A static Big-O analysis tool which is based on Big-O AST.
 
 
 ## Supported Language
@@ -17,12 +17,12 @@ A static Big-O analysis tool base on [Big-O Calc](https://github.com/ncu-psl/Big
 ## What kind of code can this tool analyze?
 [Please read this before you use!][wiki]
 
-[wiki]: https://github.com/chunlin-pan/DYSTA/wiki
+[wiki]: https://github.com/ncu-psl/BigO-Calc/wiki
 
 
 ## How to use
 ```sh
-git clone --recurse-submodules https://github.com/chunlin-pan/DYSTA.git --depth=1
+git clone --recurse-submodules https://github.com/ncu-psl/BigO-Calc.git --depth=1
 cd DYSTA
 pip3 install -r requirements.txt
 
@@ -32,13 +32,13 @@ python3 bigo_calc.py examples/ForTest.c
 
 
 ## Dependency
-* See [Dependency graph](https://github.com/chunlin-pan/DYSTA/network/dependencies) or [requirements.txt](requirements.txt) in detail.
+* See [Dependency graph](https://github.com/ncu-psl/BigO-Calc/network/dependencies) or [requirements.txt](requirements.txt) in detail.
 
     * C AST is generated from [pycparser](https://github.com/eliben/pycparser)
 
     * Java AST is generated from [javalang](https://github.com/c2nes/javalang), ~~[javaparser](https://github.com/javaparser/javaparser)~~
 
-<!---
+-
 ## Publication
 
 * 何東穎, 莊永裕, [使用AST進行靜態程式碼分析函式時間複雜度][TANET_2018_ABOAT], [Taiwan Academic Network Conference (TANET 2018)][TANET], Nov. 2018
@@ -51,4 +51,4 @@ python3 bigo_calc.py examples/ForTest.c
 * [AST version](https://github.com/ncu-psl/BigO-Calc/tree/master) (Current Version)
 
 * [CST version](https://github.com/ncu-psl/BigO-Calc/tree/CST) (This Version is no longer maintained)
--->
+
