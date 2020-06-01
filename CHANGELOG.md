@@ -1,5 +1,5 @@
 # Changelog
-## [V1.5](https://github.com/chunlin-pan/DYSTA/releases/tag/v1.5)
+## [V1.5](https://github.com/ncu-psl/BigO-Calc/releases/tag/v1.5)
 [Full Changelog](https://github.com/chunlin-pan/DYSTA/compare/chunlin-pan:v1.4...v1.5)
 1. 修正無法分析 a ** b (a的b次方)的語法。
 2. 支援各種置於 For statemnt 中 itertation 節點的 function call
