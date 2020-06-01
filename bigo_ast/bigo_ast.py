@@ -77,6 +77,13 @@ class CompilationUnitNode(BasicNode):
 
         pass
 
+class ClassNode(BasicNode):
+    def __init__(self):
+        super().__init__()
+        self.name = ''
+        self.inher = []
+        self.vir_inher = []
+    pass
 
 class FuncDeclNode(BasicNode):
     def __init__(self):
@@ -134,6 +141,7 @@ class VariableNode(BasicNode):
         super().__init__()
 
         self.name = ''
+        self.value = ''
 
         pass
 
@@ -142,7 +150,25 @@ class VariableNode(BasicNode):
         d.update({'value': self.name})
 
         return d
+        
+class ArrayNode(BasicNode):
+    
+    def __init__(self):
+        super().__init__()
 
+class ArrayNode(BasicNode):
+
+    def __init__(self):
+        super().__init__()
+
+        self.array = []
+
+        pass
+    def to_dict(self):
+        d = super().to_dict()
+        d.update({'array': self.array})
+
+        return d
 
 class ConstantNode(BasicNode):
 
@@ -158,8 +184,8 @@ class ConstantNode(BasicNode):
         d.update({'value': self.value})
 
         return d
-
-
+    
+    
 class AssignNode(BasicNode):
 
     def __init__(self):
@@ -279,12 +305,16 @@ class WhileNode(BasicNode):
     def __init__(self):
         super().__init__()
 
-        self.term = None
+        self.cond = []
 
         pass
 
     def to_dict(self):
         d = super().to_dict()
-        d.update({'terminal': self.term})
+        
+        cond_list = []
+        for clild in self.cond:
+            cond_list.append(child.to_dict())
+        d.update({'cond': cond_list})
 
         return d
